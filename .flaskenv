@@ -1,0 +1,1 @@
+FLASK_APP=S2T.py
