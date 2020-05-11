@@ -27,7 +27,7 @@ function global:deactivate ([switch]$NonDestructive) {
 
 deactivate -nondestructive
 
-$env:VIRTUAL_ENV="C:\cygwin64\home\Soh Jun Qi\S2T\venv"
+$env:VIRTUAL_ENV="C:\cygwin64\home\Soh Jun Qi\S2T\Speech2Text\venv"
 
 if (! $env:VIRTUAL_ENV_DISABLE_PROMPT) {
     # Set the prompt to include the env name
