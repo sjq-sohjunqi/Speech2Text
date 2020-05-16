@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>Hi, {{ name }}!</h1>
+	
+	<form action="" method="post" novalidate>
+		{{ passform.hidden_tag() }} <!Protects against CSRF>
+		<p>Change Password</p>
+		<p>
+			{{ passform.oldpass.label }}<br>
+			{{ passform.oldpass(size=32) }}<br>
+			{% for error in passform.oldpass.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		<p>
+			{{ passform.newpass.label }}<br>
+			{{ passform.newpass(size=32) }}
+			{% for error in passform.newpass.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		<p>{{ passform.submit() }}</p>
+	</form>
+		
+		
+	
+{% endblock %}

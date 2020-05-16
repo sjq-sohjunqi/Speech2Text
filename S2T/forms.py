@@ -13,3 +13,11 @@ class SignUpForm(FlaskForm):
 	password = PasswordField('Password', validators=[DataRequired()])
 	name = StringField('Name', validators=[DataRequired()])
 	submit = SubmitField('Sign Up')
+
+class ChangePassForm(FlaskForm):
+	oldpass = PasswordField('Old Password', validators=[DataRequired()])
+	newpass = PasswordField('New Password', validators=[DataRequired()])
+	submit = SubmitField('Change Password')
+	
+class ChangeNameForm(FlaskForm):
+	name = StringField('New Name', validators=[DataRequired()])

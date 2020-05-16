@@ -2,8 +2,11 @@ from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_paranoid import Paranoid
 
 S2T = Flask(__name__)
+paranoid = Paranoid(S2T)
+paranoid.redirect_view = '/'
 S2T.config.from_object(Config)
 db = SQLAlchemy(S2T)
 bcrypt = Bcrypt(S2T)
