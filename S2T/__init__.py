@@ -3,6 +3,8 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_paranoid import Paranoid
+import pymysql
+pymysql.install_as_MySQLdb()
 
 S2T = Flask(__name__)
 paranoid = Paranoid(S2T)
