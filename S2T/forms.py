@@ -20,4 +20,4 @@ class ChangePassForm(FlaskForm):
 	submit = SubmitField('Change Password')
 	
 class ChangeNameForm(FlaskForm):
-	name = StringField('New Name', validators=[DataRequired()])
+	newname = StringField('New Name', validators=[DataRequired()])

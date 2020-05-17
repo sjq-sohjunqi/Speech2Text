@@ -22,7 +22,20 @@
 		</p>
 		<p>{{ passform.submit() }}</p>
 	</form>
-		
-		
+	
+	<form action="" method="post" novalidate>
+		{{ nameform.hidden_tag() }} <!Protects against CSRF>
+		<p>Change Name</p>
+		<p>
+			{{ nameform.newname.label }}<br>
+			{{ nameform.newname(size=32) }}<br>
+			{% for error in nameform.newname.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		<p>{{ nameform.submit() }}</p>
+	</form>
+	
+	
 	
 {% endblock %}

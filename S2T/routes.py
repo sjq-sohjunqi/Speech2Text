@@ -35,8 +35,6 @@ def login():
 		if found_user:
 			authenticated_user = bcrypt.check_password_hash(found_user.password, form.data['password'])
 			if authenticated_user:
-				'''flash('Login successful for user {}'.format(form.username.data))'''
-				
 				session['USER'] = found_user.username
 				session['NAME'] = found_user.name
 				return redirect(url_for('profile'))
@@ -45,8 +43,6 @@ def login():
 				flash('Login unsuccessful for user {}'.format(form.username.data))
 		else:
 			flash('No such user {}'.format(form.username))
-		
-		'''return redirect(url_for('login'))'''
 	return render_template('login.html', title='Sign In', form=form)
 	
 @S2T.route('/profile', methods=['GET', 'POST'])
