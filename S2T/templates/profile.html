@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<h1>Hi, {{ name }}!</h1>
+	<h1>Hi, {{ session['NAME'] }}!</h1>
 	
 	<form action="" method="post" novalidate>
 		{{ passform.hidden_tag() }} <!Protects against CSRF>

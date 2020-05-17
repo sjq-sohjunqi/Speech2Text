@@ -27,16 +27,24 @@ def signup():
 	
 	return render_template('signup.html', title='Sign Up', form=form)
 
+@S2T.route('/logout', methods=['GET'])
+def logout():
+	if not session.get('USER') is None:
+		flash('Logged out successfully')
+	session.pop('USER', None)
+	session.pop('NAME', None)
+	return redirect(url_for('index'))
+
 @S2T.route('/login', methods=['GET', 'POST'])
 def login():
 	form = LoginForm()
 	if form.validate_on_submit():
-		found_user = User.query.filter_by(username=form.data['username']).first()
-		if found_user:
-			authenticated_user = bcrypt.check_password_hash(found_user.password, form.data['password'])
+		userObj = User.query.filter_by(username=form.data['username']).first()
+		if userObj:
+			authenticated_user = bcrypt.check_password_hash(userObj.password, form.data['password'])
 			if authenticated_user:
-				session['USER'] = found_user.username
-				session['NAME'] = found_user.name
+				session['USER'] = userObj.username
+				session['NAME'] = userObj.name
 				return redirect(url_for('profile'))
 				
 			else:
@@ -52,7 +60,59 @@ def profile():
 	if not session.get('USER') is None:
 		user = session.get('USER')
 		name = session.get('NAME')
+		if passform.validate_on_submit():
+			userObj = User.query.filter_by(username=user).first()
+			'''User found'''
+			if userObj:
+				authenticated_user = bcrypt.check_password_hash(userObj.password, passform.data['oldpass'])
+				'''Old password matches'''
+				if authenticated_user:
+					userObj.password = bcrypt.generate_password_hash(passform.data['newpass']).decode('UTF-8')
+					try:
+						'''Change password'''
+						db.session.commit()
+						flash('Password changed successfully!')
+						return redirect(url_for('profile'))
+					except IntegrityError as e:
+						'''Error'''
+						flash(e)
+				else:
+					'''Old password does not match'''
+					flash('Old password does not match')
+			else:
+				'''No user found (unexpected)'''
+				flash('An error has occurred; please sign in again')
+				session.pop('USER', None)
+				session.pop('NAME', None)
+				return redirect(url_for('login'))
+				
+			return redirect(url_for('profile'))
+			
+		if nameform.validate_on_submit():
+			userObj = User.query.filter_by(username=user).first()
+			'''User found'''
+			if userObj:
+				userObj.name = nameform.data['newname']
+				try:
+					'''Change name'''
+					db.session.commit()
+					flash('Name changed successfully!')
+					session['NAME'] = nameform.data['newname']
+					return redirect(url_for('profile'))
+				except IntegrityError as e:
+						'''Error'''
+						flash(e)
+			else:
+				'''No user found (unexpected)'''
+				flash('An error has occurred; please sign in again')
+				session.pop('USER', None)
+				session.pop('NAME', None)
+				return redirect(url_for('login'))
+			
+			return redirect(url_for('profile'))
+		
 		return render_template('profile.html', name=name, title=name+'\'s Page', passform=passform, nameform=nameform)
+		
 	else:
 		return redirect(url_for('login'))
 	

@@ -21,3 +21,4 @@ class ChangePassForm(FlaskForm):
 	
 class ChangeNameForm(FlaskForm):
 	newname = StringField('New Name', validators=[DataRequired()])
+	submit = SubmitField('Change Name')

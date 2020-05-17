@@ -9,8 +9,15 @@
 	
 	<body>
 		<div><a href="{{ url_for('index') }}">Home</a>
+		
+		{% if session['USER'] %}
+		<a href="{{ url_for('profile') }}">Profile</a>
+		<a href="{{ url_for('logout')}}">Log Out</a>
+		{% else %}
 		<a href="{{ url_for('login') }}">Login</a>
 		<a href="{{ url_for('signup') }}">Sign Up</a>
+		{% endif %}
+		
 		</div>
 		<hr>
 		{% with messages = get_flashed_messages() %}
