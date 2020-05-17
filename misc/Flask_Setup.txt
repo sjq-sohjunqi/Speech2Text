@@ -1,0 +1,41 @@
+
+
+1) Create Virtual Environment:
+py -m venv venv
+
+2) Enter virtualenv (venv) on Cygwin:
+cmd
+.\venv\Scripts\activate
+
+3) Install Flask on application directory (with S2T.py):
+pip install flask
+
+4) Import Flask App (in venv)
+Set FLASK_APP=S2T.py
+OR
+- Specify in .flaskenv file
+then do [pip install python-dotenv]
+
+5) Install Flask-WTF (in venv)
+pip install flask-wtf
+
+6) Install SQLAlchemy
+pip install flask-sqlalchemy
+
+7) Install MySQLClient
+pip install mysqlclient
+
+8) Install bcrypt hashing for passwords
+pip install flask-bcrypt
+
+9) Install Flask-Paranoid for session cookie security
+pip install flask-paranoid
+
+10) Install pymysql
+pip install pymysql
+
+========================
+Run flask (in venv):
+flask run
+
+
