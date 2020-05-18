@@ -19,7 +19,7 @@ def signup():
 			db.session.add(new_user)
 			db.session.commit()
 		except IntegrityError as e:
-			flash(e)
+			flash('The email {} has already been taken', form.data['username'])
 			return render_template('signup.html', title='Sign Up', form=form)
 		
 		flash('Signup successful for user {}'.format(form.username.data))
