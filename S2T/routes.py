@@ -1,9 +1,13 @@
+import os
 from flask import render_template, flash, redirect, url_for, session
 from S2T import S2T, db, bcrypt
-from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm
+from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm
+from werkzeug.utils import secure_filename
 
 from S2T.models import User
 from sqlalchemy.exc import IntegrityError
+
+
 
 @S2T.route('/', methods=['GET'])
 @S2T.route('/index', methods=['GET'])
@@ -117,3 +121,22 @@ def profile():
 		return redirect(url_for('login'))
 	
 
+@S2T.route('/transcribe', methods=['GET', 'POST'])
+def transcribe():
+	form = TranscribeForm()
+	if form.validate_on_submit():
+		'''Check if post request has file'''
+		file = form.upload.data
+		if file.filename == '':
+			flash('Please select a file')
+			return redirect(request.url)
+		
+		filename = secure_filename(file.filename)
+		print(filename)
+		print(S2T.config['UPLOAD_FOLDER'])
+		file.save(os.path.join(S2T.config['UPLOAD_FOLDER'], filename))
+		flash('File Uploaded!')
+		
+		return redirect(url_for('transcribe'))
+	
+	return render_template('transcribe.html', form=form)

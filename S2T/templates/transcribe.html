@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>Upload File below:</h1>
+	<form action = "" method = "post" enctype="multipart/form-data" novalidate>
+         {{ form.hidden_tag() }} <!Protects against CSRF>
+		<p>
+			{{ form.upload.label}}: {{ form.upload }}<br>
+			{% for error in form.upload.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		<p>{{ form.submit() }}</p>
+    </form>   
+{% endblock %}

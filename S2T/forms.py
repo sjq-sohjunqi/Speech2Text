@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Regexp, Length
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 
 class LoginForm(FlaskForm):
 	username = StringField('Username', validators=[DataRequired()])
@@ -21,3 +22,8 @@ class ChangePassForm(FlaskForm):
 class ChangeNameForm(FlaskForm):
 	newname = StringField('New Name', validators=[DataRequired()])
 	submit = SubmitField('Change Name')
+	
+class TranscribeForm(FlaskForm):
+	upload = FileField('Upload Audio', validators=[FileRequired(), FileAllowed(['wav', 'mp3'], 'Only wav and mp3 files are supported')])
+	submit = SubmitField('Transcribe')
+	
