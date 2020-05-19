@@ -34,6 +34,9 @@ pip install flask-paranoid
 10) Install pymysql
 pip install pymysql
 
+11) Install SpeechRecognition
+pip install speechrecognition
+
 ========================
 Run flask (in venv):
 flask run
