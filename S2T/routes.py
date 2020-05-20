@@ -1,13 +1,15 @@
 import os
 from flask import render_template, flash, redirect, url_for, session
 from S2T import S2T, db, bcrypt
-from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm
+from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm, TranscriptForm
 from werkzeug.utils import secure_filename
 
 from S2T.models import User
 from sqlalchemy.exc import IntegrityError
 
+import speech_recognition as sr
 
+from werkzeug.datastructures import MultiDict
 
 @S2T.route('/', methods=['GET'])
 @S2T.route('/index', methods=['GET'])
@@ -121,6 +123,21 @@ def profile():
 		return redirect(url_for('login'))
 	
 
+def convert(filepath):
+	try:
+		r = sr.Recognizer()
+		file = sr.AudioFile(filepath)
+		with file as source:
+			'''Adjust for noise'''
+			r.adjust_for_ambient_noise(source, duration=0.5)
+			
+			audio = r.record(source)
+			
+			return r.recognize_google(audio)
+	except:
+			return '%unrecognised%'
+
+
 @S2T.route('/transcribe', methods=['GET', 'POST'])
 def transcribe():
 	form = TranscribeForm()
@@ -132,11 +149,20 @@ def transcribe():
 			return redirect(request.url)
 		
 		filename = secure_filename(file.filename)
-		print(filename)
-		print(S2T.config['UPLOAD_FOLDER'])
-		file.save(os.path.join(S2T.config['UPLOAD_FOLDER'], filename))
+		filepath = os.path.join(S2T.config['UPLOAD_FOLDER'], filename)
+		file.save(filepath)
 		flash('File Uploaded!')
 		
-		return redirect(url_for('transcribe'))
+		transcription = convert(filepath)
+		if transcription == '%unrecognised%':
+			transcriptform = TranscriptForm()
+			flash('Unable to transcript audio!')
+		else:
+			transcriptform = TranscriptForm(formdata=MultiDict({'transcript':transcription}))
+			flash('Audio Transcribed!')
+		
+		return render_template('transcribe.html', form=form, transcriptform=transcriptform)
 	
-	return render_template('transcribe.html', form=form)
+	transcriptform = TranscriptForm()
+	
+	return render_template('transcribe.html', form=form, transcriptform=transcriptform)

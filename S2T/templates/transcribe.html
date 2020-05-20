@@ -10,6 +10,11 @@
 			<span style="color: red;">[{{ error }}]</span>
 			{% endfor %}
 		</p>
+		
+		<div>
+		{{ transcriptform.transcript(cols="35", rows="20") }}
+		</div>
+		
 		<p>{{ form.submit() }}</p>
     </form>   
 {% endblock %}

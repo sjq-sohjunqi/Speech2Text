@@ -16,7 +16,7 @@ db = SQLAlchemy(S2T)
 bcrypt = Bcrypt(S2T)
 
 UPLOAD_FOLDER = '.\\S2T\\tran_temp'
-ALLOWED_EXTENSIONS = {'wav', 'mp3'}
+ALLOWED_EXTENSIONS = {'wav', 'aiff', 'aifc', 'flac'}
 S2T.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 from S2T import routes, models
