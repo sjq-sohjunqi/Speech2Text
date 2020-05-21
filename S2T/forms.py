@@ -1,31 +1,44 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, Regexp, Length
+from wtforms.validators import DataRequired, Regexp, Length, Email, EqualTo
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 
+
 class LoginForm(FlaskForm):
-	username = StringField('Username', validators=[DataRequired()])
-	password = PasswordField('Password', validators=[DataRequired()])
-	submit = SubmitField('Sign In')
-	
+    username = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Sign In')
+
+
 class SignUpForm(FlaskForm):
-	username = StringField('Username', validators=[DataRequired(), Regexp('[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}', message='Please enter a valid email address'), Length(max=255, message='Email address is too long')])
-	password = PasswordField('Password', validators=[DataRequired(), Length(max=255, message='Password is too long')])
-	name = StringField('Name', validators=[DataRequired(), Length(max=255, message='Name is too long')])
-	submit = SubmitField('Sign Up')
+    username = StringField('Email', validators=[DataRequired(), Email(
+    ), Length(max=255, message='Email address is too long')])
+    password = PasswordField('Password', validators=[
+                             DataRequired(), Length(min=2, max=255)])
+    confirm_password = PasswordField('Confirm Password',
+                                     validators=[DataRequired(), EqualTo('password')])
+    name = StringField('Name', validators=[DataRequired(
+    ), Length(min=3, max=255)])
+    submit = SubmitField('Sign Up')
+
 
 class ChangePassForm(FlaskForm):
-	oldpass = PasswordField('Old Password', validators=[DataRequired()])
-	newpass = PasswordField('New Password', validators=[DataRequired(), Length(max=255, message='New password is too long')])
-	submit = SubmitField('Change Password')
-	
+    oldpass = PasswordField('Old Password', validators=[DataRequired()])
+    newpass = PasswordField('New Password', validators=[
+                            DataRequired(), Length(max=255)])
+    submit = SubmitField('Change Password')
+
+
 class ChangeNameForm(FlaskForm):
-	newname = StringField('New Name', validators=[DataRequired()])
-	submit = SubmitField('Change Name')
-	
+    newname = StringField('New Name', validators=[DataRequired()])
+    submit = SubmitField('Change Name')
+
+
 class TranscribeForm(FlaskForm):
-	upload = FileField('Upload Audio', validators=[FileRequired(), FileAllowed(['wav', 'aiff', 'aifc', 'flac'], 'Only WAV, AIFF, AIFF-C and FLAC files are supported')])
-	submit = SubmitField('Transcribe')
+    upload = FileField('Upload Audio', validators=[FileRequired(), FileAllowed(
+        ['wav', 'aiff', 'aifc', 'flac'], 'Only WAV, AIFF, AIFF-C and FLAC files are supported')])
+    submit = SubmitField('Transcribe')
+
 
 class TranscriptForm(FlaskForm):
-	transcript = TextAreaField('transcript')
+    transcript = TextAreaField('transcript')

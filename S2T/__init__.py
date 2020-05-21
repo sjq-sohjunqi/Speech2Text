@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 pymysql.install_as_MySQLdb()
 
 S2T = Flask(__name__)
+S2T.debug = True
 paranoid = Paranoid(S2T)
 paranoid.redirect_view = '/'
 S2T.config.from_object(Config)

@@ -37,6 +37,9 @@ pip install pymysql
 11) Install SpeechRecognition
 pip install speechrecognition
 
+12) Install Email Validator
+pip install email_validator
+
 ========================
 Run flask (in venv):
 flask run
