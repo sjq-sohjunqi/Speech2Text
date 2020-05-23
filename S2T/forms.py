@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextField
 from wtforms.validators import DataRequired, Regexp, Length, Email, EqualTo
 from flask_wtf.file import FileField, FileAllowed, FileRequired
+from wtforms.widgets import TextArea
 
 
 class LoginForm(FlaskForm):
@@ -41,4 +42,7 @@ class TranscribeForm(FlaskForm):
 
 
 class TranscriptForm(FlaskForm):
-    transcript = TextAreaField('transcript')
+	transcript = TextField('transcript', widget=TextArea())
+	name = StringField('Save Transcript As', validators=[DataRequired()])
+	save = SubmitField('Save Transcript')
+	

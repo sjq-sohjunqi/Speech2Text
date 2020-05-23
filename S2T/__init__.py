@@ -16,8 +16,10 @@ S2T.config.from_object(Config)
 db = SQLAlchemy(S2T)
 bcrypt = Bcrypt(S2T)
 
-UPLOAD_FOLDER = '.\\S2T\\tran_temp'
-ALLOWED_EXTENSIONS = {'wav', 'aiff', 'aifc', 'flac'}
-S2T.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+'''Temp folder for conversions'''
+S2T.config['TEMP_FOLDER'] = '.\\S2T\\tran_temp'
+
+'''Storage folder'''
+S2T.config['STORAGE_FOLDER'] = '.\\S2T\\transcripts'
 
 from S2T import routes, models

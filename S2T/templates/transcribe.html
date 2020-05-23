@@ -1,20 +1,41 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<h1>Upload File below:</h1>
+	<h1>Transcribe Audio File</h1>
 	<form action = "" method = "post" enctype="multipart/form-data" novalidate>
-         {{ form.hidden_tag() }} <!Protects against CSRF>
+         {{ transcribeForm.hidden_tag() }} <!Protects against CSRF>
 		<p>
-			{{ form.upload.label}}: {{ form.upload }}<br>
-			{% for error in form.upload.errors %}
+			{{ transcribeForm.upload.label}}: {{ transcribeForm.upload }}<br>
+			{% for error in transcribeForm.upload.errors %}
 			<span style="color: red;">[{{ error }}]</span>
 			{% endfor %}
 		</p>
 		
+		
+		
+		<p>{{ transcribeForm.submit() }}</p>
+    </form>
+	
+	
+	<form action = "{{ url_for('save') }}" method = "post" enctype="multipart/form-data" novalidate>
 		<div>
-		{{ transcriptform.transcript(cols="35", rows="20") }}
+			{{ transcriptForm.transcript(cols="50", rows="15") }}
 		</div>
 		
-		<p>{{ form.submit() }}</p>
-    </form>   
+		{% if user is defined %}
+			<p>
+				{{ transcriptForm.name.label}}: {{ transcriptForm.name }}<br>
+				{% for error in transcriptForm.name.errors %}
+				<span style="color: red;">[{{ error }}]</span>
+				{% endfor %}
+			</p>
+			
+			<div>
+				{{ transcriptForm.save() }}
+			</div>
+		{%endif%}
+		
+	</form>
+	
+	
 {% endblock %}

@@ -1,10 +1,10 @@
 import os
-from flask import render_template, flash, redirect, url_for, session
+from flask import render_template, flash, redirect, url_for, session, request
 from S2T import S2T, db, bcrypt
 from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm, TranscriptForm
 from werkzeug.utils import secure_filename
 
-from S2T.models import User
+from S2T.models import User, Transcripts
 from sqlalchemy.exc import IntegrityError
 
 import speech_recognition as sr
@@ -140,29 +140,88 @@ def convert(filepath):
 
 @S2T.route('/transcribe', methods=['GET', 'POST'])
 def transcribe():
-	form = TranscribeForm()
-	if form.validate_on_submit():
+	transcribeForm = TranscribeForm()
+	if transcribeForm.validate_on_submit():
 		'''Check if post request has file'''
-		file = form.upload.data
+		file = transcribeForm.upload.data
 		if file.filename == '':
 			flash('Please select a file')
 			return redirect(request.url)
 		
 		filename = secure_filename(file.filename)
-		filepath = os.path.join(S2T.config['UPLOAD_FOLDER'], filename)
+		filepath = os.path.join(S2T.config['TEMP_FOLDER'], filename)
 		file.save(filepath)
 		flash('File Uploaded!')
 		
 		transcription = convert(filepath)
 		if transcription == '%unrecognised%':
-			transcriptform = TranscriptForm()
+			transcriptForm = TranscriptForm()
 			flash('Unable to transcript audio!')
 		else:
-			transcriptform = TranscriptForm(formdata=MultiDict({'transcript':transcription}))
+			transcriptForm = TranscriptForm(formdata=MultiDict({'transcript':transcription}))
 			flash('Audio Transcribed!')
 		
-		return render_template('transcribe.html', form=form, transcriptform=transcriptform)
+		if session.get('USER') is None:
+			return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm)
+		else:
+			return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))
 	
-	transcriptform = TranscriptForm()
+		
 	
-	return render_template('transcribe.html', form=form, transcriptform=transcriptform)
+	transcriptForm = TranscriptForm()
+	if session.get('USER') is None:
+		print("No user")
+		return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm)
+	else:
+		return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))
+		
+
+@S2T.route('/save', methods=['POST'])
+def save():
+	print('Attempting to save transcript')
+	transcribeForm = TranscribeForm()
+	transcriptForm = TranscriptForm()
+	
+	print("submit pressed")
+	try:
+		'''Check if there is a duplicate entry'''
+		transObj = Transcripts.query.filter_by(name=transcriptForm.data['name'], username=session.get('USER')).first()
+		if transObj:
+			print("Conflict in DB")
+			flash('There is already a transcript with the same name!')
+			'''return render_template('transcribe.html', form=form, transcriptForm=transcriptForm, saveTranscriptForm=saveTranscriptForm, user=session.get('USER'))'''
+			return redirect(url_for('transcribe'))
+			
+		else:
+			print('No conflicts in DB')
+			filepath = os.path.join(S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'])
+			filedir = os.path.join(S2T.config['STORAGE_FOLDER'], session.get('USER'))
+			
+			'''Save new file'''
+			if not os.path.exists(filedir):
+				os.mkdir(filedir)
+			
+			print("Printing transcript:")
+			'''transcriptText = transcriptform.transcript.get('1.0', 'end-1c')'''
+			transcriptText = transcriptForm.transcript.data
+			'''transcriptText = request.saveTranscriptForm.get('transcript')'''
+			print(transcriptText)
+			
+			save_text = open(filepath, 'w')
+			save_text.write(transcriptText)
+			save_text.close()
+			
+			'''Update database'''
+			new_transcript = Transcripts(name=transcriptForm.data['name'], filepath=filepath, username=session.get('USER'))
+			db.session.add(new_transcript)
+			db.session.commit()
+			
+			flash('File saved successfully!')
+			
+	except:
+		flash('An error has occured; the transcript cannot be saved!')
+		'''return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))'''
+		return redirect(url_for('transcribe'))
+	
+	print("File saved")
+	return redirect(url_for('transcribe'))
