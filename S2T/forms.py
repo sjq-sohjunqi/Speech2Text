@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextField
-from wtforms.validators import DataRequired, Regexp, Length, Email, EqualTo
+from wtforms.validators import DataRequired, Regexp, Length, Email, EqualTo, InputRequired
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.widgets import TextArea
 
@@ -43,6 +43,6 @@ class TranscribeForm(FlaskForm):
 
 class TranscriptForm(FlaskForm):
 	transcript = TextField('transcript', widget=TextArea())
-	name = StringField('Save Transcript As', validators=[DataRequired()])
+	name = StringField('Save Transcript As', validators=[InputRequired(), Regexp('^((?![\"\*\:\<\>\?\/\\\|]).)*$', message='A valid filename cannot have " * : < > ? / \ or |')])
 	save = SubmitField('Save Transcript')
 	

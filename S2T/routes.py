@@ -140,6 +140,7 @@ def convert(filepath):
 
 @S2T.route('/transcribe', methods=['GET', 'POST'])
 def transcribe():
+	
 	transcribeForm = TranscribeForm()
 	if transcribeForm.validate_on_submit():
 		'''Check if post request has file'''
@@ -166,11 +167,27 @@ def transcribe():
 		else:
 			return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))
 	
+	'''Check if transcript has previously written data'''
+	if request.method == 'GET':
 		
+		transcriptFormName = session.get('transcriptFormName', None)
+		transcriptFormNameErr = session.get('transcriptFormNameErr', None)
+		transcriptFormTrans = session.get('transcriptFormTrans', None)
+		
+		if transcriptFormNameErr:
+			transcriptForm = TranscriptForm(formdata=MultiDict({'name':transcriptFormName, 'transcript':transcriptFormTrans}))
+			transcriptForm.name.errors = transcriptFormNameErr
+			
+			session.pop('transcriptFormName')
+			session.pop('transcriptFormNameErr')
+			session.pop('transcriptFormTrans')
+		else:
+			transcriptForm = TranscriptForm()
+	else:
+		transcriptForm = TranscriptForm()
 	
-	transcriptForm = TranscriptForm()
+	
 	if session.get('USER') is None:
-		print("No user")
 		return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm)
 	else:
 		return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))
@@ -178,50 +195,46 @@ def transcribe():
 
 @S2T.route('/save', methods=['POST'])
 def save():
-	print('Attempting to save transcript')
-	transcribeForm = TranscribeForm()
 	transcriptForm = TranscriptForm()
-	
-	print("submit pressed")
-	try:
-		'''Check if there is a duplicate entry'''
-		transObj = Transcripts.query.filter_by(name=transcriptForm.data['name'], username=session.get('USER')).first()
-		if transObj:
-			print("Conflict in DB")
-			flash('There is already a transcript with the same name!')
-			'''return render_template('transcribe.html', form=form, transcriptForm=transcriptForm, saveTranscriptForm=saveTranscriptForm, user=session.get('USER'))'''
+
+	if transcriptForm.validate_on_submit():
+		
+		'''Save transcript in session for redirect'''
+		transcriptText = transcriptForm.transcript.data
+		
+		try:
+			'''Check if there is a duplicate entry'''
+			transObj = Transcripts.query.filter_by(name=transcriptForm.data['name'], username=session.get('USER')).first()
+			if transObj:
+				flash('There is already a transcript with the same name!')
+				return redirect(url_for('transcribe'))
+				
+			else:
+				filepath = os.path.join(S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'])
+				filedir = os.path.join(S2T.config['STORAGE_FOLDER'], session.get('USER'))
+				
+				'''Save new file'''
+				if not os.path.exists(filedir):
+					os.mkdir(filedir)
+				
+				save_text = open(filepath, 'w')
+				save_text.write(transcriptText)
+				save_text.close()
+				
+				'''Update database'''
+				new_transcript = Transcripts(name=transcriptForm.data['name'], filepath=filepath, username=session.get('USER'))
+				db.session.add(new_transcript)
+				db.session.commit()
+				
+				flash('File saved successfully!')
+				
+		except:
+			flash('An error has occured; the transcript cannot be saved!')
 			return redirect(url_for('transcribe'))
-			
-		else:
-			print('No conflicts in DB')
-			filepath = os.path.join(S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'])
-			filedir = os.path.join(S2T.config['STORAGE_FOLDER'], session.get('USER'))
-			
-			'''Save new file'''
-			if not os.path.exists(filedir):
-				os.mkdir(filedir)
-			
-			print("Printing transcript:")
-			'''transcriptText = transcriptform.transcript.get('1.0', 'end-1c')'''
-			transcriptText = transcriptForm.transcript.data
-			'''transcriptText = request.saveTranscriptForm.get('transcript')'''
-			print(transcriptText)
-			
-			save_text = open(filepath, 'w')
-			save_text.write(transcriptText)
-			save_text.close()
-			
-			'''Update database'''
-			new_transcript = Transcripts(name=transcriptForm.data['name'], filepath=filepath, username=session.get('USER'))
-			db.session.add(new_transcript)
-			db.session.commit()
-			
-			flash('File saved successfully!')
-			
-	except:
-		flash('An error has occured; the transcript cannot be saved!')
-		'''return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))'''
-		return redirect(url_for('transcribe'))
 	
-	print("File saved")
+	session['transcriptFormName'] = transcriptForm.name.data
+	session['transcriptFormNameErr'] = transcriptForm.name.errors
+	session['transcriptFormTrans'] = transcriptForm.transcript.data
+	
 	return redirect(url_for('transcribe'))
+	

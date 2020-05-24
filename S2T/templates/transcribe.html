@@ -18,6 +18,7 @@
 	
 	
 	<form action = "{{ url_for('save') }}" method = "post" enctype="multipart/form-data" novalidate>
+		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
 		<div>
 			{{ transcriptForm.transcript(cols="50", rows="15") }}
 		</div>
