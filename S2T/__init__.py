@@ -17,9 +17,9 @@ db = SQLAlchemy(S2T)
 bcrypt = Bcrypt(S2T)
 
 '''Temp folder for conversions'''
-S2T.config['TEMP_FOLDER'] = '.\\S2T\\tran_temp'
+S2T.config['TEMP_FOLDER'] = 'tran_temp'
 
 '''Storage folder'''
-S2T.config['STORAGE_FOLDER'] = '.\\S2T\\transcripts'
+S2T.config['STORAGE_FOLDER'] = 'transcripts'
 
 from S2T import routes, models

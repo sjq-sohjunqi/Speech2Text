@@ -1,5 +1,5 @@
 import os
-from flask import render_template, flash, redirect, url_for, session, request
+from flask import render_template, flash, redirect, url_for, session, request, send_from_directory
 from S2T import S2T, db, bcrypt
 from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm, TranscriptForm
 from werkzeug.utils import secure_filename
@@ -158,7 +158,7 @@ def transcribe():
 			return redirect(request.url)
 		
 		filename = secure_filename(file.filename)
-		filepath = os.path.join(S2T.config['TEMP_FOLDER'], filename)
+		filepath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], filename)
 		
 		try:
 			file.save(filepath)
@@ -226,8 +226,9 @@ def save():
 				return redirect(url_for('transcribe'))
 				
 			else:
-				filepath = os.path.join(S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'])
-				filedir = os.path.join(S2T.config['STORAGE_FOLDER'], session.get('USER'))
+				
+				filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'])
+				filedir = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'))
 				
 				'''Save new file'''
 				if not os.path.exists(filedir):
@@ -238,7 +239,7 @@ def save():
 				save_text.close()
 				
 				'''Update database'''
-				new_transcript = Transcripts(name=transcriptForm.data['name'], filepath=filepath, username=session.get('USER'))
+				new_transcript = Transcripts(name=transcriptForm.data['name'], username=session.get('USER'))
 				db.session.add(new_transcript)
 				db.session.commit()
 				
@@ -253,4 +254,26 @@ def save():
 	session['transcriptFormTrans'] = transcriptForm.transcript.data
 	
 	return redirect(url_for('transcribe'))
+	
+@S2T.route('/download/<string:filename>', methods=['GET'])
+def download(filename):
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		user = session.get('USER')
+		
+		'''Get filepath from database'''
+		try:
+			transObj = Transcripts.query.filter_by(name=filename, username=user).first()
+			if transObj:
+				filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], user)
+				return send_from_directory(directory=filepath, filename=filename)
+			else:
+				flash('File could not be found on server!')
+				return redirect(url_for('profile'))
+		except:
+			flash('File could not be found on server!')
+			return redirect(url_for('profile'))
+		
+	else:
+		return redirect(url_for('login'))
 	

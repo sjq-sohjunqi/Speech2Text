@@ -17,13 +17,11 @@ class Transcripts(db.Model):
 	__tablename__ = 'transcripts'
 	
 	name = db.Column(db.String(255), primary_key=True)
-	filepath = db.Column(db.String(255), nullable=False)
 	username = db.Column(db.String(255), db.ForeignKey('users.username'), primary_key=True)
 	created_time = db.Column(db.DateTime, nullable=False)
 	
-	def __init__(self, name, filepath, username):
+	def __init__(self, name, username):
 		self.name = name
-		self.filepath = filepath
 		self.username = username
 		self.created_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 	

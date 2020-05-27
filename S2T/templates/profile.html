@@ -44,7 +44,7 @@
 		</tr>
 		{% for tran in transcripts %}
 			<tr>
-				<td>{{ tran.name }}</td>
+				<td><a href="{{ url_for('download', filename=tran.name) }}">{{ tran.name }}</a></td>
 				<td>{{ tran.created_time }}</a></td>
 			</tr>
 		{% endfor %}
