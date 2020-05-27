@@ -66,6 +66,14 @@ def profile():
 	if not session.get('USER') is None:
 		user = session.get('USER')
 		name = session.get('NAME')
+		
+		'''Display all transcripts of user'''
+		transObj = Transcripts.query.filter_by(username=user).all()
+		transTable = []
+		for tran in transObj:
+			transTable.append(tran)
+			
+		
 		if passform.validate_on_submit():
 			userObj = User.query.filter_by(username=user).first()
 			'''User found'''
@@ -117,7 +125,7 @@ def profile():
 			
 			return redirect(url_for('profile'))
 		
-		return render_template('profile.html', name=name, title=name+'\'s Page', passform=passform, nameform=nameform)
+		return render_template('profile.html', name=name, title=name+'\'s Page', passform=passform, nameform=nameform, transcripts=transTable)
 		
 	else:
 		return redirect(url_for('login'))
@@ -151,8 +159,13 @@ def transcribe():
 		
 		filename = secure_filename(file.filename)
 		filepath = os.path.join(S2T.config['TEMP_FOLDER'], filename)
-		file.save(filepath)
-		flash('File Uploaded!')
+		
+		try:
+			file.save(filepath)
+		except:
+			flash('Unable to upload file')
+			return redirect(request.url)
+		
 		
 		transcription = convert(filepath)
 		if transcription == '%unrecognised%':
@@ -161,6 +174,9 @@ def transcribe():
 		else:
 			transcriptForm = TranscriptForm(formdata=MultiDict({'transcript':transcription}))
 			flash('Audio Transcribed!')
+			
+			'''Remove file from temp folder'''
+			os.remove(filepath)
 		
 		if session.get('USER') is None:
 			return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm)

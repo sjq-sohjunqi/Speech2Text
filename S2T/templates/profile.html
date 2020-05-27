@@ -36,6 +36,18 @@
 		<p>{{ nameform.submit() }}</p>
 	</form>
 	
-	
+	<h2>Your Transcripts:</h2>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Time Created</th>
+		</tr>
+		{% for tran in transcripts %}
+			<tr>
+				<td>{{ tran.name }}</td>
+				<td>{{ tran.created_time }}</a></td>
+			</tr>
+		{% endfor %}
+	</table>
 	
 {% endblock %}
