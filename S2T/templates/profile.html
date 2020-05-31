@@ -46,6 +46,7 @@
 			<tr>
 				<td><a href="{{ url_for('download', filename=tran.name) }}">{{ tran.name }}</a></td>
 				<td>{{ tran.created_time }}</a></td>
+				<td><a href="{{ url_for('delete', filename=tran.name) }}">Delete</a></td>
 			</tr>
 		{% endfor %}
 	</table>

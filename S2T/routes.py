@@ -261,7 +261,6 @@ def download(filename):
 	if not session.get('USER') is None:
 		user = session.get('USER')
 		
-		'''Get filepath from database'''
 		try:
 			transObj = Transcripts.query.filter_by(name=filename, username=user).first()
 			if transObj:
@@ -277,3 +276,32 @@ def download(filename):
 	else:
 		return redirect(url_for('login'))
 	
+@S2T.route('/delete/<string:filename>', methods=['GET'])
+def delete(filename):
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		user = session.get('USER')
+		
+		try:
+			transObj = Transcripts.query.filter_by(name=filename, username=user).first()
+			if transObj:
+				filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], user)
+				
+				'''Remove file from database'''
+				db.session.delete(transObj)
+				db.session.commit()
+				
+				'''Remove file from filesystem'''
+				os.remove(os.path.join(filepath, filename))
+				flash('File successfully deleted')
+				
+			else:
+				flash('File cannot be found on server!')
+				
+		except IntegrityError as e:
+			flash('File cannot be found on server!')
+		
+	else:
+		return redirect(url_for('login'))
+		
+	return redirect(url_for('profile'))
