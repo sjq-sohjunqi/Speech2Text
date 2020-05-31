@@ -40,11 +40,11 @@ class Groups(db.Model):
 class Group_roles(db.Model):
 	__tablename__ = 'group_roles'
 	
-	group_id = db.Column(db.Integer, primary_key=True, db.ForeignKey('group_list.group_id'))
-	username = db.Column(db.String(255), primary_key=True, db.ForeignKey('users.username'))
+	group_id = db.Column(db.Integer, db.ForeignKey('group_list.group_id'), primary_key=True)
+	username = db.Column(db.String(255), db.ForeignKey('users.username'), primary_key=True)
 	role = db.Column(db.String(255))
 	
-	def __init__(self, group_id, username, role)
+	def __init__(self, group_id, username, role):
 		self.group_id = group_id
 		self.username = username
 		self.role = role
