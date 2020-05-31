@@ -1,10 +1,10 @@
 import os
 from flask import render_template, flash, redirect, url_for, session, request, send_from_directory
 from S2T import S2T, db, bcrypt
-from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm, TranscriptForm
+from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm, TranscriptForm, GroupForm
 from werkzeug.utils import secure_filename
 
-from S2T.models import User, Transcripts
+from S2T.models import User, Transcripts, Groups, Group_roles
 from sqlalchemy.exc import IntegrityError
 
 import speech_recognition as sr
@@ -293,7 +293,7 @@ def delete(filename):
 				
 				'''Remove file from filesystem'''
 				os.remove(os.path.join(filepath, filename))
-				flash('File successfully deleted')
+				flash('File successfully deleted!')
 				
 			else:
 				flash('File cannot be found on server!')
@@ -305,3 +305,43 @@ def delete(filename):
 		return redirect(url_for('login'))
 		
 	return redirect(url_for('profile'))
+	
+	
+@S2T.route('/groups', methods=['GET', 'POST'])
+def groups():
+	groupform = GroupForm()
+	
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		
+		user = session.get('USER')
+		
+		'''Get all groups under the user'''
+		grpsObj = Groups.query.filter_by(username=user).all()
+		grpsTable = []
+		for grp in grpsObj:
+			grpsTable.append(grp)
+		
+		'''If add new group form submitted'''
+		if groupform.validate_on_submit():
+			try:
+				'''Check if there is already a group with the same name'''
+				existing_grp = Groups.query.filter_by(group_name=groupform.data['grpname'], username=user).first()
+				if existing_grp:
+					flash('You already have a group with that name!')
+				else:
+					new_grp = Groups(groupform.data['grpname'], user)
+					db.session.add(new_grp)
+					db.session.commit()
+					flash('Group successfully created!')
+					
+			except IntegrityError as e:
+				print(e)
+				flash('Unable to create new group!')
+		
+		return render_template('groups.html', groupform=groupform, grpsTable=grpsTable)
+		
+	else:
+		return redirect(url_for('login'))
+		
+	

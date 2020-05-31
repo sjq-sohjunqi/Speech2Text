@@ -46,3 +46,8 @@ class TranscriptForm(FlaskForm):
 	name = StringField('Save Transcript As', validators=[InputRequired(), Regexp('^((?![\"\*\:\<\>\?\/\\\|]).)*$', message='A valid filename cannot have " * : < > ? / \ or |')])
 	save = SubmitField('Save Transcript')
 	
+class GroupForm(FlaskForm):
+	grpname = StringField('Group Name', validators=[DataRequired(), Length(max=255)])
+	add = SubmitField('Add New Group')
+	
+

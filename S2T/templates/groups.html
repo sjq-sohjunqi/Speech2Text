@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>Create New Group:</h1>
+	
+	<form action="" method="post" novalidate>
+		{{ groupform.hidden_tag() }} <!Protects against CSRF>
+		<p>
+			{{ groupform.grpname.label }}<br>
+			{{ groupform.grpname(size=32) }}<br>
+			{% for error in groupform.grpname.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		
+		<p>{{ groupform.add() }}</p>
+	</form>
+	
+	
+	<h2>Your Groups:</h2>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Leaders</th>
+			<th>Members</th>
+		</tr>
+		{% for grp in grpsTable %}
+			<tr>
+				<td>{{ grp.group_name }}</td>
+				<td></td>
+				<td></td>
+			</tr>
+		{% endfor %}
+	</table>
+	
+{% endblock %}

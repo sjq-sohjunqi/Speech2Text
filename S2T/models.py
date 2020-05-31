@@ -25,4 +25,26 @@ class Transcripts(db.Model):
 		self.username = username
 		self.created_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 	
+
+class Groups(db.Model):
+	__tablename__ = 'group_list'
 	
+	group_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+	group_name = db.Column(db.String(255))
+	username = db.Column(db.String(255), db.ForeignKey('users.username'))
+	
+	def __init__(self, group_name, username):
+		self.group_name = group_name
+		self.username = username
+		
+class Group_roles(db.Model):
+	__tablename__ = 'group_roles'
+	
+	group_id = db.Column(db.Integer, primary_key=True, db.ForeignKey('group_list.group_id'))
+	username = db.Column(db.String(255), primary_key=True, db.ForeignKey('users.username'))
+	role = db.Column(db.String(255))
+	
+	def __init__(self, group_id, username, role)
+		self.group_id = group_id
+		self.username = username
+		self.role = role
