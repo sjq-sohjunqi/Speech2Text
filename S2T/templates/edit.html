@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>Now Editing: {{ old_filename }}</h1>
+	
+	<form action = "{{ url_for('edit', old_filename=old_filename) }}" method = "post" enctype="multipart/form-data" novalidate>
+		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
+		<div>
+			{{ transcriptForm.transcript(cols="50", rows="15") }}
+		</div>
+		
+		<p>
+			{{ transcriptForm.name.label}}: {{ transcriptForm.name }}<br>
+			{% for error in transcriptForm.name.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		
+		<div>
+			{{ transcriptForm.save() }}
+		</div>
+		
+	</form>
+	
+	
+{% endblock %}

@@ -306,6 +306,58 @@ def delete(filename):
 		
 	return redirect(url_for('profile'))
 	
+@S2T.route('/edit/<string:old_filename>', methods=['GET', 'POST'])
+def edit(old_filename):
+	
+	transcriptForm = TranscriptForm()
+	
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		
+		user = session.get('USER')
+		filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], user)
+		
+		if transcriptForm.validate_on_submit():
+			'''Update database with new name'''
+			try:
+				transObj = Transcripts.query.filter_by(name=old_filename, username=user).first()
+				transObj.name = transcriptForm.data['name']
+				
+				db.session.commit()
+			
+			except:
+				flash('Unable to update database!')
+				return redirect(url_for('profile'))
+			
+			'''Override current file with new contents'''
+			try:
+				os.remove(os.path.join(filepath, old_filename))
+				
+				save_text = open(os.path.join(filepath, transcriptForm.data['name']), 'w')
+				save_text.write(transcriptForm.data['transcript'])
+				save_text.close()
+				
+				flash('File Edited!')
+				return redirect(url_for('profile'))
+				
+			except:
+				flash('Unable to save file!')
+				return redirect(url_for('profile'))
+		
+		'''Populate transcript text area with contents'''
+		try:
+			with open(os.path.join(filepath, old_filename), 'r') as f:
+				transcription = f.read()
+				transcriptForm = TranscriptForm(formdata=MultiDict({'transcript':transcription, 'name':old_filename}))
+		except:
+			flash('Unable to read file!')
+			return redirect(url_for('profile'))
+		
+		return render_template('edit.html', transcriptForm=transcriptForm, old_filename=old_filename)
+		
+	else:
+		return redirect(url_for('login'))
+	
 	
 @S2T.route('/groups', methods=['GET', 'POST'])
 def groups():
