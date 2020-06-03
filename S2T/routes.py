@@ -7,7 +7,17 @@ from werkzeug.utils import secure_filename
 from S2T.models import User, Transcripts, Groups, Group_roles
 from sqlalchemy.exc import IntegrityError
 
-import speech_recognition as sr
+'''Libraries for Google Cloud Speech-to-Text'''
+from pydub import AudioSegment
+import io
+import os
+from google.cloud import speech
+from google.cloud.speech import enums
+from google.cloud.speech import types
+import wave
+from google.cloud import storage
+
+#import speech_recognition as sr
 
 from werkzeug.datastructures import MultiDict
 
@@ -130,20 +140,76 @@ def profile():
 	else:
 		return redirect(url_for('login'))
 	
+def stereo_to_mono(audio_file_name):
+    sound = AudioSegment.from_wav(audio_file_name)
+    sound = sound.set_channels(1)
+    sound.export(audio_file_name, format="wav")
+	
+	
+def frame_rate_channel(audio_file_name):
+    with wave.open(audio_file_name, "rb") as wave_file:
+        frame_rate = wave_file.getframerate()
+        channels = wave_file.getnchannels()
+        return frame_rate,channels
 
-def convert(filepath):
+def convert(filepath, filename):
 	try:
-		r = sr.Recognizer()
-		file = sr.AudioFile(filepath)
-		with file as source:
-			'''Adjust for noise'''
-			r.adjust_for_ambient_noise(source, duration=0.5)
+		
+		'''Convert speech to text'''
+		frame_rate, channels = frame_rate_channel(filepath)
+		
+		if channels > 1:
+			stereo_to_mono(filepath)
 			
-			audio = r.record(source)
+		'''Upload file to Google Cloud'''
+		storage_client = storage.Client()
+		
+		bucket = storage_client.get_bucket('s2t-audio-bucket')
+		blob = bucket.blob(filename)
+		blob.upload_from_filename(filepath)
+		
+		
+		gcs_uri = 'gs://s2t-audio-bucket/' + filename 
+		transcript = ''
+		
+		client = speech.SpeechClient()
+		audio = types.RecognitionAudio(uri=gcs_uri)
+		
+		config = types.RecognitionConfig(encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16, sample_rate_hertz=frame_rate,language_code='en-US')
+		
+		''' Detects speech in the audio file '''
+		operation = client.long_running_recognize(config, audio)
+		response = operation.result(timeout=10000)
+		
+		for result in response.results:
+			transcript += result.alternatives[0].transcript
+		
+		
+		
+		'''Delete files from Google Cloud'''
+		blob.delete()
+
+		return transcript
+
+		
+		# r = sr.Recognizer()
+		# file = sr.AudioFile(filepath)
+		# with file as source:
+			# '''Adjust for noise'''
+			# r.adjust_for_ambient_noise(source, duration=0.5)
 			
-			return r.recognize_google(audio)
-	except:
-			return '%unrecognised%'
+			# audio = r.record(source)
+			
+			# '''return r.recognize_google(audio)'''
+			# return r.recognize_google_cloud(audio, language = 'en-US')
+	# except sr.UnknownValueError as u:
+		# print(u)
+		# print("Google Cloud Speech Recognition could not understand audio")
+	# except sr.RequestError as e:
+		# print("Could not request results from Google Cloud Speech Recognition service; {0}".format(e))  
+	except Exception as e:
+		print(e)
+		return '%unrecognised%'
 
 
 @S2T.route('/transcribe', methods=['GET', 'POST'])
@@ -167,7 +233,7 @@ def transcribe():
 			return redirect(request.url)
 		
 		
-		transcription = convert(filepath)
+		transcription = convert(filepath, filename)
 		if transcription == '%unrecognised%':
 			transcriptForm = TranscriptForm()
 			flash('Unable to transcript audio!')

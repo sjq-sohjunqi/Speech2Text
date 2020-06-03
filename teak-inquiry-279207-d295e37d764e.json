@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "teak-inquiry-279207",
+  "private_key_id": "d295e37d764eb8b51b0d2f20f910d82ad60c6c06",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDUCPMfX617/vCf\nFYrcnIFORhy6gIlL+oUNR/aFXEtQu9sIVFhoC4Zrm9k682rcqQPLqBBHRjI25uOl\numqyc1x4EkXo/xrcDVVcRN3t8IrnHQtubOBM/iKsBgMYOVdWsj7+2u7nJA4Xfx6J\nJ2+SK9nn4J69oFXVBrZBVfbgC376RSlMKW0boR9PQsgdMWw5l/UNTKLMJ8kPVBfM\nLBxoRg2lAXrZYgpHbs0xK1RkMsIS8I0qjBb+X8BwpOfxUy3frBfQuWYIC2lkBTbQ\nlFk5pgP4b/aMs+9LtS7YGP91C/3tm3UpxftaOECjSSCiyAGYGjC6H4lfYxHm+K5q\nL/Ifrr6jAgMBAAECggEARiVD0SBE811u2yI0UzGPcYauYGC/ixwwwikJfCsBW48a\nMhI9QQZ3DMh9QAxhUOi1Mb3CzOGDITiXHS+jtq+Fas+YwzEKALyEfcbmqJ3IRhcM\nvhZUygPVEpXWlj/6DdtgDc399QevhcRvJK6gMXpCV3yu50rQum3DA7BdwNbsxfxa\nybKlfb+MR6G2jU9Ni7/ZoB2kr8JT+88ifc53SmOQcz/KY4pHrwF1nOQwM8eJnHDt\n3TeBA1mZt55hd94xoyaRIZFkhjy5wd7flrC60RJPk0qbLK1q0r6wHmhdNS3uo/G6\nGEJYCTSH+lOAt3/5tP5XDTO0w9enmGBI16j9Q9t12QKBgQD7T/W5rj9dLVFNq8nw\ntTdpc1n56aUwIerccx/mgfJ1vW/8G0UvzHkQMISUL5lPMIrqMESmZH83oSuHpKna\nnR1eQwt7Ab7Mjhy0pFrbtwLVozBBSHK2kvdZSsIe5l1eazA/f+F7fWbbsaVm+/2I\n/8NsemaH1B/omKlP30Ia3iB9JwKBgQDX/W/GjQaUdXJO/agDOI5XrAu0thP8sB3W\nQIkiLsqUh6EDtzKHjWbS7NEmk9elfeuE4+Y8uGd7fSmRWF3hdFwFD6+2M69D1blC\nzoEMzCxpq7as+W9cElTUv4EI5bzadE3tJ0uur1cc6FdgfhT/fzlCSdIuH3dPa54r\npBHCp1cYJQKBgQCqapFtxUwwih989QYuVSRrPI6CGr8qgYV60hKKxAm/b6N1qKRl\nAloB8XSl7BUhDwDUR8D1uGZQOdmD1NRda3dTyVEKq6dPnPq4QE9geJzSdCOv0UoA\npm5WvYwfWgVslnEUTkp/7AyI49EOochOU2mYsPPAHcc5efQuNm3kPEZ5twKBgGZg\nopKiVfQYl04JvZGJRS8ZRZMqmt6zO/FKNbYWJ7+vagqw0yqdQ5fG2HxIp3ax8OjU\nfVVasvI9qW5TTGyJEvTzMn5SkUi+DUo1R8YhIQwVcEkdEkO6DKuq+iaVfqataiJ2\n9dCfG9N/7aq3GIziaOmaxB1InOzwPdDBvAlf+FBhAoGBAKAyFdGSb0ciGSip1ivk\nb/k59vH2WLlHsZGEOLUmhlabWP7TORUC5N4LsfMxQ4C6h6PzXRe8DTXEotamaryT\napcdrBIEybihygj/DtBaIdESVOJVtFfSYKP4D9rpUpDxzZKM3UnEHtbFQW/OsK1R\nI+hWnjB34EbBMK1yojqbhG2S\n-----END PRIVATE KEY-----\n",
+  "client_email": "cloud-speech-to-text@teak-inquiry-279207.iam.gserviceaccount.com",
+  "client_id": "115557666877591741308",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/cloud-speech-to-text%40teak-inquiry-279207.iam.gserviceaccount.com"
+}

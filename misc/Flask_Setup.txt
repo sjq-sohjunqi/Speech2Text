@@ -1,3 +1,4 @@
+* - Not used anymore
 
 
 1) Create Virtual Environment:
@@ -34,11 +35,31 @@ pip install flask-paranoid
 10) Install pymysql
 pip install pymysql
 
-11) Install SpeechRecognition
-pip install speechrecognition
+*11) Install SpeechRecognition
+*pip install speechrecognition
 
 12) Install Email Validator
 pip install email_validator
+
+13) Install Google Cloud Speech-to-Text Libraries
+pip install google-api-python-client
+pip install google-cloud-speech
+pip install oauth2client
+pip install pydub
+pip install --upgrade google-cloud-storage
+
+
+========================
+Setting up Google Cloud Speech-to-Text API:
+
+1) Sign up for Google Cloud Platform
+
+2) Search for "Cloud Speech-to-Text API" and click "ENABLE API"
+
+3) Create Storage Bucket
+
+4) Assign permissions to access Bucket (capture exceptions to get the full name of service account used to access Storage Bucket)
+
 
 ========================
 Run flask (in venv):

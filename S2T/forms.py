@@ -37,7 +37,7 @@ class ChangeNameForm(FlaskForm):
 
 class TranscribeForm(FlaskForm):
     upload = FileField('Upload Audio', validators=[FileRequired(), FileAllowed(
-        ['wav', 'aiff', 'aifc', 'flac'], 'Only WAV, AIFF, AIFF-C and FLAC files are supported')])
+        ['wav'], 'Only WAV files are supported')])
     submit = SubmitField('Transcribe')
 
 
