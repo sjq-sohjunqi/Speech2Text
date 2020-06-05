@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+	
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	
+	<script type="text/javascript">	
+	$(document).ready(function() {
+		
+		var all_user_list=[];
+		function load_all_users_list(){
+			$.getJSON('/all_users', function(data, status, xhr){
+				
+				for (var i = 0; i < data.length; i++ ) {
+					all_user_list.push(data[i].username);
+				}
+			});
+		};
+		load_all_users_list();
+
+		$('#username').autocomplete({
+			source: all_user_list,
+		});
+		
+		$(".select-user").click(function(){
+			var username = $("#username").val();
+			
+			var markup = "<tr><td>" + username + "</td></tr>";
+			$("#userBody").append(markup);
+			
+		});
+		
+		
+/*
+		$('addUserForm').on('submit', function(e){
+			$.ajax({
+				data: {
+					group_name:$('#group_name').val()
+					},
+				type: 'POST',
+				url : '/process'
+			})
+		  .done(function(data){
+			   if (data.error){
+					$('#result').text(data.error).show();
+			   }
+			   else {
+					$('#result').html(data.group_name).show()
+			   }
+		  })
+		  e.preventDefault();
+		 });*/
+	});
+	</script>
+	
+	
+	<h1>Sharing transcript: {{ filename }}</h1>
+	<div>
+	<form id="addUserForm" class="form-control" action="" method="post" novalidate>
+		<div class="ui-widget">
+		Add User: <input id="username" name="username"></input> <input type="button" class="select-user" value="Select User">
+		</div>
+		
+		<p>
+			<table id="userTable">
+				<thead>
+					<tr>
+						<th>Username</th>
+						<th>Name</th>
+					</tr>
+				</thead>
+				<tbody id="userBody">
+				</tbody>
+			</table>
+		</p>
+		
+		<button type="submit">Share with users</button>
+		
+	</form>
+	</div>
+	
+	  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+		<link rel="stylesheet" href="/resources/demos/style.css">
+	
+	<style>
+	.form-control {
+		display: block;
+		width:300px;
+		padding: .375rem .75rem;
+		font-size: 1rem;
+		line-height: 1.5;
+		color: #495057;
+		background-color: #fff;
+		background-clip: padding-box;
+		border: 1px solid #ced4da;
+		border-radius: .25rem;
+		transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+	}
+	.btn {padding: .375rem .75rem; margin-top:10px;}
+	</style>
+	
+{% endblock %}

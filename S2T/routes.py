@@ -1,5 +1,5 @@
 import os
-from flask import render_template, flash, redirect, url_for, session, request, send_from_directory
+from flask import render_template, flash, redirect, url_for, session, request, send_from_directory,jsonify, json
 from S2T import S2T, db, bcrypt
 from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm, TranscriptForm, GroupForm
 from werkzeug.utils import secure_filename
@@ -20,6 +20,7 @@ from google.cloud import storage
 #import speech_recognition as sr
 
 from werkzeug.datastructures import MultiDict
+
 
 @S2T.route('/', methods=['GET'])
 @S2T.route('/index', methods=['GET'])
@@ -462,4 +463,48 @@ def groups():
 	else:
 		return redirect(url_for('login'))
 		
+
+
+'''Return list of all users except array given'''
+@S2T.route('/all_users', methods=['GET'])
+def user_dict():
+	list_user = []
 	
+	if not session.get('USER') is None:
+		res = User.query.filter(User.username != session.get('USER')).all()
+		list_user = [r.as_dict() for r in res]
+	
+		
+	return jsonify(list_user)
+
+'''Return list of all groups except array given'''
+def group_dict(exempt):
+	res = Groups.query.all()
+	list_grps = []
+	
+	for r in res:
+		if len(exempt) != 0:
+			ctr = 0
+			for e in exempt:
+				if e == r.group_name:
+					ctr = ctr + 1
+			
+			if ctr == 0:
+				list_grps.append(r.as_dict())
+		else:
+			list_grps.append(r.as_dict())
+			
+	
+	return jsonify(list_grps)
+
+@S2T.route('/share/<string:filename>', methods=['GET', 'POST'])
+def share(filename):
+	
+	
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		
+		return render_template('share_transcript.html', filename=filename)
+		
+	else:
+		return redirect(url_for('login'))

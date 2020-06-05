@@ -13,6 +13,9 @@ class User(db.Model):
 		self.password = bcrypt.generate_password_hash(password).decode('UTF-8')
 		self.name = name
 		
+	def as_dict(self):
+		return {'username': self.username}
+		
 class Transcripts(db.Model):
 	__tablename__ = 'transcripts'
 	
@@ -24,6 +27,7 @@ class Transcripts(db.Model):
 		self.name = name
 		self.username = username
 		self.created_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+		
 	
 
 class Groups(db.Model):
@@ -36,6 +40,9 @@ class Groups(db.Model):
 	def __init__(self, group_name, username):
 		self.group_name = group_name
 		self.username = username
+		
+	def as_dict(self):
+		return {'group_name': self.group_name}
 		
 class Group_roles(db.Model):
 	__tablename__ = 'group_roles'

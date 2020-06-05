@@ -48,6 +48,7 @@
 				<td>{{ tran.created_time }}</a></td>
 				<td><a href="{{ url_for('edit', old_filename=tran.name) }}">Edit</a></td>
 				<td><a href="{{ url_for('delete', filename=tran.name) }}">Delete</a></td>
+				<td><a href="{{ url_for('share', filename=tran.name) }}">Share</a></td>
 			</tr>
 		{% endfor %}
 	</table>
