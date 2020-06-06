@@ -5,15 +5,20 @@
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 	
-	<script type="text/javascript">	
+	<script type="text/javascript">
 	$(document).ready(function() {
 		
-		var all_user_list=[];
+		var all_user_list = [];
+		var all_name_list = [];
+		
+		var share_users=[];
+		
 		function load_all_users_list(){
 			$.getJSON('/all_users', function(data, status, xhr){
 				
 				for (var i = 0; i < data.length; i++ ) {
 					all_user_list.push(data[i].username);
+					all_name_list.push(data[i].name);
 				}
 			});
 		};
@@ -23,34 +28,81 @@
 			source: all_user_list,
 		});
 		
-		$(".select-user").click(function(){
+		$('.select-user').click(function(){
 			var username = $("#username").val();
+			$("#username").val("");
 			
-			var markup = "<tr><td>" + username + "</td></tr>";
-			$("#userBody").append(markup);
+			var invalid = true;
+			for (var i = 0; i < all_user_list.length; i++) {
+				if (username == all_user_list[i]) {
+					invalid = false;
+					break;
+				}
+			}
+			
+			var duplicate = false;
+			for (var i = 0; i < share_users.length; i++) {
+				if (username == share_users[i]) {
+					duplicate = true;
+					break;
+				}
+			}
+			
+			if (duplicate) {
+				alert("Duplicate entry!");
+			} else if (invalid) {
+				alert("There is no such user!");
+			} else {
+				var name;
+			
+				for (var i = 0; i < all_user_list.length; i++) {
+					if (all_user_list[i] == username) {
+						name = all_name_list[i];
+					}
+				}
+				
+				share_users.push(username);
+				
+				var markup = "<tr class='userRows'><td><input type='checkbox' name='record'></input></td><td class='uname'>" + username + "</td><td>" + name + "</td><td><select><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td></tr>";
+				$("#userBody").append(markup);
+			}
 			
 		});
 		
+		$('#share_user_btn').click(function(){
+			
+			var permissions = [];
+			$("#userBody").find('.userRows').each(function(){
+				permissions.push($(this).find("option:selected").val());
+			});
+			
+			$.post('/share_users',{'share_users':share_users, 'owner':'{{owner}}', 'filename':'{{filename}}', 'permissions':permissions},function(data,status){
+				if (data == 'Transcript successfully shared') {
+					share_users = []
+					
+					alert(data);
+					$("#userBody").find('input[name="record"]').each(function(){
+						$(this).parents("tr").remove();
+					});
+				} else {
+					alert("Unable to share transcript!");
+				}
+			});
 		
-/*
-		$('addUserForm').on('submit', function(e){
-			$.ajax({
-				data: {
-					group_name:$('#group_name').val()
-					},
-				type: 'POST',
-				url : '/process'
-			})
-		  .done(function(data){
-			   if (data.error){
-					$('#result').text(data.error).show();
-			   }
-			   else {
-					$('#result').html(data.group_name).show()
-			   }
-		  })
-		  e.preventDefault();
-		 });*/
+		});
+		
+		$("#clear-user-rows").click(function() {
+            $("#userBody").find('input[name="record"]').each(function(){
+            	if($(this).is(":checked")){
+                    
+					var clear_user = $(this).parents("tr").find(".uname").html();
+					share_users = share_users.filter(function(e) { return e !== clear_user })
+					$(this).parents("tr").remove();
+					
+                }
+            });
+        });
+		
 	});
 	</script>
 	
@@ -66,8 +118,10 @@
 			<table id="userTable">
 				<thead>
 					<tr>
+						<th></th>
 						<th>Username</th>
 						<th>Name</th>
+						<th>Permissions</th>
 					</tr>
 				</thead>
 				<tbody id="userBody">
@@ -75,7 +129,8 @@
 			</table>
 		</p>
 		
-		<button type="submit">Share with users</button>
+		<input id="clear-user-rows" value="Clear Rows" type="button"></input>
+		<input id="share_user_btn" value="Share with users" type="button"></input>
 		
 	</form>
 	</div>

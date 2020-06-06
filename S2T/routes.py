@@ -4,7 +4,7 @@ from S2T import S2T, db, bcrypt
 from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm, TranscriptForm, GroupForm
 from werkzeug.utils import secure_filename
 
-from S2T.models import User, Transcripts, Groups, Group_roles, Groupsearch, SearchForm
+from S2T.models import User, Transcripts, Groups, Group_roles, Shared_transcripts
 from sqlalchemy.exc import IntegrityError
 
 '''Libraries for Google Cloud Speech-to-Text'''
@@ -526,27 +526,41 @@ def group_dict(exempt):
     return jsonify(list_grps)
 
 
-@S2T.route('/share/<string:filename>', methods=['GET', 'POST'])
-def share(filename):
-    '''Check if logged in'''
-    if not session.get('USER') is None:
+@S2T.route('/share/<string:owner>/<string:filename>', methods=['GET', 'POST'])
+def share(owner, filename):
+	
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		return render_template('share_transcript.html', owner=owner, filename=filename)
 
-        return render_template('share_transcript.html', filename=filename)
+	else:
+		return redirect(url_for('login'))
 
-    else:
-        return redirect(url_for('login'))
+@S2T.route('/share_users', methods=['POST'])
+def share_users():
 
-
-@S2T.route('/group_list')
-def group_namedic():
-    res = Groupsearch.query.all()
-    list_group = [r.as_dict() for r in res]
-    return jsonify(list_group)
-
-
-@S2T.route('/process', methods=['POST'])
-def process():
-    group_name = request.form['group_name']
-    if group_name:
-        return jsonify({'group_name': group_name})
-    return jsonify({'error': 'missing data..'})
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		
+		owner = request.form.get('owner')
+		filename = request.form.get('filename')
+		share_users = request.form.getlist('share_users[]')
+		permissions = request.form.getlist('permissions[]')
+		
+		'''Add users in shared_transcripts table'''
+		try:
+			for idx, shared_user in enumerate(share_users):
+				print(idx)
+				new_share = Shared_transcripts(filename, owner, shared_user, permissions[idx])
+				db.session.add(new_share)
+				db.session.commit()
+				
+		except IntegrityError as e:
+			print(e)
+			return jsonify("Unable to share transcript")
+		
+		
+		return jsonify("Transcript successfully shared")
+		
+	else:
+		return jsonify("not logged in")

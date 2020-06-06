@@ -17,7 +17,7 @@ class User(db.Model):
         self.name = name
 
     def as_dict(self):
-        return {'username': self.username}
+        return {'username': self.username, 'name':self.name}
 
 
 class Transcripts(db.Model):
@@ -64,17 +64,17 @@ class Group_roles(db.Model):
         self.role = role
 
 
-class SearchForm(Form):  # create form
-    group_name = StringField('group_name', validators=[DataRequired(), Length(
-        max=255)], render_kw={"placeholder": "group_name"})
-
-
-class Groupsearch(db.Model):
-    __tablename__ = 'group_list'
-    __table_args__ = {'extend_existing': True}
-    group_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    group_name = db.Column(db.String(255))
-    username = db.Column(db.String(255), db.ForeignKey('users.username'))
-
-    def as_dict(self):
-        return {'group_name': self.group_name}
+class Shared_transcripts(db.Model):
+	__tablename__ = 'shared_transcripts'
+	
+	share_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+	name = db.Column(db.String(255), db.ForeignKey('transcripts.name'))
+	owner = db.Column(db.String(255), db.ForeignKey('transcripts.username'))
+	username = db.Column(db.String(255), db.ForeignKey('users.username'))
+	permission = db.Column(db.String(2))
+	
+	def __init__(self, name, owner, username, permission):
+		self.name = name
+		self.owner = owner
+		self.username = username
+		self.permission = permission
