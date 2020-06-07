@@ -81,9 +81,10 @@
 					share_users = []
 					
 					alert(data);
-					$("#userBody").find('input[name="record"]').each(function(){
+					/*$("#userBody").find('input[name="record"]').each(function(){
 						$(this).parents("tr").remove();
-					});
+					});*/
+					location.reload();
 				} else {
 					alert("Unable to share transcript!");
 				}
@@ -108,6 +109,12 @@
 	
 	
 	<h1>Sharing transcript: {{ filename }}</h1>
+	<p>Shared with: 
+	{% for su in shared_usernames %}
+		{{ shared_names[su] + ' ' }}
+	{% endfor %}
+	</p>
+	
 	<div>
 	<form id="addUserForm" class="form-control" action="" method="post" novalidate>
 		<div class="ui-widget">

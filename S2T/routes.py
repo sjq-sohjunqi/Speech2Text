@@ -531,7 +531,22 @@ def share(owner, filename):
 	
 	'''Check if logged in'''
 	if not session.get('USER') is None:
-		return render_template('share_transcript.html', owner=owner, filename=filename)
+		
+		'''Get list of users already shared'''
+		shared_usernames = []
+		shared_names = {}
+		try:
+			sharedObj = Shared_transcripts.query.filter_by(owner=owner, name=filename).all()
+			for su in sharedObj:
+				shared_usernames.append(su.username)
+				
+				userObj = User.query.filter_by(username=su.username).first()
+				shared_names[su.username] = userObj.name
+				
+		except IntegrityError as e:
+			print(e)
+		
+		return render_template('share_transcript.html', owner=owner, filename=filename, shared_names=shared_names, shared_usernames=shared_usernames)
 
 	else:
 		return redirect(url_for('login'))
@@ -550,7 +565,7 @@ def share_users():
 		'''Add users in shared_transcripts table'''
 		try:
 			for idx, shared_user in enumerate(share_users):
-				print(idx)
+				
 				new_share = Shared_transcripts(filename, owner, shared_user, permissions[idx])
 				db.session.add(new_share)
 				db.session.commit()
