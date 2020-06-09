@@ -48,4 +48,4 @@ class TranscriptForm(FlaskForm):
 	
 class GroupForm(FlaskForm):
 	grpname = StringField('Group Name', validators=[DataRequired(), Length(max=255)])
-	add = SubmitField('Add New Group')
+	add = SubmitField('Create New Group')

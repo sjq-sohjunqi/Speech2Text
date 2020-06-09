@@ -1,51 +1,6 @@
 {% extends "base.html" %}
-    <script>
-    $(document).ready(function(){
-      alert(i);
-     var group_list=[];
-     function load_group_list(){
-      $.getJSON('/group_list', function(data, status, xhr){
-        console.log(data);
-       for (var i = 0; i < data.length; i++ ) {
-
-        group_list.push(data[i].group_name);
-       }
-     });
-     };
-     load_group_list();
-
-     $('#group_name').autocomplete({
-      source: group_list,
-     });
-
-     $('formSearch').on('submitSearch', function(e){
-      $.ajax({
-       data: {
-        group_name:$('#group_name').val()
-       },
-       type: 'POST',
-       url : '/process'
-      })
-      .done(function(data){
-       if (data.error){
-        $('#result').text(data.error).show();
-       }
-       else {
-        $('#result').html(data.group_name).show()
-       }
-      })
-      e.preventDefault();
-     });
-    });
-    </script>
-
 {% block content %}
 	<h1>Create New Group:</h1>
-
-	<form>
-	{{formSearch.group_name(class="form-control")}}
-   <button type="submitSearch" class="btn btn-info">Submit</button>
-   </form>
 
 	<form action="" method="post" novalidate>
 		{{ groupform.hidden_tag() }} <!Protects against CSRF>
@@ -61,20 +16,23 @@
 	</form>
 
 
-	<h2>Your Groups:</h2>
+	<h2>Groups:</h2>
 	<table>
 		<tr>
 			<th>Name</th>
+			<th>Owner</th>
 			<th>Leaders</th>
 			<th>Members</th>
 		</tr>
 		{% for grp in grpsTable %}
 			<tr>
-				<td>{{ grp.group_name }}</td>
-				<td></td>
-				<td></td>
+				<td><a href="{{ url_for('members', group_id=grp.group_id) }}">{{ grp.group_name }}</a></td>
+				<td>{{ grpsOwn.get(grp.group_id) }}</td>
+				<td>{{ grpsLead.get(grp.group_id) }}</td>
+				<td>{{ grpsMem.get(grp.group_id) }}</td>
 			</tr>
 		{% endfor %}
 	</table>
+	
 
 {% endblock %}

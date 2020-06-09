@@ -447,47 +447,221 @@ def edit(old_filename):
     else:
         return redirect(url_for('login'))
 
+def getGrpOwn(group_id):
+	try:
+		'''Get all owners of group'''
+		ownGrpObj = Group_roles.query.filter((Group_roles.group_id==group_id) & (Group_roles.role=='owner')).all()
+		uOwnStr = ""
+		
+		for og in ownGrpObj:
+			'''Get user object of each leader'''
+			userObj = User.query.filter_by(username=og.username).first()
+			if uOwnStr == '':
+				uOwnStr = userObj.name
+			else:
+				uOwnStr += ", " + userObj.name
+				
+		return uOwnStr
+		
+	except Exception as e:
+		print(e)
+		return ""
+
+def getGrpLead(group_id):
+	try:
+		'''Get all leaders of group'''
+		leadGrpObj = Group_roles.query.filter((Group_roles.group_id==group_id) & (Group_roles.role=='leader')).all()
+		uLeadStr = ""
+		
+		for lg in leadGrpObj:
+			'''Get user object of each leader'''
+			userObj = User.query.filter_by(username=lg.username).first()
+			if uLeadStr == '':
+				uLeadStr = userObj.name
+			else:
+				uLeadStr += ", " + userObj.name
+					
+		return uLeadStr
+		
+	except Exception as e:
+		print(e)
+		return ""
+		
+def getGrpMem(group_id):
+	try:
+		'''Get all members of group'''
+		memGrpObj = Group_roles.query.filter((Group_roles.group_id==group_id) & (Group_roles.role=='member')).all()
+		uMemStr = ""
+			
+		for mg in memGrpObj:
+			'''Get user object of each member'''
+			userObj = User.query.filter_by(username=mg.username).first()
+			if uMemStr == '':
+				uMemStr = userObj.name
+			else:
+				uMemStr += ", " + userObj.name
+		
+		return uMemStr
+		
+	except Exception as e:
+		print(e)
+		return ""
 
 @S2T.route('/groups', methods=['GET', 'POST'])
 def groups():
-    groupform = GroupForm()
+	groupform = GroupForm()
 
-    '''Check if logged in'''
-    if not session.get('USER') is None:
+	'''Check if logged in'''
+	if not session.get('USER') is None:
 
-        user = session.get('USER')
+		user = session.get('USER')
 
-        '''Get all groups under the user'''
-        grpsObj = Groups.query.filter_by(username=user).all()
-        grpsTable = []
-        for grp in grpsObj:
-            grpsTable.append(grp)
+		'''Get all groups created by user'''
+		grpsObj = Groups.query.filter_by(username=user).all()
+		grpsTable = []
+		
+		'''Store groups already accounted for'''
+		accGrpId = {}
+		
+		'''Store all 3 types members for each grp'''
+		grpsOwn = {}
+		grpsMem = {}
+		grpsLead = {}
+		
+		for grp in grpsObj:
+			accGrpId[grp.group_id] = 'acc'
+			
+			grpsTable.append(grp)
+			
+			#'''Get all owners of group'''
+			#ownGrpObj = Group_roles.query.filter((Group_roles.group_id==grp.group_id) & (Group_roles.role=='owner')).all()
+			#uOwnStr = ""
+			
+			#for og in ownGrpObj:
+			#	'''Get user object of each leader'''
+			#	userObj = User.query.filter_by(username=og.username).first()
+			#	if uOwnStr == '':
+			#		uOwnStr = userObj.name
+			#	else:
+			#		uOwnStr += ", " + userObj.name
+					
+			grpsOwn[grp.group_id] = getGrpOwn(grp.group_id)
+			
+			
+			#'''Get all leaders of group'''
+			#leadGrpObj = Group_roles.query.filter((Group_roles.group_id==grp.group_id) & (Group_roles.role=='leader')).all()
+			#uLeadStr = ""
+			#
+			#for lg in leadGrpObj:
+			#	'''Get user object of each leader'''
+			#	userObj = User.query.filter_by(username=lg.username).first()
+			#	if uLeadStr == '':
+			#		uLeadStr = userObj.name
+			#	else:
+			#		uLeadStr += ", " + userObj.name
+					
+			grpsLead[grp.group_id] = getGrpLead(grp.group_id)
+				
+			#'''Get all members of group'''
+			#memGrpObj = Group_roles.query.filter((Group_roles.group_id==grp.group_id) & (Group_roles.role=='member')).all()
+			#uMemStr = ""
+			#	
+			#for mg in memGrpObj:
+			#	'''Get user object of each member'''
+			#	userObj = User.query.filter_by(username=mg.username).first()
+			#	if uMemStr == '':
+			#		uMemStr = userObj.name
+			#	else:
+			#		uMemStr += ", " + userObj.name
+				
+			grpsMem[grp.group_id] = getGrpMem(grp.group_id)
+			
+		
+		'''Check for non-accounted groups (groups the user is only member/leader in)'''
+		othGrpObj = Group_roles.query.filter_by(username=user).all()
+		for og in othGrpObj:
+			if not og.group_id in accGrpId:
+				'''Add group to table'''
+				secGrpObj = Groups.query.filter_by(group_id=og.group_id).first()
+				
+				grpsTable.append(secGrpObj)
+				
+				#'''Get all owners of group'''
+				#ownGrpObj = Group_roles.query.filter((Group_roles.group_id==secGrpObj.group_id) & (Group_roles.role=='owner')).all()
+				#uOwnStr = ""
+				#
+				#for og in ownGrpObj:
+				#	'''Get user object of each leader'''
+				#	userObj = User.query.filter_by(username=og.username).first()
+				#	if uOwnStr == '':
+				#		uOwnStr = userObj.name
+				#	else:
+				#		uOwnStr += ", " + userObj.name
+						
+				grpsOwn[secGrpObj.group_id] = getGrpOwn(secGrpObj.group_id)
+				
+				#'''Get all leaders of group'''
+				#leadGrpObj = Group_roles.query.filter((Group_roles.group_id==secGrpObj.group_id) & (Group_roles.role=='leader')).all()
+				#uLeadStr = ""
+				#
+				#for lg in leadGrpObj:
+				#	'''Get user object of each leader'''
+				#	userObj = User.query.filter_by(username=lg.username).first()
+				#	if uLeadStr == '':
+				#		uLeadStr = userObj.name
+				#	else:
+				#		uLeadStr += ", " + userObj.name
+						
+				grpsLead[secGrpObj.group_id] = getGrpLead(secGrpObj.group_id)
+					
+				#'''Get all members of group'''
+				#memGrpObj = Group_roles.query.filter((Group_roles.group_id==secGrpObj.group_id) & (Group_roles.role=='member')).all()
+				#uMemStr = ""
+				#	
+				#for mg in memGrpObj:
+				#	'''Get user object of each member'''
+				#	userObj = User.query.filter_by(username=mg.username).first()
+				#	if uMemStr == '':
+				#		uMemStr = userObj.name
+				#	else:
+				#		uMemStr += ", " + userObj.name
+					
+				grpsMem[secGrpObj.group_id] = getGrpMem(secGrpObj.group_id)
+		
 
-        '''Automated searching'''
-        formSearch = SearchForm(request.form)
-
-        '''If add new group form submitted'''
-        if groupform.validate_on_submit():
-            try:
-                '''Check if there is already a group with the same name'''
-                existing_grp = Groups.query.filter_by(
-                    group_name=groupform.data['grpname'], username=user).first()
-                if existing_grp:
-                    flash('You already have a group with that name!')
-                else:
-                    new_grp = Groups(groupform.data['grpname'], user)
-                    db.session.add(new_grp)
-                    db.session.commit()
-                    flash('Group successfully created!')
-
-            except IntegrityError as e:
-                print(e)
-                flash('Unable to create new group!')
-
-        return render_template('groups.html', groupform=groupform, grpsTable=grpsTable, formSearch=formSearch)
-
-    else:
-        return redirect(url_for('login'))
+		'''If add new group form submitted'''
+		if groupform.validate_on_submit():
+			try:
+				'''Check if there is already a group with the same name'''
+				existing_grp = Groups.query.filter_by(
+					group_name=groupform.data['grpname'], username=user).first()
+				if existing_grp:
+					flash('You already have a group with that name!')
+				else:
+					new_grp = Groups(groupform.data['grpname'], user)
+					db.session.add(new_grp)
+					db.session.commit()
+					
+					'''Get grp id'''
+					grpObj = Groups.query.filter_by(group_name=groupform.data['grpname'], username=user).first()
+					grpId = grpObj.group_id
+					
+					'''Add new group owner role'''
+					new_role = Group_roles(grpId, user, 'owner')
+					db.session.add(new_role)
+					db.session.commit()
+					
+					flash('Group successfully created!')
+					return redirect(url_for('groups'))
+					
+			except IntegrityError as e:
+				print(e)
+				flash('Unable to create new group!')
+		
+		return render_template('groups.html', groupform=groupform, grpsTable=grpsTable, grpsOwn=grpsOwn, grpsLead=grpsLead, grpsMem=grpsMem)
+		
+	else:
+		return redirect(url_for('login'))
 
 
 '''Return list of all users except array given'''
@@ -502,28 +676,6 @@ def user_dict():
         list_user = [r.as_dict() for r in res]
 
     return jsonify(list_user)
-
-
-'''Return list of all groups except array given'''
-
-
-def group_dict(exempt):
-    res = Groups.query.all()
-    list_grps = []
-
-    for r in res:
-        if len(exempt) != 0:
-            ctr = 0
-            for e in exempt:
-                if e == r.group_name:
-                    ctr = ctr + 1
-
-            if ctr == 0:
-                list_grps.append(r.as_dict())
-        else:
-            list_grps.append(r.as_dict())
-
-    return jsonify(list_grps)
 
 
 @S2T.route('/share/<string:owner>/<string:filename>', methods=['GET', 'POST'])
@@ -579,3 +731,95 @@ def share_users():
 		
 	else:
 		return jsonify("not logged in")
+		
+
+@S2T.route('/get_mem/<int:group_id>', methods=['GET'])
+def get_mem(group_id):
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		
+		user = session.get('USER')
+		
+		try:
+			'''Get list of group members (for preventing duplicate entries)'''
+			allMemObj = Group_roles.query.filter_by(group_id=group_id).all()
+			memList = []
+			for am in allMemObj:
+				memList.append({'username':am.username})
+			
+			return jsonify(memList)
+			
+		except:
+			return jsonify("Unable to get list")
+		
+	else:
+		return jsonify("not logged in")
+
+
+@S2T.route('/members/<int:group_id>', methods=['GET'])
+def members(group_id):
+	
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		
+		user = session.get('USER')
+		
+		try:
+			'''Get group object'''
+			grpObj = Groups.query.filter_by(group_id=group_id).first()
+			
+			'''Get authorization of user'''
+			grObj = Group_roles.query.filter_by(group_id=group_id, username=user).first()
+			if grObj:
+				role = grObj.role
+				
+				grpOwn = getGrpOwn(group_id)
+				grpLead = getGrpLead(group_id)
+				grpMem = getGrpMem(group_id)
+				
+				'''Get list of group members (for preventing duplicate entries)'''
+				'''allMemObj = Group_roles.query.filter_by(group_id=group_id).all()
+				memList = []
+				for am in allMemObj:
+					memList.append(am.username)'''
+				
+				return render_template('members.html', grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role)
+				
+			else:
+				flash('You are a member of this group!')
+				return redirect(url_for('groups'))
+				
+		except Exception as e:
+			print(e)
+			return redirect(url_for('groups'))
+			
+	else:
+		return redirect(url_for('login'))
+		
+@S2T.route('/add_members', methods=['POST'])
+def add_members():
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		
+		grpId = request.form.get('grpId')
+		add_members = request.form.getlist('add_members[]')
+		roles = request.form.getlist('roles[]')
+		
+		try:
+			'''Add users into group'''
+			for idx, addMem in enumerate(add_members):
+				newRole = Group_roles(grpId, addMem, roles[idx])
+				db.session.add(newRole)
+				db.session.commit()
+			
+		except IntegrityError as e:
+			print(e)
+			return jsonify("Unable to add member")
+		
+		
+		return jsonify("Members successfully added")
+		
+	else:
+		return jsonify("not logged in")
+	
+	

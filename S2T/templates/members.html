@@ -8,10 +8,12 @@
 	<script type="text/javascript">
 	$(document).ready(function() {
 		
+		var memList = []
+		
 		var all_user_list = [];
 		var all_name_list = [];
 		
-		var share_users=[];
+		var add_members=[];
 		
 		function load_all_users_list(){
 			$.getJSON('/all_users', function(data, status, xhr){
@@ -23,7 +25,21 @@
 			});
 		};
 		load_all_users_list();
-
+		
+		function load_all_mem_list(){
+			url = '{{ url_for("get_mem", group_id=grpObj.group_id) }}'
+			$.getJSON(url, function(data, status, xhr){
+				
+				for (var i = 0; i < data.length; i++) {
+					memList.push(data[i].username);
+				}
+				
+			});
+			
+		};
+		load_all_mem_list();
+		
+		
 		$('#username').autocomplete({
 			source: all_user_list,
 		});
@@ -41,9 +57,18 @@
 			}
 			
 			var duplicate = false;
-			for (var i = 0; i < share_users.length; i++) {
-				if (username == share_users[i]) {
+			for (var i = 0; i < add_members.length; i++) {
+				if (username == add_members[i]) {
 					duplicate = true;
+					break;
+				}
+			}
+			
+			var alrMem = false;
+			for (var i = 0; i < memList.length; i++) {
+			
+				if (username == memList[i]) {
+					alrMem = true;
 					break;
 				}
 			}
@@ -52,6 +77,8 @@
 				alert("Duplicate entry!");
 			} else if (invalid) {
 				alert("There is no such user!");
+			} else if (alrMem) {
+				alert("User is already part of the group")
 			} else {
 				var name;
 			
@@ -62,24 +89,24 @@
 					}
 				}
 				
-				share_users.push(username);
+				add_members.push(username);
 				
-				var markup = "<tr class='userRows'><td><input type='checkbox' name='record'></input></td><td class='uname'>" + username + "</td><td>" + name + "</td><td><select><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td></tr>";
+				var markup = "<tr class='userRows'><td><input type='checkbox' name='record'></input></td><td class='uname'>" + username + "</td><td>" + name + "</td><td><select><option value='member'>Member</option><option value='leader'>Leader</option><option value='owner'>Owner</option></select></td></tr>";
 				$("#userBody").append(markup);
 			}
 			
 		});
 		
-		$('#share_user_btn').click(function(){
+		$('#add_member_btn').click(function(){
 			
-			var permissions = [];
+			var roles = [];
 			$("#userBody").find('.userRows').each(function(){
-				permissions.push($(this).find("option:selected").val());
+				roles.push($(this).find("option:selected").val());
 			});
 			
-			$.post('/share_users',{'share_users':share_users, 'owner':'{{owner}}', 'filename':'{{filename}}', 'permissions':permissions},function(data,status){
-				if (data == 'Transcript successfully shared') {
-					share_users = []
+			$.post('/add_members',{'add_members':add_members, 'grpId':'{{grpObj.group_id}}', 'roles':roles},function(data,status){
+				if (data == 'Members successfully added') {
+					add_members = []
 					
 					alert(data);
 					/*$("#userBody").find('input[name="record"]').each(function(){
@@ -87,7 +114,7 @@
 					});*/
 					location.reload();
 				} else {
-					alert("Unable to share transcript!");
+					alert("Unable to add members!");
 				}
 			});
 		
@@ -98,7 +125,7 @@
             	if($(this).is(":checked")){
                     
 					var clear_user = $(this).parents("tr").find(".uname").html();
-					share_users = share_users.filter(function(e) { return e !== clear_user })
+					add_members = add_members.filter(function(e) { return e !== clear_user })
 					$(this).parents("tr").remove();
 					
                 }
@@ -109,17 +136,26 @@
 	</script>
 	
 	
-	<h1>Sharing transcript: {{ filename }}</h1>
-	<p>Shared with: 
-	{% for su in shared_usernames %}
-		{{ shared_names[su] + ' ' }}
-	{% endfor %}
-	</p>
+	<h1>Group: {{ grpObj.group_name }}</h1>
+	Current Members:
+	<table>
+		<tr>
+			<th>Owner</th>
+			<th>Leaders</th>
+			<th>Members</th>
+		</tr>
+		<tr>
+			<td>{{ grpOwn }}</td>
+			<td>{{ grpLead }}</td>
+			<td>{{ grpMem }}</td>
+		</tr>
+	</table>
 	
 	<div>
+	<p></p>
 	<form id="addUserForm" class="form-control" action="" method="post" novalidate>
 		<div class="ui-widget">
-		Add User: <input id="username" name="username"></input> <input type="button" class="select-user" value="Select User">
+		Invite Users: <input id="username" name="username"></input> <input type="button" class="select-user" value="Select User">
 		</div>
 		
 		<p>
@@ -129,7 +165,7 @@
 						<th></th>
 						<th>Username</th>
 						<th>Name</th>
-						<th>Permissions</th>
+						<th>Role</th>
 					</tr>
 				</thead>
 				<tbody id="userBody">
@@ -138,9 +174,14 @@
 		</p>
 		
 		<input id="clear-user-rows" value="Clear Rows" type="button"></input>
-		<input id="share_user_btn" value="Share with users" type="button"></input>
+		<input id="add_member_btn" value="Add users" type="button"></input>
 		
 	</form>
+	
+	
+	
+	
+	
 	</div>
 	
 	  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
