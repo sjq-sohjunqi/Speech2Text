@@ -155,7 +155,12 @@
 			
 			$("#editBody").find('.editRows').each(function(){
 				editMembers.push($(this).find('.editUName').html());
-				roles.push($(this).find("option:selected").val());
+				if ($(this).find('.editUName').html() == '{{grpObj.username}}') {
+					roles.push('owner');
+				} else {
+					roles.push($(this).find("option:selected").val());
+				}
+				
 			});
 			
 			$.post('/edit_members',{'editMembers':editMembers, 'deleteMembers':deleteMembers, 'grpId':'{{grpObj.group_id}}', 'roles':roles},function(data,status){
@@ -168,7 +173,7 @@
 					alert("Unable to edit members!");
 				}
 			});
-		
+	
 		});
 		
 	});
@@ -232,16 +237,24 @@
 					<tbody id="editBody">
 						{% for gm in allGrpMem %}
 							<tr class="editRows">
-								<td><input type="checkbox" name="record"></input></td>
+								<td>
+								{% if gm.username != grpObj.username %}
+									<input type="checkbox" name="record"></input>
+								{% endif %}
+								</td>
 								<td class="editUName">{{ gm.username }}</td>
 								<td>{{ gm.name }}</td>
 								<td>
+								{% if gm.username == grpObj.username %}
+									Group Creator (Owner)
+								{% else %}
 									<select>
 										<option value="owner"{%if gm.role == 'owner'%} selected="selected" {%endif%}>Owner</option>
 										<option value="leader"{%if gm.role == 'leader'%} selected="selected" {%endif%}>Leader</option>
 										<option value="member"{%if gm.role == 'member'%} selected="selected" {%endif%}>Member</option>
 									</select>
 								</td>
+								{% endif %}
 							</tr>
 						{% endfor %}
 					</tbody>
