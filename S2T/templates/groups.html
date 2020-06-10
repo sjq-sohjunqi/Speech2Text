@@ -23,6 +23,7 @@
 			<th>Owner</th>
 			<th>Leaders</th>
 			<th>Members</th>
+			<th></th>
 		</tr>
 		{% for grp in grpsTable %}
 			<tr>
@@ -30,6 +31,11 @@
 				<td>{{ grpsOwn.get(grp.group_id) }}</td>
 				<td>{{ grpsLead.get(grp.group_id) }}</td>
 				<td>{{ grpsMem.get(grp.group_id) }}</td>
+				{% if isOwner[grp.group_id] %}
+					<td><a href="{{ url_for('delete_group', group_id=grp.group_id)}}">Delete</a></td>
+				{% else %}
+					<td></td>
+				{% endif %}
 			</tr>
 		{% endfor %}
 	</table>

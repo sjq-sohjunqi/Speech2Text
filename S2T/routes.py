@@ -515,42 +515,36 @@ def groups():
 	if not session.get('USER') is None:
 
 		user = session.get('USER')
-
-		'''Get all groups created by user'''
-		grpsObj = Groups.query.filter_by(username=user).all()
-		grpsTable = []
 		
-		'''Store groups already accounted for'''
-		accGrpId = {}
+		'''Check whether user is owner'''
+		isOwner = {}
+		grpsTable = []
 		
 		'''Store all 3 types members for each grp'''
 		grpsOwn = {}
 		grpsMem = {}
 		grpsLead = {}
 		
-		for grp in grpsObj:
-			accGrpId[grp.group_id] = 'acc'
+		try:
+			'''Get all groups user is in'''
+			grpsObj = Group_roles.query.filter_by(username=user).all()
 			
-			grpsTable.append(grp)
-					
-			grpsOwn[grp.group_id] = getGrpOwn(grp.group_id)				
-			grpsLead[grp.group_id] = getGrpLead(grp.group_id)
-			grpsMem[grp.group_id] = getGrpMem(grp.group_id)
-			
-		
-		'''Check for non-accounted groups (groups the user is only member/leader in)'''
-		othGrpObj = Group_roles.query.filter_by(username=user).all()
-		for og in othGrpObj:
-			if not og.group_id in accGrpId:
-				'''Add group to table'''
-				secGrpObj = Groups.query.filter_by(group_id=og.group_id).first()
+			for grp in grpsObj:
+				'''check if role of user in grp is owner'''
+				if grp.role == 'owner':
+					isOwner[grp.group_id] = True
+				else:
+					isOwner[grp.group_id] = False
 				
-				grpsTable.append(secGrpObj)
+				grpsTable.append(Groups.query.filter_by(group_id=grp.group_id).first())
 						
-				grpsOwn[secGrpObj.group_id] = getGrpOwn(secGrpObj.group_id)
-				grpsLead[secGrpObj.group_id] = getGrpLead(secGrpObj.group_id)
-				grpsMem[secGrpObj.group_id] = getGrpMem(secGrpObj.group_id)
+				grpsOwn[grp.group_id] = getGrpOwn(grp.group_id)				
+				grpsLead[grp.group_id] = getGrpLead(grp.group_id)
+				grpsMem[grp.group_id] = getGrpMem(grp.group_id)
 		
+		except IntegrityError as e:
+			print(e)
+			flash('Unable to display groups!')
 
 		'''If add new group form submitted'''
 		if groupform.validate_on_submit():
@@ -581,15 +575,45 @@ def groups():
 				print(e)
 				flash('Unable to create new group!')
 		
-		return render_template('groups.html', groupform=groupform, grpsTable=grpsTable, grpsOwn=grpsOwn, grpsLead=grpsLead, grpsMem=grpsMem)
+		return render_template('groups.html', groupform=groupform, isOwner=isOwner, grpsTable=grpsTable, grpsOwn=grpsOwn, grpsLead=grpsLead, grpsMem=grpsMem)
+		
+	else:
+		return redirect(url_for('login'))
+
+@S2T.route('/delete_group/<int:group_id>', methods=['GET'])
+def delete_group(group_id):
+	if not session.get('USER') is None:
+		
+		user = session.get('USER')
+		
+		'''Check is user is authorised to delete group'''
+		try:
+			grpRole = Group_roles.query.filter_by(username=user, group_id=group_id).first()
+			if grpRole.role == 'owner':
+				'''Delete all user role records in group_roles'''
+				db.session.query(Group_roles).filter_by(group_id=group_id).delete()
+				db.session.commit()
+				
+				'''Delete group entry'''
+				db.session.query(Groups).filter_by(group_id=group_id).delete()
+				db.session.commit()
+				
+				flash('Group successfully deleted')
+			
+			else:
+				flash('Not authorised')
+			
+		except IntegrityError as e:
+			print(e)
+			flash('Unable to delete group!')
+			
+		return redirect(url_for('groups'))
 		
 	else:
 		return redirect(url_for('login'))
 
 
 '''Return list of all users except array given'''
-
-
 @S2T.route('/all_users', methods=['GET'])
 def user_dict():
     list_user = []
