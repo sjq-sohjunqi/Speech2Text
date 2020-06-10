@@ -9,6 +9,8 @@
 	$(document).ready(function() {
 		
 		var memList = []
+		var memNameList = []
+		var memRoleList = []
 		
 		var all_user_list = [];
 		var all_name_list = [];
@@ -109,9 +111,6 @@
 					add_members = []
 					
 					alert(data);
-					/*$("#userBody").find('input[name="record"]').each(function(){
-						$(this).parents("tr").remove();
-					});*/
 					location.reload();
 				} else {
 					alert("Unable to add members!");
@@ -131,6 +130,46 @@
                 }
             });
         });
+		
+		// Functions for editing/deleting members
+		
+		var deleteMembers = []
+		
+		$("#clear-mem-rows").click(function() {
+            $("#editBody").find('input[name="record"]').each(function(){
+            	if($(this).is(":checked")){
+                    
+					var clear_user = $(this).parents("tr").find(".editUName").html();
+					deleteMembers.push(clear_user);
+					
+					$(this).parents("tr").remove();
+					
+                }
+            });
+        });
+		
+		$('#save-changes').click(function(){
+			
+			var editMembers = [];
+			var roles = [];
+			
+			$("#editBody").find('.editRows').each(function(){
+				editMembers.push($(this).find('.editUName').html());
+				roles.push($(this).find("option:selected").val());
+			});
+			
+			$.post('/edit_members',{'editMembers':editMembers, 'deleteMembers':deleteMembers, 'grpId':'{{grpObj.group_id}}', 'roles':roles},function(data,status){
+				if (data == 'Members successfully changed') {
+					deleteMembers = []
+					
+					alert(data);
+					location.reload();
+				} else {
+					alert("Unable to edit members!");
+				}
+			});
+		
+		});
 		
 	});
 	</script>
@@ -178,9 +217,45 @@
 		
 	</form>
 	
-	
-	
-	
+	{% if role == 'owner' or role == 'leader' %}
+		<form id="editMemForm" class="form-control" action="" method="post" novalidate>
+			<p>Change Current Members:
+						<table id="editTable">
+					<thead>
+						<tr>
+							<th></th>
+							<th>Username</th>
+							<th>Name</th>
+							<th>Role</th>
+						</tr>
+					</thead>
+					<tbody id="editBody">
+						{% for gm in allGrpMem %}
+							<tr class="editRows">
+								<td><input type="checkbox" name="record"></input></td>
+								<td class="editUName">{{ gm.username }}</td>
+								<td>{{ gm.name }}</td>
+								<td>
+									<select>
+										<option value="owner"{%if gm.role == 'owner'%} selected="selected" {%endif%}>Owner</option>
+										<option value="leader"{%if gm.role == 'leader'%} selected="selected" {%endif%}>Leader</option>
+										<option value="member"{%if gm.role == 'member'%} selected="selected" {%endif%}>Member</option>
+									</select>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				
+				<input id="clear-mem-rows" value="Remove Selected" type="button"></input>
+				<input id="save-changes" value="Save Changes" type="button"></input>
+				
+			</form>
+			
+		</p>
+		
+		
+	{% endif %}
 	
 	</div>
 	

@@ -532,48 +532,9 @@ def groups():
 			accGrpId[grp.group_id] = 'acc'
 			
 			grpsTable.append(grp)
-			
-			#'''Get all owners of group'''
-			#ownGrpObj = Group_roles.query.filter((Group_roles.group_id==grp.group_id) & (Group_roles.role=='owner')).all()
-			#uOwnStr = ""
-			
-			#for og in ownGrpObj:
-			#	'''Get user object of each leader'''
-			#	userObj = User.query.filter_by(username=og.username).first()
-			#	if uOwnStr == '':
-			#		uOwnStr = userObj.name
-			#	else:
-			#		uOwnStr += ", " + userObj.name
 					
-			grpsOwn[grp.group_id] = getGrpOwn(grp.group_id)
-			
-			
-			#'''Get all leaders of group'''
-			#leadGrpObj = Group_roles.query.filter((Group_roles.group_id==grp.group_id) & (Group_roles.role=='leader')).all()
-			#uLeadStr = ""
-			#
-			#for lg in leadGrpObj:
-			#	'''Get user object of each leader'''
-			#	userObj = User.query.filter_by(username=lg.username).first()
-			#	if uLeadStr == '':
-			#		uLeadStr = userObj.name
-			#	else:
-			#		uLeadStr += ", " + userObj.name
-					
+			grpsOwn[grp.group_id] = getGrpOwn(grp.group_id)				
 			grpsLead[grp.group_id] = getGrpLead(grp.group_id)
-				
-			#'''Get all members of group'''
-			#memGrpObj = Group_roles.query.filter((Group_roles.group_id==grp.group_id) & (Group_roles.role=='member')).all()
-			#uMemStr = ""
-			#	
-			#for mg in memGrpObj:
-			#	'''Get user object of each member'''
-			#	userObj = User.query.filter_by(username=mg.username).first()
-			#	if uMemStr == '':
-			#		uMemStr = userObj.name
-			#	else:
-			#		uMemStr += ", " + userObj.name
-				
 			grpsMem[grp.group_id] = getGrpMem(grp.group_id)
 			
 		
@@ -585,47 +546,9 @@ def groups():
 				secGrpObj = Groups.query.filter_by(group_id=og.group_id).first()
 				
 				grpsTable.append(secGrpObj)
-				
-				#'''Get all owners of group'''
-				#ownGrpObj = Group_roles.query.filter((Group_roles.group_id==secGrpObj.group_id) & (Group_roles.role=='owner')).all()
-				#uOwnStr = ""
-				#
-				#for og in ownGrpObj:
-				#	'''Get user object of each leader'''
-				#	userObj = User.query.filter_by(username=og.username).first()
-				#	if uOwnStr == '':
-				#		uOwnStr = userObj.name
-				#	else:
-				#		uOwnStr += ", " + userObj.name
 						
 				grpsOwn[secGrpObj.group_id] = getGrpOwn(secGrpObj.group_id)
-				
-				#'''Get all leaders of group'''
-				#leadGrpObj = Group_roles.query.filter((Group_roles.group_id==secGrpObj.group_id) & (Group_roles.role=='leader')).all()
-				#uLeadStr = ""
-				#
-				#for lg in leadGrpObj:
-				#	'''Get user object of each leader'''
-				#	userObj = User.query.filter_by(username=lg.username).first()
-				#	if uLeadStr == '':
-				#		uLeadStr = userObj.name
-				#	else:
-				#		uLeadStr += ", " + userObj.name
-						
 				grpsLead[secGrpObj.group_id] = getGrpLead(secGrpObj.group_id)
-					
-				#'''Get all members of group'''
-				#memGrpObj = Group_roles.query.filter((Group_roles.group_id==secGrpObj.group_id) & (Group_roles.role=='member')).all()
-				#uMemStr = ""
-				#	
-				#for mg in memGrpObj:
-				#	'''Get user object of each member'''
-				#	userObj = User.query.filter_by(username=mg.username).first()
-				#	if uMemStr == '':
-				#		uMemStr = userObj.name
-				#	else:
-				#		uMemStr += ", " + userObj.name
-					
 				grpsMem[secGrpObj.group_id] = getGrpMem(secGrpObj.group_id)
 		
 
@@ -745,7 +668,7 @@ def get_mem(group_id):
 			allMemObj = Group_roles.query.filter_by(group_id=group_id).all()
 			memList = []
 			for am in allMemObj:
-				memList.append({'username':am.username})
+				memList.append({'username':am.username, 'name':am.name, 'role':am.role})
 			
 			return jsonify(memList)
 			
@@ -777,13 +700,19 @@ def members(group_id):
 				grpLead = getGrpLead(group_id)
 				grpMem = getGrpMem(group_id)
 				
-				'''Get list of group members (for preventing duplicate entries)'''
-				'''allMemObj = Group_roles.query.filter_by(group_id=group_id).all()
-				memList = []
-				for am in allMemObj:
-					memList.append(am.username)'''
-				
-				return render_template('members.html', grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role)
+				if role == 'leader' or role == 'owner':
+					'''Get all grp member names and roles for editing'''
+					grpRoles = Group_roles.query.filter_by(group_id=group_id).all()
+					allGrpMem = []
+					for gr in grpRoles:
+						uName = User.query.filter_by(username=gr.username).first()
+						name = uName.name
+						
+						allGrpMem.append({'username':gr.username, 'name':name, 'role':gr.role})
+					
+					return render_template('members.html', allGrpMem=allGrpMem, grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role)
+				else:
+					return render_template('members.html', grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role)
 				
 			else:
 				flash('You are a member of this group!')
@@ -822,4 +751,35 @@ def add_members():
 	else:
 		return jsonify("not logged in")
 	
-	
+
+@S2T.route('/edit_members', methods=['POST'])
+def edit_members():
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		
+		editMembers = request.form.getlist('editMembers[]')
+		roles = request.form.getlist('roles[]')
+		grpId = request.form.get('grpId')
+		deleteMembers = request.form.getlist('deleteMembers[]')
+		
+		try:
+			'''Delete Members'''
+			for delMem in deleteMembers:
+				db.session.query(Group_roles).filter_by(group_id=grpId, username=delMem).delete()
+				db.session.commit()
+				
+			'''Change member roles'''
+			for idx, edMem in enumerate(editMembers):
+				edMemObj = Group_roles.query.filter_by(group_id=grpId, username=edMem).first()
+				edMemObj.role = roles[idx]
+				db.session.add(edMemObj)
+				db.session.commit()
+			
+			return jsonify('Members successfully changed')
+			
+		except IntegrityError as e:
+			print(e)
+			return jsonify('Unable to edit members')
+		
+	else:
+		return jsonify('not logged in')
