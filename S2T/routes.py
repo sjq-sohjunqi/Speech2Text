@@ -4,7 +4,7 @@ from S2T import S2T, db, bcrypt
 from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm, TranscriptForm, GroupForm
 from werkzeug.utils import secure_filename
 
-from S2T.models import User, Transcripts, Groups, Group_roles, Shared_transcripts
+from S2T.models import User, Transcripts, Groups, Group_roles, Shared_transcripts, Group_shared_transcripts
 from sqlalchemy.exc import IntegrityError
 
 '''Libraries for Google Cloud Speech-to-Text'''
@@ -613,16 +613,50 @@ def delete_group(group_id):
 		return redirect(url_for('login'))
 
 
-'''Return list of all users except array given'''
+'''Return list of all users'''
 @S2T.route('/all_users', methods=['GET'])
 def user_dict():
-    list_user = []
+	list_user = []
 
-    if not session.get('USER') is None:
-        res = User.query.filter(User.username != session.get('USER')).all()
-        list_user = [r.as_dict() for r in res]
+	if not session.get('USER') is None:
+		try:
+			res = User.query.filter(User.username != session.get('USER')).all()
+			list_user = [r.as_dict() for r in res]
+		except:
+			return jsonify('Unable to liist users')
 
-    return jsonify(list_user)
+	return jsonify(list_user)
+
+'''Return list of searched groups'''
+@S2T.route('/search_groups/<string:owner>/<string:filename>', methods=['GET'])
+def search_groups(owner, filename):
+	list_grps = []
+	
+	if not session.get('USER') is None:
+		try:
+			res = Group_roles.query.filter_by(username=session.get('USER')).all()
+			
+			for r in res:
+				grpOwn = getGrpOwn(r.group_id)
+				grpLead = getGrpLead(r.group_id)
+				grpMem = getGrpMem(r.group_id)
+				
+				grpObj = Groups.query.filter_by(group_id=r.group_id).first()
+				
+				grpShareObj = Group_shared_transcripts.query.filter_by(group_id=r.group_id, name=filename, owner=owner).first()
+				grpPerm = 'Not Shared'
+				if grpShareObj:
+					grpPerm = grpShareObj.permission
+				
+				list_grps.append({'group_perm':grpPerm, 'group_id':r.group_id, 'group_name':grpObj.group_name, 'username':grpObj.username, 'owners':grpOwn, 'leaders':grpLead, 'members':grpMem})
+				
+			return jsonify(list_grps)
+				
+		except IntegrityError as e:
+			print(e)
+			return jsonify('Unable to list groups')
+		
+	return jsonify(list_grps)
 
 
 @S2T.route('/share/<string:owner>/<string:filename>', methods=['GET', 'POST'])

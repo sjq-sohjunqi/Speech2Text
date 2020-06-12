@@ -35,6 +35,9 @@ pip install flask-paranoid
 10) Install pymysql
 pip install pymysql
 
+-> if runtime error("cryptography is required ...")
+pip install cryptography
+
 *11) Install SpeechRecognition
 *pip install speechrecognition
 

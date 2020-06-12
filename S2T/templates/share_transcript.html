@@ -70,7 +70,7 @@
 			
 		});
 		
-		$('#share_user_btn').click(function(){
+		$('#share-user-btn').click(function(){
 			
 			var permissions = [];
 			$("#userBody").find('.userRows').each(function(){
@@ -105,6 +105,52 @@
             });
         });
 		
+		
+		function search_groups(){
+			url = '{{ url_for("search_groups", owner=owner , filename=filename) }}';
+			
+			$.getJSON(url, function(data, status, xhr){
+				
+				if (data == "Unable to list groups") {
+					alert(data);
+				} else {
+					
+					// Populate table with new entries
+					for (var i = 0; i < data.length; i++ ) {
+						
+						var markup = "<tr>";
+						
+						if (data[i].group_perm == "RO") {
+							markup += "<td><select class='gperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>"
+						} else if (data[i].group_perm == "RW") {
+							markup += "<td><select class='gperm'><option value='NS'>Not Shared</option><option value='RO'>Read Only</option><option value='RW' selected='selected'>Read & Write</option></select></td>"
+						} else {
+							markup += "<td><select class='gperm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>"
+						}
+						
+						
+						markup += "<td class='gname'><input type='hidden' class='gid' value='" + 
+						data[i].group_id + "'></input>" + 
+						data[i].group_name + "</td><td class='cname'>" + 
+						data[i].username + "</td><td class='owners'>"+
+						data[i].owners + "</td><td class='leaders'>"+
+						data[i].leaders + "</td><td class='members'>" +
+						data[i].members+ "</td></tr>";
+						$("#groupBody").append(markup);
+					}
+				
+				}
+			});
+			
+			
+		};
+		
+		search_groups();
+		
+		
+		
+		
+		
 	});
 	</script>
 	
@@ -138,13 +184,36 @@
 		</p>
 		
 		<input id="clear-user-rows" value="Clear Rows" type="button"></input>
-		<input id="share_user_btn" value="Share with users" type="button"></input>
+		<input id="share-user-btn" value="Share with users" type="button"></input>
 		
 	</form>
 	</div>
 	
-	  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-		<link rel="stylesheet" href="/resources/demos/style.css">
+	<form id="addGroupForm" class="form-control" action="" method="post" novalidate>
+		
+		<p>
+			<table id="groupTable">
+				<thead>
+					<tr>
+						<th>Sharing Permissions</th>
+						<th>Group Name</th>
+						<th>Group Creator</th>
+						<th>Owners</th>
+						<th>Leaders</th>
+						<th>Members</th>
+					</tr>
+				</thead>
+				<tbody id="groupBody">
+				</tbody>
+			</table>
+		</p>
+		
+		<input id="share-group-btn" value="Save Changes" type="button"></input>
+		
+	</form>
+	
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<link rel="stylesheet" href="/resources/demos/style.css">
 	
 	<style>
 	.form-control {

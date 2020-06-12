@@ -45,9 +45,6 @@ class Groups(db.Model):
         self.group_name = group_name
         self.username = username
 
-    def as_dict(self):
-        return {'group_name': self.group_name}
-
 
 class Group_roles(db.Model):
     __tablename__ = 'group_roles'
@@ -62,7 +59,7 @@ class Group_roles(db.Model):
         self.group_id = group_id
         self.username = username
         self.role = role
-
+	
 
 class Shared_transcripts(db.Model):
 	__tablename__ = 'shared_transcripts'
@@ -77,4 +74,19 @@ class Shared_transcripts(db.Model):
 		self.name = name
 		self.owner = owner
 		self.username = username
+		self.permission = permission
+
+class Group_shared_transcripts(db.Model):
+	__tablename__ = 'group_shared_transcripts'
+	
+	share_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+	name = db.Column(db.String(255), db.ForeignKey('transcripts.name'))
+	owner = db.Column(db.String(255), db.ForeignKey('transcripts.username'))
+	group_id = db.Column(db.Integer, db.ForeignKey('group_list.group_id'))
+	permission = db.Column(db.String(2))
+	
+	def __init__(self, name, owner, group_id, permission):
+		self.name = name
+		self.owner = owner
+		self.group_id = group_id
 		self.permission = permission
