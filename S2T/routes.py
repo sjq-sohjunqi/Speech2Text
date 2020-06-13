@@ -520,6 +520,8 @@ def groups():
 		isOwner = {}
 		grpsTable = []
 		
+		names = {}
+		
 		'''Store all 3 types members for each grp'''
 		grpsOwn = {}
 		grpsMem = {}
@@ -536,12 +538,16 @@ def groups():
 				else:
 					isOwner[grp.group_id] = False
 				
-				grpsTable.append(Groups.query.filter_by(group_id=grp.group_id).first())
+				grpObj = Groups.query.filter_by(group_id=grp.group_id).first()
+				grpsTable.append(grpObj)
 						
 				grpsOwn[grp.group_id] = getGrpOwn(grp.group_id)				
 				grpsLead[grp.group_id] = getGrpLead(grp.group_id)
 				grpsMem[grp.group_id] = getGrpMem(grp.group_id)
-		
+				
+				userObj = User.query.filter_by(username=grpObj.username).first()
+				names[grpObj.username] = userObj.name
+				
 		except IntegrityError as e:
 			print(e)
 			flash('Unable to display groups!')
@@ -575,7 +581,7 @@ def groups():
 				print(e)
 				flash('Unable to create new group!')
 		
-		return render_template('groups.html', groupform=groupform, isOwner=isOwner, grpsTable=grpsTable, grpsOwn=grpsOwn, grpsLead=grpsLead, grpsMem=grpsMem)
+		return render_template('groups.html', groupform=groupform, names=names, isOwner=isOwner, grpsTable=grpsTable, grpsOwn=grpsOwn, grpsLead=grpsLead, grpsMem=grpsMem)
 		
 	else:
 		return redirect(url_for('login'))
@@ -713,6 +719,49 @@ def share_users():
 	else:
 		return jsonify("not logged in")
 		
+@S2T.route('/share_groups', methods=['POST'])
+def share_groups():
+	
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		
+		owner = request.form.get('owner')
+		filename = request.form.get('filename')
+		group_ids = request.form.getlist('gid[]')
+		permissions = request.form.getlist('permissions[]')
+		
+		'''Add groups in shared_transcripts table'''
+		try:
+			for idx, gid in enumerate(group_ids):
+				
+				'''Check if gid is not shared (may need to delete from db)'''
+				if permissions[idx] == 'NS':
+					'''Check if there is a record in db'''
+					gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gid).delete()
+					db.session.commit()
+					
+				else:
+					'''Need to modify or add record'''
+					gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gid).first()
+					if gst:
+						gst.permission = permissions[idx]
+					else:
+						gst = Group_shared_transcripts(filename, owner, gid, permissions[idx])
+					
+					
+					db.session.add(gst)
+					db.session.commit()
+				
+			
+			return jsonify("Transcript successfully shared")
+				
+		except IntegrityError as e:
+			print(e)
+			return jsonify("Unable to share transcript")
+		
+	else:
+		return jsonify("not logged in")
+
 
 @S2T.route('/get_mem/<int:group_id>', methods=['GET'])
 def get_mem(group_id):

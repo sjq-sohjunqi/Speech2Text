@@ -82,9 +82,6 @@
 					share_users = []
 					
 					alert(data);
-					/*$("#userBody").find('input[name="record"]').each(function(){
-						$(this).parents("tr").remove();
-					});*/
 					location.reload();
 				} else {
 					alert("Unable to share transcript!");
@@ -105,7 +102,7 @@
             });
         });
 		
-		
+		var gid = [];
 		function search_groups(){
 			url = '{{ url_for("search_groups", owner=owner , filename=filename) }}';
 			
@@ -118,7 +115,7 @@
 					// Populate table with new entries
 					for (var i = 0; i < data.length; i++ ) {
 						
-						var markup = "<tr>";
+						var markup = "<tr class='groupRows'>";
 						
 						if (data[i].group_perm == "RO") {
 							markup += "<td><select class='gperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>"
@@ -128,9 +125,9 @@
 							markup += "<td><select class='gperm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>"
 						}
 						
+						gid.push(data[i].group_id);
 						
-						markup += "<td class='gname'><input type='hidden' class='gid' value='" + 
-						data[i].group_id + "'></input>" + 
+						markup += "<td class='gname'>" + 
 						data[i].group_name + "</td><td class='cname'>" + 
 						data[i].username + "</td><td class='owners'>"+
 						data[i].owners + "</td><td class='leaders'>"+
@@ -147,7 +144,25 @@
 		
 		search_groups();
 		
+		$('#share-group-btn').click(function(){
+			
+			var permissions = [];
+			$("#groupBody").find('.groupRows').each(function(){
+				permissions.push($(this).find("option:selected").val());
+			});
+			
+			$.post('/share_groups',{'gid':gid, 'owner':'{{owner}}', 'filename':'{{filename}}', 'permissions':permissions},function(data,status){
+				if (data == 'Transcript successfully shared') {
+					
+					alert(data);
+					location.reload();
+				} else {
+					alert("Unable to share transcript!");
+					location.reload();
+				}
+			});
 		
+		});
 		
 		
 		
@@ -156,7 +171,7 @@
 	
 	
 	<h1>Sharing transcript: {{ filename }}</h1>
-	<p>Shared with: 
+	<p>Already shared with users: 
 	{% for su in shared_usernames %}
 		{{ shared_names[su] + ' ' }}
 	{% endfor %}

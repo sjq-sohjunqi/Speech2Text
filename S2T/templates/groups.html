@@ -20,6 +20,7 @@
 	<table>
 		<tr>
 			<th>Name</th>
+			<th>Group Creator</th>
 			<th>Owner</th>
 			<th>Leaders</th>
 			<th>Members</th>
@@ -28,6 +29,7 @@
 		{% for grp in grpsTable %}
 			<tr>
 				<td><a href="{{ url_for('members', group_id=grp.group_id) }}">{{ grp.group_name }}</a></td>
+				<td>{{ names.get(grp.username) }}</td>
 				<td>{{ grpsOwn.get(grp.group_id) }}</td>
 				<td>{{ grpsLead.get(grp.group_id) }}</td>
 				<td>{{ grpsMem.get(grp.group_id) }}</td>
