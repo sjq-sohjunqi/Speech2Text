@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+	
+	<h1>Your Transcripts:</h1>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Time Created</th>
+		</tr>
+		{% for tran in myTranscripts %}
+			<tr>
+				<td><a href="{{ url_for('download', owner=tran.username, filename=tran.name) }}">{{ tran.name }}</a></td>
+				<td>{{ tran.created_time }}</a></td>
+				<td><a href="{{ url_for('edit', owner=tran.username, old_filename=tran.name) }}">Edit</a></td>
+				<td><a href="{{ url_for('delete', owner=tran.username, filename=tran.name) }}">Delete</a></td>
+				<td><a href="{{ url_for('share', owner=tran.username, filename=tran.name) }}">Share</a></td>
+			</tr>
+		{% endfor %}
+	</table>
+	
+	<h2>Shared with you:</h2>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Created by</th>
+		</tr>
+		{% for tran in sharedUTrans %}
+			<tr>
+				<td><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
+				<td>{{ tran.owner }}</td>
+				{% if tran.permission == 'RW' %}
+					<td><a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}">Edit</a></td>
+					<td><a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}">Delete</a></td>
+				{% endif %}
+			</tr>
+		{% endfor %}
+	</table>
+	
+	<h2>Shared with your group:</h2>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Created by</th>
+		</tr>
+		{% for tran in sharedGTrans %}
+			<tr>
+				<td><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
+				<td>{{ tran.owner }}</a></td>
+				{% if tran.permission == 'RW' %}
+					<td><a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}">Edit</a></td>
+					<td><a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}">Delete</a></td>
+				{% endif %}
+			</tr>
+		{% endfor %}
+	</table>
+	
+{% endblock %}

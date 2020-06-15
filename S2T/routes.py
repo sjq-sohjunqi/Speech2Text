@@ -334,118 +334,207 @@ def save():
     return redirect(url_for('transcribe'))
 
 
-@S2T.route('/download/<string:filename>', methods=['GET'])
-def download(filename):
-    '''Check if logged in'''
-    if not session.get('USER') is None:
-        user = session.get('USER')
+@S2T.route('/download/<string:owner>/<string:filename>', methods=['GET'])
+def download(owner, filename):
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		user = session.get('USER')
 
-        try:
-            transObj = Transcripts.query.filter_by(
-                name=filename, username=user).first()
-            if transObj:
-                filepath = os.path.join(
-                    S2T.root_path, S2T.config['STORAGE_FOLDER'], user)
-                return send_from_directory(directory=filepath, filename=filename)
-            else:
-                flash('File could not be found on server!')
-                return redirect(url_for('profile'))
-        except:
-            flash('File could not be found on server!')
-            return redirect(url_for('profile'))
+		try:
+			shared = False
+			
+			'''Check if transcript is owned by user'''
+			if owner == user:
+				shared = True
+			else:
+				'''Check if shared with user directly'''
+				uShare = Shared_transcripts.query.filter_by(name=filename, owner=owner, username=user).first()
+				if uShare:
+					shared = True
+				else:
+					'''Check is shared with user's group'''
+					gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner).all()
+					for gs in gShare:
+						'''Check if user is in any group'''
+						uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
+						if uGrp:
+							shared = True
+							break
+				
+			if shared:
+				transObj = Transcripts.query.filter_by(name=filename, username=owner).first()
+				if transObj:
+					filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner)
+					return send_from_directory(directory=filepath, filename=filename)
+				else:
+					flash('File could not be found on server!')
+					return redirect(url_for('profile'))
+			else:
+				flash('Transcript is not shared with you!')
+				return redirect(url_for('list_transcripts'))
+		except:
+			flash('File could not be found on server!')
+			return redirect(url_for('profile'))
 
-    else:
-        return redirect(url_for('login'))
-
-
-@S2T.route('/delete/<string:filename>', methods=['GET'])
-def delete(filename):
-    '''Check if logged in'''
-    if not session.get('USER') is None:
-        user = session.get('USER')
-
-        try:
-            transObj = Transcripts.query.filter_by(
-                name=filename, username=user).first()
-            if transObj:
-                filepath = os.path.join(
-                    S2T.root_path, S2T.config['STORAGE_FOLDER'], user)
-
-                '''Remove file from database'''
-                db.session.delete(transObj)
-                db.session.commit()
-
-                '''Remove file from filesystem'''
-                os.remove(os.path.join(filepath, filename))
-                flash('File successfully deleted!')
-
-            else:
-                flash('File cannot be found on server!')
-
-        except IntegrityError as e:
-            flash('File cannot be found on server!')
-
-    else:
-        return redirect(url_for('login'))
-
-    return redirect(url_for('profile'))
+	else:
+		return redirect(url_for('login'))
 
 
-@S2T.route('/edit/<string:old_filename>', methods=['GET', 'POST'])
-def edit(old_filename):
+@S2T.route('/delete/<string:owner>/<string:filename>', methods=['GET'])
+def delete(owner, filename):
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		user = session.get('USER')
 
-    transcriptForm = TranscriptForm()
+		try:
+			
+			shared = False
+			
+			'''Check if transcript is owned by user'''
+			if owner == user:
+				shared = True
+			else:
+				'''Check if shared with user directly'''
+				uShare = Shared_transcripts.query.filter_by(name=filename, owner=owner, username=user, permission='RW').first()
+				if uShare:
+					shared = True
+				else:
+					'''Check is shared with user's group'''
+					gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, permission='RW').all()
+					for gs in gShare:
+						'''Check if user is in any group'''
+						uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
+						if uGrp:
+							shared = True
+							break
+			
+			if shared:
+				
+				'''Remove all share records of transcript'''
+				uShare = Shared_transcripts.query.filter_by(name=filename, owner=owner).all()
+				for u in uShare:
+					db.session.delete(u)
+					db.session.commit()
+					
+				gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner).all()
+				for g in gShare:
+					db.session.delete(g)
+					db.session.commit()
+				
+				
+				transObj = Transcripts.query.filter_by(name=filename, username=owner).first()
+				if transObj:
+					filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner)
 
-    '''Check if logged in'''
-    if not session.get('USER') is None:
+					'''Remove file from database'''
+					db.session.delete(transObj)
+					db.session.commit()
 
-        user = session.get('USER')
-        filepath = os.path.join(
-            S2T.root_path, S2T.config['STORAGE_FOLDER'], user)
+					'''Remove file from filesystem'''
+					os.remove(os.path.join(filepath, filename))
+					flash('File successfully deleted!')
 
-        if transcriptForm.validate_on_submit():
-            '''Update database with new name'''
-            try:
-                transObj = Transcripts.query.filter_by(
-                    name=old_filename, username=user).first()
-                transObj.name = transcriptForm.data['name']
+				else:
+					flash('File cannot be found on server!')
+			else:
+				flash('Transcript is not shared with you!')
+				return redirect(url_for('list_transcripts'))
 
-                db.session.commit()
+		except IntegrityError as e:
+			print(e)
+			flash('File cannot be found on server!')
 
-            except:
-                flash('Unable to update database!')
-                return redirect(url_for('profile'))
+	else:
+		return redirect(url_for('login'))
 
-            '''Override current file with new contents'''
-            try:
-                os.remove(os.path.join(filepath, old_filename))
+	return redirect(url_for('list_transcripts'))
 
-                save_text = open(os.path.join(
-                    filepath, transcriptForm.data['name']), 'w')
-                save_text.write(transcriptForm.data['transcript'])
-                save_text.close()
 
-                flash('File Edited!')
-                return redirect(url_for('profile'))
+@S2T.route('/edit/<string:owner>/<string:old_filename>', methods=['GET', 'POST'])
+def edit(owner, old_filename):
 
-            except:
-                flash('Unable to save file!')
-                return redirect(url_for('profile'))
+	transcriptForm = TranscriptForm()
 
-        '''Populate transcript text area with contents'''
-        try:
-            with open(os.path.join(filepath, old_filename), 'r') as f:
-                transcription = f.read()
-                transcriptForm = TranscriptForm(formdata=MultiDict(
-                    {'transcript': transcription, 'name': old_filename}))
-        except:
-            flash('Unable to read file!')
-            return redirect(url_for('profile'))
+	'''Check if logged in'''
+	if not session.get('USER') is None:
 
-        return render_template('edit.html', transcriptForm=transcriptForm, old_filename=old_filename)
+		user = session.get('USER')
+		filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner)
+		
+		'''Check if '''
+		shared = False
+		try:
+			
+			'''Check if transcript is owned by user'''
+			if owner == user:
+				shared = True
+			else:
+				'''Check if shared with user directly'''
+				uShare = Shared_transcripts.query.filter_by(name=old_filename, owner=owner, username=user, permission='RW').first()
+				if uShare:
+					shared = True
+				else:
+					'''Check is shared with user's group'''
+					gShare = Group_shared_transcripts.query.filter_by(name=old_filename, owner=owner, permission='RW').all()
+					for gs in gShare:
+						'''Check if user is in any group'''
+						uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
+						if uGrp:
+							shared = True
+							break
+							
+		except IntegrityError as e:
+			print(e)
+			flash('Transcript is not shared with you!')
+			return redirect(url_for('list_transcripts'))
+		
+		if shared == False:
+			flash('Transcript is not shared with you!')
+			return redirect(url_for('list_transcripts'))
+		
+		if transcriptForm.validate_on_submit():
+			'''Update database with new name'''
+			try:
+				transObj = Transcripts.query.filter_by(name=old_filename, username=owner).first()
+				transObj.name = transcriptForm.data['name']
 
-    else:
-        return redirect(url_for('login'))
+				db.session.commit()
+
+			except IntegrityError as e:
+				print(e)
+				flash('Unable to update database!')
+				return redirect(url_for('list_transcripts'))
+
+			'''Override current file with new contents'''
+			try:
+				os.remove(os.path.join(filepath, old_filename))
+
+				save_text = open(os.path.join(filepath, transcriptForm.data['name']), 'w')
+				save_text.write(transcriptForm.data['transcript'])
+				save_text.close()
+
+				flash('File Edited!')
+				return redirect(url_for('list_transcripts'))
+
+			except IntegrityError as e:
+				print(e)
+				flash('Unable to save file!')
+				return redirect(url_for('list_transcripts'))
+
+		'''Populate transcript text area with contents'''
+		try:
+			with open(os.path.join(filepath, old_filename), 'r') as f:
+				transcription = f.read()
+				transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription, 'name': old_filename}))
+		except IntegrityError as e:
+			print(e)
+			flash('Unable to read file!')
+			return redirect(url_for('list_transcripts'))
+
+		return render_template('edit.html', transcriptForm=transcriptForm, old_filename=old_filename)
+
+	else:
+		return redirect(url_for('login'))
 
 def getGrpOwn(group_id):
 	try:
@@ -598,6 +687,10 @@ def delete_group(group_id):
 			if grpRole.role == 'owner':
 				'''Delete all user role records in group_roles'''
 				db.session.query(Group_roles).filter_by(group_id=group_id).delete()
+				db.session.commit()
+				
+				'''Delete all Group_shared_transcripts records'''
+				db.session.query(Group_shared_transcripts).filter_by(group_id=group_id).delete()
 				db.session.commit()
 				
 				'''Delete group entry'''
@@ -890,3 +983,62 @@ def edit_members():
 		
 	else:
 		return jsonify('not logged in')
+		
+		
+@S2T.route('/list_transcripts', methods=['GET'])
+def list_transcripts():
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		
+		user = session.get('USER')
+		myTranscripts = []
+		sharedUTrans = []
+		sharedGTrans = []
+		
+		try:
+			'''Get user's transcripts'''
+			transObj = Transcripts.query.filter_by(username=user).all()
+
+			for tran in transObj:
+				myTranscripts.append(tran)
+			
+			'''Get transcripts shared with user'''
+			
+			stuObj = Shared_transcripts.query.filter_by(username=user).all()
+			for stu in stuObj:
+				sharedUTrans.append(stu)
+			
+			
+			'''Get groups the user is in'''
+			grpObj = Group_roles.query.filter_by(username=user).all()
+			for grp in grpObj:			
+				'''Get transcripts shared with group (make sure no duplicate transcripts)'''
+				stgObj = Group_shared_transcripts.query.filter_by(group_id=grp.group_id).all()
+				for stg in stgObj:
+					duplicate = False
+					
+					'''Check if duplicated in myTranscripts'''
+					for t in myTranscripts:
+						if t.name == stg.name and t.username == stg.owner:
+							duplicate = True
+							break
+					
+					'''Check if duplicated in sharedUTrans'''
+					for t in sharedUTrans:
+						if t.name == stg.name and t.owner == stg.owner:
+							duplicate = True
+							break
+					
+					if (duplicate == False):
+						'''Get group name and group owner'''
+						gObj = Groups.query.filter_by(group_id=stg.group_id).first()
+						
+						sharedGTrans.append({'name':stg.name,'owner':stg.owner,'group_id':stg.group_id,'group_name':gObj.group_name,'group_creator':gObj.username,'permission':stg.permission})
+		except IntegrityError as e:
+			print(e)
+			return redirect(url_for('profile'))
+		
+		return render_template('transcripts.html', myTranscripts=myTranscripts, sharedUTrans=sharedUTrans, sharedGTrans=sharedGTrans)
+		
+	else:
+		return redirect(url_for('login'))
