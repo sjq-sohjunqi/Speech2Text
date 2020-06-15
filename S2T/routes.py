@@ -334,6 +334,62 @@ def save():
     return redirect(url_for('transcribe'))
 
 
+@S2T.route('/view/<string:owner>/<string:filename>', methods=['GET'])
+def view(owner, filename):
+	transcriptForm = TranscriptForm()
+
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+
+		user = session.get('USER')
+		filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner)
+		
+		shared = False
+		try:
+			
+			'''Check if transcript is owned by user'''
+			if owner == user:
+				shared = True
+			else:
+				'''Check if shared with user directly'''
+				uShare = Shared_transcripts.query.filter_by(name=filename, owner=owner, username=user, permission='RO').first()
+				if uShare:
+					shared = True
+				else:
+					'''Check is shared with user's group'''
+					gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, permission='RO').all()
+					for gs in gShare:
+						'''Check if user is in any group'''
+						uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
+						if uGrp:
+							shared = True
+							break
+							
+		except IntegrityError as e:
+			print(e)
+			flash('Transcript is not shared with you!')
+			return redirect(url_for('list_transcripts'))
+		
+		if shared == False:
+			flash('Transcript is not shared with you!')
+			return redirect(url_for('list_transcripts'))
+		
+		'''Populate transcript text area with contents'''
+		try:
+			with open(os.path.join(filepath, filename), 'r') as f:
+				transcription = f.read()
+				transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription, 'name': filename}))
+		except IntegrityError as e:
+			print(e)
+			flash('Unable to read file!')
+			return redirect(url_for('list_transcripts'))
+
+		return render_template('view.html', transcriptForm=transcriptForm, filename=filename)
+
+	else:
+		return redirect(url_for('login'))
+
+
 @S2T.route('/download/<string:owner>/<string:filename>', methods=['GET'])
 def download(owner, filename):
 	'''Check if logged in'''
