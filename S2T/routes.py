@@ -21,6 +21,13 @@ from google.cloud import storage
 
 from werkzeug.datastructures import MultiDict
 
+@S2T.errorhandler(404)
+def pageNotFound(error):
+    return render_template('error.html', title='Error')
+	
+@S2T.errorhandler(500)
+def pageNotFound(error):
+    return render_template('error.html', title='Error')
 
 @S2T.route('/', methods=['GET'])
 @S2T.route('/index', methods=['GET'])
@@ -199,21 +206,6 @@ def convert(filepath, filename):
 
         return transcript
 
-        # r = sr.Recognizer()
-        # file = sr.AudioFile(filepath)
-        # with file as source:
-        # '''Adjust for noise'''
-        # r.adjust_for_ambient_noise(source, duration=0.5)
-
-        # audio = r.record(source)
-
-        # '''return r.recognize_google(audio)'''
-        # return r.recognize_google_cloud(audio, language = 'en-US')
-    # except sr.UnknownValueError as u:
-        # print(u)
-        # print("Google Cloud Speech Recognition could not understand audio")
-    # except sr.RequestError as e:
-        # print("Could not request results from Google Cloud Speech Recognition service; {0}".format(e))
     except Exception as e:
         print(e)
         return '%unrecognised%'
@@ -253,9 +245,9 @@ def transcribe():
             os.remove(filepath)
 
         if session.get('USER') is None:
-            return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm)
+            return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm)
         else:
-            return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))
+            return render_template('transcribe.html', title='Transcribe',transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))
 
     '''Check if transcript has previously written data'''
     if request.method == 'GET':
@@ -278,9 +270,9 @@ def transcribe():
         transcriptForm = TranscriptForm()
 
     if session.get('USER') is None:
-        return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm)
+        return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm)
     else:
-        return render_template('transcribe.html', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))
+        return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))
 
 
 @S2T.route('/save', methods=['POST'])
@@ -384,7 +376,7 @@ def view(owner, filename):
 			flash('Unable to read file!')
 			return redirect(url_for('list_transcripts'))
 
-		return render_template('view.html', transcriptForm=transcriptForm, filename=filename)
+		return render_template('view.html', title='View', transcriptForm=transcriptForm, filename=filename)
 
 	else:
 		return redirect(url_for('login'))
@@ -587,7 +579,7 @@ def edit(owner, old_filename):
 			flash('Unable to read file!')
 			return redirect(url_for('list_transcripts'))
 
-		return render_template('edit.html', transcriptForm=transcriptForm, old_filename=old_filename)
+		return render_template('edit.html', title='Edit', transcriptForm=transcriptForm, old_filename=old_filename)
 
 	else:
 		return redirect(url_for('login'))
@@ -726,7 +718,7 @@ def groups():
 				print(e)
 				flash('Unable to create new group!')
 		
-		return render_template('groups.html', groupform=groupform, names=names, isOwner=isOwner, grpsTable=grpsTable, grpsOwn=grpsOwn, grpsLead=grpsLead, grpsMem=grpsMem)
+		return render_template('groups.html', title='Groups', groupform=groupform, names=names, isOwner=isOwner, grpsTable=grpsTable, grpsOwn=grpsOwn, grpsLead=grpsLead, grpsMem=grpsMem)
 		
 	else:
 		return redirect(url_for('login'))
@@ -834,7 +826,7 @@ def share(owner, filename):
 		except IntegrityError as e:
 			print(e)
 		
-		return render_template('share_transcript.html', owner=owner, filename=filename, shared_names=shared_names, shared_usernames=shared_usernames)
+		return render_template('share_transcript.html', title='Sharing transcript', owner=owner, filename=filename, shared_names=shared_names, shared_usernames=shared_usernames)
 
 	else:
 		return redirect(url_for('login'))
@@ -966,9 +958,9 @@ def members(group_id):
 						
 						allGrpMem.append({'username':gr.username, 'name':name, 'role':gr.role})
 					
-					return render_template('members.html', allGrpMem=allGrpMem, grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role)
+					return render_template('members.html', title='Members', allGrpMem=allGrpMem, grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role)
 				else:
-					return render_template('members.html', grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role)
+					return render_template('members.html', title='Members', grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role)
 				
 			else:
 				flash('You are a member of this group!')
@@ -1094,7 +1086,7 @@ def list_transcripts():
 			print(e)
 			return redirect(url_for('profile'))
 		
-		return render_template('transcripts.html', myTranscripts=myTranscripts, sharedUTrans=sharedUTrans, sharedGTrans=sharedGTrans)
+		return render_template('transcripts.html', title='Transcripts', myTranscripts=myTranscripts, sharedUTrans=sharedUTrans, sharedGTrans=sharedGTrans)
 		
 	else:
 		return redirect(url_for('login'))
