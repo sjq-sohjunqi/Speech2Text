@@ -1,0 +1,68 @@
+.row{
+    background: lavender
+}
+
+.col1{
+    margin:3px;
+    min-height:300px;
+    text-align: :center;
+    background-color: silver;
+
+}
+
+
+.col2{
+    margin:3px;
+    min-height:300px;
+    text-align: :center;
+    background-color: green;
+
+}
+
+.col3{
+    margin:3px;
+    min-height:300px;
+    text-align: :center;
+    background-color: green;
+
+}
+
+.col4{
+    margin:3px;
+    min-height:300px;
+    text-align: :center;
+    background-color: green;
+
+}
+
+.col5{
+    margin:3px;
+    min-height:300px;
+    text-align: :center;
+    background-color: green;
+
+}
+
+.col6{
+    margin:3px;
+    min-height:300px;
+    text-align: :center;
+    background-color: green;
+
+}
+
+.col7{
+    margin:3px;
+    min-height:300px;
+    text-align: :center;
+    background-color: green;
+
+}
+
+
+.colinside{
+    min-height:100px;
+    text-align: :center;
+    background-color: blue;
+
+}

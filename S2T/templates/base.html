@@ -1,56 +1,67 @@
+<!--Letting the browser know this is a html 5 type-->
+<!DOCTYPE html>
 <html>
 	<head>
-		<!--Require meta tags and imports -->
-		<meta charset="utf-8">
+		<!--Require meta tags and imports, view port for auto resizing -->
     	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     	<!-- Bootstrap CSS -->
-    	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
 	    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
+
+		<!-- Optional JavaScript -->
+	    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+	    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+	    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+	    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 
 
 		{% if title %}
 		<title>{{ title }}</title>
 		{% else %}
-		<title>Welcome to Speech2Text</title>
+		<title>Speech2Text</title>
 		{% endif %}
 	</head>
 
 	<body>
 
-		<header class="site-header">
-	    	<nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
-	        	<div class="container">
-	          <a class="navbar-brand mr-4" href="/">Speech2Text</a>
-	          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
-	            <span class="navbar-toggler-icon"></span>
-	          </button>
-	          <div class="collapse navbar-collapse" id="navbarToggle">
-	            <div class="navbar-nav mr-auto">
-	              <a class="nav-item nav-link" href="{{ url_for('index') }}">Home</a>
-	              <a class="nav-item nav-link" href="{{ url_for('transcribe') }}">Transcribe</a>
-				  
-				  {% if session['USER'] %}
-						<a class="nav-item nav-link" href="{{ url_for('groups') }}">Groups</a>
-						<a class="nav-item nav-link" href="{{ url_for('list_transcripts') }}">Transcripts</a>
-				  {% endif %}
-				  
-	            </div>
-	            <!-- Navbar Right Side -->
-	            <div class="navbar-nav">
-	            	{% if session['USER'] %}
-	              		<a class="nav-item nav-link" href="{{ url_for('profile') }}">Profile</a>
-	              		<a class="nav-item nav-link" href="{{ url_for('logout') }}">Log out</a>
-	              	{% else %}
-	              		<a class="nav-item nav-link" href="{{ url_for('login') }}">Log In</a>
-	              		<a class="nav-item nav-link" href="{{ url_for('signup') }}">Register</a>
-	              	{% endif %}
-	            </div>
-	          </div>
-	        </div>
-	      </nav>
-	    </header>
+	  	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+			<a class="navbar-brand" href="/">Speech2Text</a>
+		  	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+		    <span class="navbar-toggler-icon"></span>
+		  </button>
+
+		  <div class="collapse navbar-collapse" id="navbarContent">
+		  	<ul class="navbar-nav mr-auto">
+		        <li class="nav-item active"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+		        <li class="nav-item"><a class="nav-link" href="{{ url_for('transcribe') }}">Transcribe</a></li>
+
+			{% if session['USER'] %}
+				<li class="nav-item"><a class="nav-link" href="{{ url_for('groups') }}">Groups</a></li>
+				<li class="nav-item"><a class="nav-link" href="{{ url_for('list_transcripts') }}">Transcripts</a></li>
+			{% endif %}
+
+		    </ul>
+		    <ul class="navbar-nav ml-auto">
+		   		{% if session['USER'] %}
+              		<li class="nav-item dropdown drop">
+              		<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			           Profile </a>
+			        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+			          <a class="dropdown-item" href="{{ url_for('profile') }}">My account</a>
+			          <a class="dropdown-item" href="{{ url_for('logout') }}">Log out</a>
+			        </div>
+			        </li>
+              	{% else %}
+              		<li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Log In</a></li>
+              		<li class="nav-item"><a class="nav-link" href="{{ url_for('signup') }}">Register</a></li>
+              	{% endif %}
+		    </ul>
+		  </div>
+		</nav>
+
+
 
 		<main role="main" class="container">
 	      <div class="row">
@@ -70,17 +81,6 @@
 	    </main>
 
 
-
-
-
-		<!-- Optional JavaScript -->
-	    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-	    <!--<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-	    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-	    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-		-->
-		
-	
 	</body>
 
 </html>
