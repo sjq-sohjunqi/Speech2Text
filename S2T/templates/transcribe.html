@@ -7,51 +7,68 @@
 	
 	<script type="text/javascript">
 	$(document).ready(function() {
-		alert('Hello');
+		
+		$('#uploadField').change(function() {
+			var fileInput = document.getElementById('uploadField');
+			if (fileInput.files.length == 0) {
+				document.getElementById('fileName').innerHTML = "";
+			} else {
+				document.getElementById('fileName').innerHTML = fileInput.files[0].name;
+			}
+			
+		});
+		
 	});
 	</script>
 
 	<h1>Transcribe Audio File</h1>
 	<form action = "" method = "post" enctype="multipart/form-data" novalidate>
          {{ transcribeForm.hidden_tag() }} <!Protects against CSRF>
-         <div class="form-group">
-			<label>Select an Audio</label>
-          <div class="custom-file">
-          	{{ transcribeForm.upload.label}}
-			<label class="custom-file-label" >
-			{% for error in transcribeForm.upload.errors %}
-			<span style="color: red;">[{{ error }}]</span>
-			{% endfor %}
-			{{ transcribeForm.upload(class="custom-file-input") }}
-			</label>
-		  </div>
+         <p>
+		 <div class="form-group">
+			  <label>Select an Audio</label>
+			  <div class="custom-file">
+				{{ transcribeForm.upload.label}}
+					<label class="custom-file-label">
+						{{ transcribeForm.upload(class="custom-file-input", id="uploadField") }}
+						<label id="fileName" style="position: absolute; left: 8px; top: 4px; z-index: -0.25;"></label>
+					</label>
+			  </div>
+			 
 		</div>
-		{{ transcribeForm.submit(class="btn btn-primary") }}
+		</p>
+		
+		{% for error in transcribeForm.upload.errors %}
+				<label style="color: red;">[{{ error }}]</label>
+		{% endfor %}
+		
+		<p>
+		{{ transcribeForm.submit(class="btn btn-primary") }}</p>
     </form>
     <div class="row">
-    	<div class="col col-md-12" style=" border: 2px solid red; border-radius: 25px;">
+    	<!-- <div class="col col-md-12" style=" border: 2px solid red; border-radius: 25px;"> -->
 
 	<form action = "{{ url_for('save') }}" method = "post" enctype="multipart/form-data" novalidate>
 		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
 		<div>
-			{{ transcriptForm.transcript(class="container-fluid", rows="20%") }}
+		<p>
+			{{ transcriptForm.transcript(class="container-fluid", cols="120%", rows="10%", style="border-radius: 25px;") }}
+		</p>
 		</div>
 
 		{% if user is defined %}
 			<p>
-				{{ transcriptForm.name.label}}: {{ transcriptForm.name }}<br>
+				<label>{{ transcriptForm.name.label }}: </label> {{ transcriptForm.name(style="border-radius: 10px;") }}<br>
 				{% for error in transcriptForm.name.errors %}
-				<span style="color: red;">[{{ error }}]</span>
+					<label style="color: red;">[{{ error }}]</label><br>
 				{% endfor %}
+			
+				{{ transcriptForm.save(class="btn btn-primary") }}
 			</p>
-
-			<div>
-				{{ transcriptForm.save() }}
-			</div>
 		{%endif%}
 
 	</form>
-	  	</div>
+	  	<!-- </div> -->
     </div>
 
 {% endblock %}
