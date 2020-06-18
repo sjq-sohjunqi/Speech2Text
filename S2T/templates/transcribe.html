@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	
+	<script type="text/javascript">
+	$(document).ready(function() {
+		alert('Hello');
+	});
+	</script>
+
 	<h1>Transcribe Audio File</h1>
 	<form action = "" method = "post" enctype="multipart/form-data" novalidate>
          {{ transcribeForm.hidden_tag() }} <!Protects against CSRF>
