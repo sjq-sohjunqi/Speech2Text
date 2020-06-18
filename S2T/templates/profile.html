@@ -1,41 +1,60 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<h1>Hi, {{ session['NAME'] }}!</h1>
-	
+	<div class="content-section">
+	<h1>Profile: {{ session['NAME'] }}!</h1>
+	<hr/>
 	<form action="" method="post" novalidate>
 		{{ passform.hidden_tag() }} <!Protects against CSRF>
 		<p>Change Password</p>
-		<p>
-			{{ passform.oldpass.label }}<br>
-			{{ passform.oldpass(size=32) }}<br>
-			{% for error in passform.oldpass.errors %}
-			<span style="color: red;">[{{ error }}]</span>
-			{% endfor %}
-		</p>
-		<p>
-			{{ passform.newpass.label }}<br>
-			{{ passform.newpass(size=32) }}
-			{% for error in passform.newpass.errors %}
-			<span style="color: red;">[{{ error }}]</span>
-			{% endfor %}
-		</p>
-		<p>{{ passform.submit() }}</p>
+		<div class="form-group">
+			{{ passform.oldpass.label(class="form-control-label") }}
+			 {% if passform.oldpass.errors %}
+                {{ passform.oldpass(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in passform.oldpass.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ passform.oldpass(class="form-control form-control-lg") }}
+            {% endif %}
+		</div>
+		<div class="form-group">
+			{{ passform.newpass.label(class="form-control-label") }}
+			 {% if passform.newpass.errors %}
+                {{ passform.newpass(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in passform.newpass.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ passform.newpass(class="form-control form-control-lg") }}
+            {% endif %}
+		</div>
+		<p>{{ passform.submit(class="btn btn-outline-info") }}</p>
 	</form>
-	
+	<hr/>
 	<form action="" method="post" novalidate>
 		{{ nameform.hidden_tag() }} <!Protects against CSRF>
 		<p>Change Name</p>
-		<p>
-			{{ nameform.newname.label }}<br>
-			{{ nameform.newname(size=32) }}<br>
-			{% for error in nameform.newname.errors %}
-			<span style="color: red;">[{{ error }}]</span>
-			{% endfor %}
-		</p>
-		<p>{{ nameform.submit() }}</p>
+		<div class="form-group">
+			{{ nameform.newname.label(class="form-control-label") }}
+			 {% if nameform.newname.errors %}
+                {{ nameform.newname(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in nameform.newname.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ nameform.newname(class="form-control form-control-lg") }}
+            {% endif %}
+		</div>
+		<p>{{ nameform.submit(class="btn btn-outline-info") }}</p>
 	</form>
-	
+	</div>
 	<!--<h2>Your Transcripts:</h2>
 	<table>
 		<tr>
@@ -52,5 +71,5 @@
 			</tr>
 		{% endfor %}
 	</table>-->
-	
+
 {% endblock %}
