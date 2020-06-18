@@ -4,25 +4,29 @@
 	<h1>Transcribe Audio File</h1>
 	<form action = "" method = "post" enctype="multipart/form-data" novalidate>
          {{ transcribeForm.hidden_tag() }} <!Protects against CSRF>
-		<p>
-			{{ transcribeForm.upload.label}}: {{ transcribeForm.upload }}<br>
+         <div class="form-group">
+			<label>Select an Audio</label>
+          <div class="custom-file">
+          	{{ transcribeForm.upload.label}}
+			<label class="custom-file-label" >
 			{% for error in transcribeForm.upload.errors %}
 			<span style="color: red;">[{{ error }}]</span>
 			{% endfor %}
-		</p>
-		
-		
-		
-		<p>{{ transcribeForm.submit() }}</p>
+			{{ transcribeForm.upload(class="custom-file-input") }}
+			</label>
+		  </div>
+		</div>
+		{{ transcribeForm.submit(class="btn btn-primary") }}
     </form>
-	
-	
+    <div class="row">
+    	<div class="col col-md-12" style=" border: 2px solid red; border-radius: 25px;">
+
 	<form action = "{{ url_for('save') }}" method = "post" enctype="multipart/form-data" novalidate>
 		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
 		<div>
-			{{ transcriptForm.transcript(cols="50", rows="15") }}
+			{{ transcriptForm.transcript(class="container-fluid", rows="20%") }}
 		</div>
-		
+
 		{% if user is defined %}
 			<p>
 				{{ transcriptForm.name.label}}: {{ transcriptForm.name }}<br>
@@ -30,13 +34,14 @@
 				<span style="color: red;">[{{ error }}]</span>
 				{% endfor %}
 			</p>
-			
+
 			<div>
 				{{ transcriptForm.save() }}
 			</div>
 		{%endif%}
-		
+
 	</form>
-	
-	
+	  	</div>
+    </div>
+
 {% endblock %}
