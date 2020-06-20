@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-	
+
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-	
+
 	<script type="text/javascript">
 	$(document).ready(function() {
-		
+
 		var all_user_list = [];
 		var all_name_list = [];
-		
+
 		var share_users=[];
-		
+
 		function load_all_users_list(){
 			$.getJSON('/all_users', function(data, status, xhr){
-				
+
 				for (var i = 0; i < data.length; i++ ) {
 					all_user_list.push(data[i].username);
 					all_name_list.push(data[i].name);
@@ -27,11 +27,11 @@
 		$('#username').autocomplete({
 			source: all_user_list,
 		});
-		
+
 		$('.select-user').click(function(){
 			var username = $("#username").val();
 			$("#username").val("");
-			
+
 			var invalid = true;
 			for (var i = 0; i < all_user_list.length; i++) {
 				if (username == all_user_list[i]) {
@@ -39,7 +39,7 @@
 					break;
 				}
 			}
-			
+
 			var duplicate = false;
 			for (var i = 0; i < share_users.length; i++) {
 				if (username == share_users[i]) {
@@ -47,76 +47,76 @@
 					break;
 				}
 			}
-			
+
 			if (duplicate) {
 				alert("Duplicate entry!");
 			} else if (invalid) {
 				alert("There is no such user!");
 			} else {
 				var name;
-			
+
 				for (var i = 0; i < all_user_list.length; i++) {
 					if (all_user_list[i] == username) {
 						name = all_name_list[i];
 						break;
 					}
 				}
-				
+
 				share_users.push(username);
-				
+
 				var markup = "<tr class='userRows'><td><input type='checkbox' name='record'></input></td><td class='uname'>" + username + "</td><td>" + name + "</td><td><select><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td></tr>";
 				$("#userBody").append(markup);
 			}
-			
+
 		});
-		
+
 		$('#share-user-btn').click(function(){
-			
+
 			var permissions = [];
 			$("#userBody").find('.userRows').each(function(){
 				permissions.push($(this).find("option:selected").val());
 			});
-			
+
 			$.post('/share_users',{'share_users':share_users, 'owner':'{{owner}}', 'filename':'{{filename}}', 'permissions':permissions},function(data,status){
 				if (data == 'Transcript successfully shared') {
 					share_users = []
-					
+
 					alert(data);
 					location.reload();
 				} else {
 					alert("Unable to share transcript!");
 				}
 			});
-		
+
 		});
-		
+
 		$("#clear-user-rows").click(function() {
             $("#userBody").find('input[name="record"]').each(function(){
             	if($(this).is(":checked")){
-                    
+
 					var clear_user = $(this).parents("tr").find(".uname").html();
 					share_users = share_users.filter(function(e) { return e !== clear_user })
 					$(this).parents("tr").remove();
-					
+
                 }
             });
         });
-		
+
 		var gid = [];
 		function search_groups(){
 			url = '{{ url_for("search_groups", owner=owner , filename=filename) }}';
-			
+
 			$.getJSON(url, function(data, status, xhr){
-				
+
 				if (data == "Unable to list groups") {
 					alert(data);
 				} else {
-					
+
 					// Populate table with new entries
 					for (var i = 0; i < data.length; i++ ) {
-						
+
 						var markup = "<tr class='groupRows'>";
-						
+
 						if (data[i].group_perm == "RO") {
 							markup += "<td><select class='gperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>"
 						} else if (data[i].group_perm == "RW") {
@@ -124,36 +124,36 @@
 						} else {
 							markup += "<td><select class='gperm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>"
 						}
-						
+
 						gid.push(data[i].group_id);
-						
-						markup += "<td class='gname'>" + 
-						data[i].group_name + "</td><td class='cname'>" + 
+
+						markup += "<td class='gname'>" +
+						data[i].group_name + "</td><td class='cname'>" +
 						data[i].username + "</td><td class='owners'>"+
 						data[i].owners + "</td><td class='leaders'>"+
 						data[i].leaders + "</td><td class='members'>" +
 						data[i].members+ "</td></tr>";
 						$("#groupBody").append(markup);
 					}
-				
+
 				}
 			});
-			
-			
+
+
 		};
-		
+
 		search_groups();
-		
+
 		$('#share-group-btn').click(function(){
-			
+
 			var permissions = [];
 			$("#groupBody").find('.groupRows').each(function(){
 				permissions.push($(this).find("option:selected").val());
 			});
-			
+
 			$.post('/share_groups',{'gid':gid, 'owner':'{{owner}}', 'filename':'{{filename}}', 'permissions':permissions},function(data,status){
 				if (data == 'Transcript successfully shared') {
-					
+
 					alert(data);
 					location.reload();
 				} else {
@@ -161,54 +161,57 @@
 					location.reload();
 				}
 			});
-		
+
 		});
-		
-		
-		
+
+
+
 	});
 	</script>
-	
-	
+	<br>
+	<div class="content-section">
+	<div class="row">
+	<div class="container-fluid">
 	<h1>Sharing transcript: {{ filename }}</h1>
-	<p>Already shared with users: 
+	Already shared with users:
 	{% for su in shared_usernames %}
 		{{ shared_names[su] + ' ' }}
 	{% endfor %}
-	</p>
-	
-	<div>
-	<form id="addUserForm" class="form-control" action="" method="post" novalidate>
-		<div class="ui-widget">
+	</div>
+	</div>
+	<br>
+	<div class="row">
+	<form id="addUserForm" class="container-fluid" action="" method="post" novalidate>
+		<div class="form-group ui-widget">
 		Add User: <input id="username" name="username"></input> <input type="button" class="select-user" value="Select User">
 		</div>
-		
-		<p>
-			<table id="userTable">
-				<thead>
-					<tr>
-						<th></th>
-						<th>Username</th>
-						<th>Name</th>
-						<th>Permissions</th>
-					</tr>
-				</thead>
-				<tbody id="userBody">
-				</tbody>
-			</table>
-		</p>
-		
-		<input id="clear-user-rows" value="Clear Rows" type="button"></input>
-		<input id="share-user-btn" value="Share with users" type="button"></input>
-		
+		<div class="form-group">
+		<table id="userTable" class="table">
+			<thead class="thead-dark">
+				<tr>
+					<th></th>
+					<th>Username</th>
+					<th>Name</th>
+					<th>Permissions</th>
+				</tr>
+			</thead>
+			<tbody id="userBody">
+			</tbody>
+		</table>
+
+
+		<input id="clear-user-rows" value="Clear Rows" type="button" class="btn btn-primary"></input>
+		<input id="share-user-btn" value="Share with users" type="button" class="btn btn-primary"></input>
+		</div>
 	</form>
 	</div>
-	
-	<form id="addGroupForm" class="form-control" action="" method="post" novalidate>
-		
+	<br><br><br><hr/>
+	<div class="row">
+	<form id="addGroupForm" class="container-fluid" action="" method="post" novalidate>
+
 		<p>
-			<table id="groupTable">
-				<thead>
+			<table id="groupTable" class="table">
+				<thead class="thead-dark">
 					<tr>
 						<th>Sharing Permissions</th>
 						<th>Group Name</th>
@@ -222,29 +225,14 @@
 				</tbody>
 			</table>
 		</p>
-		
-		<input id="share-group-btn" value="Save Changes" type="button"></input>
-		
+
+		<input id="share-group-btn" value="Save Changes" type="button" class="btn btn-primary"></input>
+
 	</form>
-	
+	</div>
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	<link rel="stylesheet" href="/resources/demos/style.css">
-	
-	<style>
-	.form-control {
-		display: block;
-		width:300px;
-		padding: .375rem .75rem;
-		font-size: 1rem;
-		line-height: 1.5;
-		color: #495057;
-		background-color: #fff;
-		background-clip: padding-box;
-		border: 1px solid #ced4da;
-		border-radius: .25rem;
-		transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-	}
-	.btn {padding: .375rem .75rem; margin-top:10px;}
-	</style>
-	
+
+
+
 {% endblock %}

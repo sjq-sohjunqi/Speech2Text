@@ -1,30 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-	
+	<div class="content-section">
 	<h1>Your Transcripts:</h1>
-	<table>
+	<table class="table">
+		<thead class="thead-dark">
 		<tr>
 			<th>Name</th>
 			<th>Time Created</th>
+			<th> - <th>
 		</tr>
+		</thead>
 		{% for tran in myTranscripts %}
 			<tr>
 				<td><a href="{{ url_for('download', owner=tran.username, filename=tran.name) }}">{{ tran.name }}</a></td>
-				<td>{{ tran.created_time }}</a></td>
-				<td><a href="{{ url_for('edit', owner=tran.username, old_filename=tran.name) }}">Edit</a></td>
-				<td><a href="{{ url_for('delete', owner=tran.username, filename=tran.name) }}">Delete</a></td>
-				<td><a href="{{ url_for('share', owner=tran.username, filename=tran.name) }}">Share</a></td>
+				<td><script>document.write(moment("2012-12-31T23:55:13Z").format('LLLL'));</script>{{ tran.created_time }}</a></td>
+				<td>
+				<a href="{{ url_for('share', owner=tran.username, filename=tran.name) }}" class="btn btn-successs" role="button">Share</a>
+				<a href="{{ url_for('edit', owner=tran.username, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a>
+				<a href="{{ url_for('delete', owner=tran.username, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a>
+				</td>
 			</tr>
 		{% endfor %}
 	</table>
-	
+	<hr/>
 	<h2>Shared with you:</h2>
-	<table>
+	<table class="table">
+		<thead class="thead-dark">
 		<tr>
 			<th>Name</th>
 			<th>Created by</th>
 		</tr>
+		</thead>
 		{% for tran in sharedUTrans %}
 			<tr>
 				<td><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
@@ -38,13 +45,15 @@
 			</tr>
 		{% endfor %}
 	</table>
-	
+	<hr/>
 	<h2>Shared with your group:</h2>
-	<table>
+	<table class="table">
+		<thead class="thead-dark">
 		<tr>
 			<th>Name</th>
 			<th>Created by</th>
 		</tr>
+		</thead>
 		{% for tran in sharedGTrans %}
 			<tr>
 				<td><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
@@ -58,5 +67,5 @@
 			</tr>
 		{% endfor %}
 	</table>
-	
+	</div>
 {% endblock %}

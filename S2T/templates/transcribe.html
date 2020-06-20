@@ -4,10 +4,10 @@
 
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-	
+
 	<script type="text/javascript">
 	$(document).ready(function() {
-		
+
 		$('#uploadField').change(function() {
 			var fileInput = document.getElementById('uploadField');
 			if (fileInput.files.length == 0) {
@@ -15,9 +15,9 @@
 			} else {
 				document.getElementById('fileName').innerHTML = fileInput.files[0].name;
 			}
-			
+
 		});
-		
+
 	});
 	</script>
 
@@ -34,25 +34,25 @@
 						<label id="fileName" style="position: absolute; left: 8px; top: 4px; z-index: -0.25;"></label>
 					</label>
 			  </div>
-			 
+
 		</div>
 		</p>
-		
+
 		{% for error in transcribeForm.upload.errors %}
 				<label style="color: red;">[{{ error }}]</label>
 		{% endfor %}
-		
+
 		<p>
 		{{ transcribeForm.submit(class="btn btn-primary") }}</p>
     </form>
     <div class="row">
-    	<!-- <div class="col col-md-12" style=" border: 2px solid red; border-radius: 25px;"> -->
+    <div class="col col-md-12"> <!-- style=" border: 2px solid red; border-radius: 25px;"-->
 
 	<form action = "{{ url_for('save') }}" method = "post" enctype="multipart/form-data" novalidate>
 		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
 		<div>
 		<p>
-			{{ transcriptForm.transcript(class="container-fluid", cols="120%", rows="10%", style="border-radius: 25px;") }}
+			{{ transcriptForm.transcript(class="container-fluid", rows="20%", style="border-radius: 25px;") }}
 		</p>
 		</div>
 
@@ -62,13 +62,13 @@
 				{% for error in transcriptForm.name.errors %}
 					<label style="color: red;">[{{ error }}]</label><br>
 				{% endfor %}
-			
+
 				{{ transcriptForm.save(class="btn btn-primary") }}
 			</p>
 		{%endif%}
 
 	</form>
-	  	<!-- </div> -->
+    </div>
     </div>
 
 {% endblock %}

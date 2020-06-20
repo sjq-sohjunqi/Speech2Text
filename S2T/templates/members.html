@@ -1,25 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-	
+
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-	
-	<script type="text/javascript">
+
+	<script>
 	$(document).ready(function() {
-		
+
 		var memList = []
 		var memNameList = []
 		var memRoleList = []
-		
+
 		var all_user_list = [];
 		var all_name_list = [];
-		
+
 		var add_members=[];
-		
+
 		function load_all_users_list(){
 			$.getJSON('/all_users', function(data, status, xhr){
-				
+
 				for (var i = 0; i < data.length; i++ ) {
 					all_user_list.push(data[i].username);
 					all_name_list.push(data[i].name);
@@ -27,29 +27,29 @@
 			});
 		};
 		load_all_users_list();
-		
+
 		function load_all_mem_list(){
 			url = '{{ url_for("get_mem", group_id=grpObj.group_id) }}'
 			$.getJSON(url, function(data, status, xhr){
-				
+
 				for (var i = 0; i < data.length; i++) {
 					memList.push(data[i].username);
 				}
-				
+
 			});
-			
+
 		};
 		load_all_mem_list();
-		
-		
+
+
 		$('#username').autocomplete({
 			source: all_user_list,
 		});
-		
+
 		$('.select-user').click(function(){
 			var username = $("#username").val();
 			$("#username").val("");
-			
+
 			var invalid = true;
 			for (var i = 0; i < all_user_list.length; i++) {
 				if (username == all_user_list[i]) {
@@ -57,7 +57,7 @@
 					break;
 				}
 			}
-			
+
 			var duplicate = false;
 			for (var i = 0; i < add_members.length; i++) {
 				if (username == add_members[i]) {
@@ -65,16 +65,16 @@
 					break;
 				}
 			}
-			
+
 			var alrMem = false;
 			for (var i = 0; i < memList.length; i++) {
-			
+
 				if (username == memList[i]) {
 					alrMem = true;
 					break;
 				}
 			}
-			
+
 			if (duplicate) {
 				alert("Duplicate entry!");
 			} else if (invalid) {
@@ -83,76 +83,76 @@
 				alert("User is already part of the group")
 			} else {
 				var name;
-			
+
 				for (var i = 0; i < all_user_list.length; i++) {
 					if (all_user_list[i] == username) {
 						name = all_name_list[i];
 						break;
 					}
 				}
-				
+
 				add_members.push(username);
-				
+
 				var markup = "<tr class='userRows'><td><input type='checkbox' name='record'></input></td><td class='uname'>" + username + "</td><td>" + name + "</td><td><select><option value='member'>Member</option><option value='leader'>Leader</option><option value='owner'>Owner</option></select></td></tr>";
 				$("#userBody").append(markup);
 			}
-			
+
 		});
-		
+
 		$('#add-member-btn').click(function(){
-			
+
 			var roles = [];
 			$("#userBody").find('.userRows').each(function(){
 				roles.push($(this).find("option:selected").val());
 			});
-			
+
 			$.post('/add_members',{'add_members':add_members, 'grpId':'{{grpObj.group_id}}', 'roles':roles},function(data,status){
 				if (data == 'Members successfully added') {
 					add_members = []
-					
+
 					alert(data);
 					location.reload();
 				} else {
 					alert("Unable to add members!");
 				}
 			});
-		
+
 		});
-		
+
 		$("#clear-user-rows").click(function() {
             $("#userBody").find('input[name="record"]').each(function(){
             	if($(this).is(":checked")){
-                    
+
 					var clear_user = $(this).parents("tr").find(".uname").html();
 					add_members = add_members.filter(function(e) { return e !== clear_user })
 					$(this).parents("tr").remove();
-					
+
                 }
             });
         });
-		
+
 		// Functions for editing/deleting members
-		
+
 		var deleteMembers = []
-		
+
 		$("#clear-mem-rows").click(function() {
             $("#editBody").find('input[name="record"]').each(function(){
             	if($(this).is(":checked")){
-                    
+
 					var clear_user = $(this).parents("tr").find(".editUName").html();
 					deleteMembers.push(clear_user);
-					
+
 					$(this).parents("tr").remove();
-					
+
                 }
             });
         });
-		
+
 		$('#save-changes').click(function(){
-			
+
 			var editMembers = [];
 			var roles = [];
-			
+
 			$("#editBody").find('.editRows').each(function(){
 				editMembers.push($(this).find('.editUName').html());
 				if ($(this).find('.editUName').html() == '{{grpObj.username}}') {
@@ -160,72 +160,79 @@
 				} else {
 					roles.push($(this).find("option:selected").val());
 				}
-				
+
 			});
-			
+
 			$.post('/edit_members',{'editMembers':editMembers, 'deleteMembers':deleteMembers, 'grpId':'{{grpObj.group_id}}', 'roles':roles},function(data,status){
 				if (data == 'Members successfully changed') {
 					deleteMembers = []
-					
+
 					alert(data);
 					location.reload();
 				} else {
 					alert("Unable to edit members!");
 				}
 			});
-	
+
 		});
-		
+
 	});
 	</script>
-	
-	
+	<br>
+	<div class="content-section">
+	<div class="row">
+	<div class="container-fluid">
 	<h1>Group: {{ grpObj.group_name }}</h1>
 	Current Members:
-	<table>
+	<table class="table">
+		<thead class="thead-dark">
 		<tr>
 			<th>Owner</th>
 			<th>Leaders</th>
 			<th>Members</th>
 		</tr>
+		</thead>
 		<tr>
 			<td>{{ grpOwn }}</td>
 			<td>{{ grpLead }}</td>
 			<td>{{ grpMem }}</td>
 		</tr>
 	</table>
-	
-	<div>
-	<p></p>
-	<form id="addUserForm" class="form-control" action="" method="post" novalidate>
-		<div class="ui-widget">
+	</div>
+	</div>
+	<br><br><br>
+	<hr/>
+	<div class="row">
+	<form id="addUserForm" class="container-fluid" action="" method="post" novalidate>
+		<div class="form-group ui-widget">
 		Invite Users: <input id="username" name="username"></input> <input type="button" class="select-user" value="Select User">
 		</div>
-		
-		<p>
-			<table id="userTable">
-				<thead>
-					<tr>
-						<th></th>
-						<th>Username</th>
-						<th>Name</th>
-						<th>Role</th>
-					</tr>
-				</thead>
-				<tbody id="userBody">
-				</tbody>
-			</table>
-		</p>
-		
-		<input id="clear-user-rows" value="Clear Rows" type="button"></input>
-		<input id="add-member-btn" value="Add users" type="button"></input>
-		
+		<div class="form-group">
+		<table id="userTable" class="table">
+			<thead class="thead-dark">
+				<tr>
+					<th></th>
+					<th>Username</th>
+					<th>Name</th>
+					<th>Role</th>
+				</tr>
+			</thead>
+			<tbody id="userBody">
+			</tbody>
+		</table>
+
+		<input id="clear-user-rows" value="Clear Rows" type="button" class="btn btn-primary"></input>
+		<input id="add-member-btn" value="Add users" type="button" class="btn btn-primary"></input>
+		</div>
 	</form>
-	
-	{% if role == 'owner' or role == 'leader' %}
-		<form id="editMemForm" class="form-control" action="" method="post" novalidate>
-			<p>Change Current Members:
-						<table id="editTable">
+	</div>
+	<br><br><br>
+	<hr/>
+	<div class="row">
+		<form id="editMemForm" class="container-fluid" action="" method="post" novalidate>
+			{% if role == 'owner' or role == 'leader' %}
+			Change Current Members:
+					<table id="editTable" class="table">
 					<thead>
 						<tr>
 							<th></th>
@@ -249,9 +256,9 @@
 									Group Creator (Owner)
 								{% else %}
 									<select>
-										<option value="owner"{%if gm.role == 'owner'%} selected="selected" {%endif%}>Owner</option>
-										<option value="leader"{%if gm.role == 'leader'%} selected="selected" {%endif%}>Leader</option>
-										<option value="member"{%if gm.role == 'member'%} selected="selected" {%endif%}>Member</option>
+										<option value="owner"{% if gm.role == 'owner' %} selected="selected" {% endif %}>Owner</option>
+										<option value="leader"{% if gm.role == 'leader' %} selected="selected" {% endif %}>Leader</option>
+										<option value="member"{% if gm.role == 'member' %} selected="selected" {% endif %}>Member</option>
 									</select>
 								</td>
 								{% endif %}
@@ -259,37 +266,16 @@
 						{% endfor %}
 					</tbody>
 				</table>
-				
-				<input id="clear-mem-rows" value="Remove Selected" type="button"></input>
-				<input id="save-changes" value="Save Changes" type="button"></input>
-				
+
+				<input id="clear-mem-rows" value="Remove Selected" type="button" class="btn btn-primary"></input>
+				<input id="save-changes" value="Save Changes" type="button" class="btn btn-primary"></input>
+			{% endif %}
 			</form>
-			
-		</p>
-		
-		
-	{% endif %}
-	
 	</div>
-	
-	  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-		<link rel="stylesheet" href="/resources/demos/style.css">
-	
-	<style>
-	.form-control {
-		display: block;
-		width:300px;
-		padding: .375rem .75rem;
-		font-size: 1rem;
-		line-height: 1.5;
-		color: #495057;
-		background-color: #fff;
-		background-clip: padding-box;
-		border: 1px solid #ced4da;
-		border-radius: .25rem;
-		transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-	}
-	.btn {padding: .375rem .75rem; margin-top:10px;}
-	</style>
-	
+	</div>
+
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<link rel="stylesheet" href="/resources/demos/style.css">
+
+
 {% endblock %}

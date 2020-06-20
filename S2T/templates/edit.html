@@ -1,26 +1,34 @@
 {% extends "base.html" %}
 
 {% block content %}
+	<div class="content-section">
+	<div class="row">
+    <div class="col col-md-12">
 	<h1>Now Editing: {{ old_filename }}</h1>
-	
+
 	<form action = "{{ url_for('edit', owner=owner, old_filename=old_filename) }}" method = "post" enctype="multipart/form-data" novalidate>
 		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
 		<div>
-			{{ transcriptForm.transcript(cols="50", rows="15") }}
-		</div>
-		
 		<p>
-			{{ transcriptForm.name.label}}: {{ transcriptForm.name }}<br>
+			{{ transcriptForm.transcript(class="container-fluid", rows="20%", style="border-radius: 25px;") }}
+		</p>
+		</div>
+
+		<p>
+			<label>{{ transcriptForm.name.label}}:  </label> {{ transcriptForm.name(style="border-radius: 10px;") }}<br>
 			{% for error in transcriptForm.name.errors %}
 			<span style="color: red;">[{{ error }}]</span>
 			{% endfor %}
 		</p>
-		
+
 		<div>
-			{{ transcriptForm.save() }}
+			{{ transcriptForm.save(class="btn btn-primary") }}
 		</div>
-		
+
 	</form>
-	
-	
+	</div>
+	</div>
+	</div>
+
+
 {% endblock %}

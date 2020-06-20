@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
+	<div class="content-section">
 	<h1>Create New Group:</h1>
 
 	<form action="" method="post" novalidate>
+		<!-- old
 		{{ groupform.hidden_tag() }} <!Protects against CSRF>
 		<p>
 			{{ groupform.grpname.label }}<br>
@@ -13,19 +15,43 @@
 		</p>
 
 		<p>{{ groupform.add() }}</p>
+		-->
+	<div class="row">
+	<div class="form-group col-md-4">
+        {{ groupform.grpname.label(class="form-control-label") }}
+        {% if groupform.grpname.errors %}
+            {{ groupform.grpname(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in groupform.grpname.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ groupform.grpname(class="form-control form-control-lg") }}
+        {% endif %}
+    </div>
+    <div class="form-group col-md-2" style="margin-top:36px">
+        {{ groupform.add(class="btn btn-outline-info") }}
+    </div>
+	</div>
 	</form>
 
 
+	</div>
+	<hr/>
 	<h2>Groups:</h2>
-	<table>
-		<tr>
-			<th>Name</th>
-			<th>Group Creator</th>
-			<th>Owner</th>
-			<th>Leaders</th>
-			<th>Members</th>
-			<th></th>
-		</tr>
+	<table class="table container-fluid">
+		<thead class="thead-dark">
+			<tr>
+				<th>Name</th>
+				<th>Group Creator</th>
+				<th>Owner</th>
+				<th>Leaders</th>
+				<th>Members</th>
+				<th></th>
+			</tr>
+		</thead>
+
 		{% for grp in grpsTable %}
 			<tr>
 				<td><a href="{{ url_for('members', group_id=grp.group_id) }}">{{ grp.group_name }}</a></td>
@@ -41,6 +67,6 @@
 			</tr>
 		{% endfor %}
 	</table>
-	
+
 
 {% endblock %}
