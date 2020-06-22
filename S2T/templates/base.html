@@ -16,6 +16,21 @@
 	    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 	    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 
+	    <script type="text/javascript">
+
+		 $(document).ready(function() {
+		 	showAlert();
+
+
+		 	function showAlert() {
+			    $("#pagealert").fadeTo(2000, 500).slideUp(500, function() {
+			      $("#pagealert").slideUp(500);
+			    });
+			};
+		 });
+
+
+		</script>
 
 		{% if title %}
 		<title>{{ title }}</title>
@@ -71,8 +86,11 @@
 	          {% with messages = get_flashed_messages(with_categories=true) %}
 	            {% if messages %}
 	              {% for category, message in messages %}
-	                <div class="alert alert-{{ category }}">
+	                <div id="pagealert" class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
 	                  {{ message }}
+	                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					    <span aria-hidden="true">&times;</span>
+					  </button>
 	                </div>
 	              {% endfor %}
 	            {% endif %}
