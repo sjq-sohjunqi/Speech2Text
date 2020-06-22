@@ -23,6 +23,18 @@
 			});
 		};
 		load_all_users_list();
+		
+		var suList = [];
+		function load_all_shared_users_list(){
+			
+			$.post('/get_shared_users',{'owner':'{{owner}}', 'filename':'{{filename}}'},function(data, status){
+				for (var i = 0; i < data.length; i++ ) {
+					suList.push(data[i].username);
+				}
+			});
+			
+		};
+		load_all_shared_users_list();
 
 		$('#username').autocomplete({
 			source: all_user_list,
@@ -47,11 +59,21 @@
 					break;
 				}
 			}
+			
+			var alrSh = false;
+			for (var i = 0; i < suList.length; i++) {
+				if (username == suList[i]) {
+					alrSh = true;
+					break;
+				}
+			}
 
 			if (duplicate) {
 				alert("Duplicate entry!");
 			} else if (invalid) {
 				alert("There is no such user!");
+			} else if (alrSh) {
+				alert("Transcript is already shared with this user!");
 			} else {
 				var name;
 
@@ -82,7 +104,7 @@
 					share_users = []
 
 					alert(data);
-					location.reload();
+					location.reload(true);
 				} else {
 					alert("Unable to share transcript!");
 				}
@@ -101,7 +123,64 @@
                 }
             });
         });
+		
+		var editUsers = [];
+		function search_users(){
+			url = '{{ url_for("search_users", owner=owner , filename=filename) }}';
+			
+			$.getJSON(url, function(data, status, xhr){
+				if (data == "Unable to list users") {
+					alert(data);
+				} else {
+					// Populate table with new entries
+					for (var i = 0; i < data.length; i++ ) {
+						var markup = "<tr class='editURows'>";
+						
+						if (data[i].user_perm == "RO") {
+							markup += "<td><select class='uperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>"
+						} else if (data[i].user_perm == "RW") {
+							markup += "<td><select class='uperm'><option value='NS'>Not Shared</option><option value='RO'>Read Only</option><option value='RW' selected='selected'>Read & Write</option></select></td>"
+						} else {
+							markup += "<td><select class='uperm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>"
+						}
+						
+						editUsers.push(data[i].username);
+						
+						markup += "<td class='username'>" +
+						data[i].username + "</td><td class='name'>" +
+						data[i].name + "</td></tr>";
+						
+						$("#editUserBody").append(markup);
+						
+					}
+				}
+				
+			});
+			
+		}
+		search_users();
+		
+		$('#edit-user-btn').click(function(){
+			
+			var permissions = [];
+			$("#editUserBody").find('.editURows').each(function(){
+				permissions.push($(this).find("option:selected").val());
+			});
+			
+			$.post('/edit_user_share', {'editUsers':editUsers, 'owner':'{{owner}}', 'filename':'{{filename}}', 'permissions':permissions}, function(data,status){
+				if (data == 'Transcript successfully shared') {
 
+					alert(data);
+					location.reload(true);
+				} else {
+					alert("Unable to share transcript!");
+					location.reload(true);
+				}
+			});
+			
+		});
+		
+		
 		var gid = [];
 		function search_groups(){
 			url = '{{ url_for("search_groups", owner=owner , filename=filename) }}';
@@ -155,10 +234,10 @@
 				if (data == 'Transcript successfully shared') {
 
 					alert(data);
-					location.reload();
+					location.reload(true);
 				} else {
 					alert("Unable to share transcript!");
-					location.reload();
+					location.reload(true);
 				}
 			});
 
@@ -173,10 +252,6 @@
 	<div class="row">
 	<div class="container-fluid">
 	<h1>Sharing transcript: {{ filename }}</h1>
-	Already shared with users:
-	{% for su in shared_usernames %}
-		{{ shared_names[su] + ' ' }}
-	{% endfor %}
 	</div>
 	</div>
 	<br>
@@ -206,6 +281,34 @@
 	</form>
 	</div>
 	<br><br><br><hr/>
+	
+	
+	<h2>Currently shared with:</h2>
+	
+	
+	<div class="row">
+	<form id="EditUserForm" class="container-fluid" action="" method="post" novalidate>
+
+		<p>
+			<table id="editUserTable" class="table">
+				<thead class="thead-dark">
+					<tr>
+						<th>Sharing Permissions</th>
+						<th>Username</th>
+						<th>Name</th>
+						
+					</tr>
+				</thead>
+				<tbody id="editUserBody">
+				</tbody>
+			</table>
+		</p>
+
+		<input id="edit-user-btn" value="Save Changes" type="button" class="btn btn-primary"></input>
+
+	</form>
+	</div>
+	
 	<div class="row">
 	<form id="addGroupForm" class="container-fluid" action="" method="post" novalidate>
 

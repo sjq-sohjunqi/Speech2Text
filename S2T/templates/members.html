@@ -111,7 +111,7 @@
 					add_members = []
 
 					alert(data);
-					location.reload();
+					location.reload(true);
 				} else {
 					alert("Unable to add members!");
 				}
@@ -168,9 +168,9 @@
 					deleteMembers = []
 
 					alert(data);
-					location.reload();
+					location.reload(true);
 				} else {
-					alert("Unable to edit members!");
+					alert(data);
 				}
 			});
 
@@ -202,76 +202,91 @@
 	</div>
 	<br><br><br>
 	<hr/>
-	<div class="row">
-	<form id="addUserForm" class="container-fluid" action="" method="post" novalidate>
-		<div class="form-group ui-widget">
-		Invite Users: <input id="username" name="username"></input> <input type="button" class="select-user" value="Select User">
-		</div>
-		<div class="form-group">
-		<table id="userTable" class="table">
-			<thead class="thead-dark">
-				<tr>
-					<th></th>
-					<th>Username</th>
-					<th>Name</th>
-					<th>Role</th>
-				</tr>
-			</thead>
-			<tbody id="userBody">
-			</tbody>
-		</table>
+	{% if role == 'owner' or role == 'leader' %}
+		<div class="row">
+		<form id="addUserForm" class="container-fluid" action="" method="post" novalidate>
+			<div class="form-group ui-widget">
+			Invite Users: <input id="username" name="username"></input> <input type="button" class="select-user" value="Select User">
+			</div>
+			<div class="form-group">
+			<table id="userTable" class="table">
+				<thead class="thead-dark">
+					<tr>
+						<th></th>
+						<th>Username</th>
+						<th>Name</th>
+						<th>Role</th>
+					</tr>
+				</thead>
+				<tbody id="userBody">
+				</tbody>
+			</table>
 
-		<input id="clear-user-rows" value="Clear Rows" type="button" class="btn btn-primary"></input>
-		<input id="add-member-btn" value="Add users" type="button" class="btn btn-primary"></input>
+			<input id="clear-user-rows" value="Clear Rows" type="button" class="btn btn-primary"></input>
+			<input id="add-member-btn" value="Add users" type="button" class="btn btn-primary"></input>
+			</div>
+		</form>
 		</div>
-	</form>
-	</div>
-	<br><br><br>
-	<hr/>
-	<div class="row">
-		<form id="editMemForm" class="container-fluid" action="" method="post" novalidate>
-			{% if role == 'owner' or role == 'leader' %}
-			Change Current Members:
-					<table id="editTable" class="table">
-					<thead>
-						<tr>
-							<th></th>
-							<th>Username</th>
-							<th>Name</th>
-							<th>Role</th>
-						</tr>
-					</thead>
-					<tbody id="editBody">
-						{% for gm in allGrpMem %}
-							<tr class="editRows">
-								<td>
-								{% if gm.username != grpObj.username %}
-									<input type="checkbox" name="record"></input>
-								{% endif %}
-								</td>
-								<td class="editUName">{{ gm.username }}</td>
-								<td>{{ gm.name }}</td>
-								<td>
-								{% if gm.username == grpObj.username %}
-									Group Creator (Owner)
-								{% else %}
-									<select>
-										<option value="owner"{% if gm.role == 'owner' %} selected="selected" {% endif %}>Owner</option>
-										<option value="leader"{% if gm.role == 'leader' %} selected="selected" {% endif %}>Leader</option>
-										<option value="member"{% if gm.role == 'member' %} selected="selected" {% endif %}>Member</option>
-									</select>
-								</td>
-								{% endif %}
+		<br><br><br>
+		<hr/>
+		<div class="row">
+			<form id="editMemForm" class="container-fluid" action="" method="post" novalidate>
+				Change Current Members:
+						<table id="editTable" class="table">
+						<thead>
+							<tr>
+								<th></th>
+								<th>Username</th>
+								<th>Name</th>
+								<th>Role</th>
 							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
+						</thead>
+						<tbody id="editBody">
+							{% for gm in allGrpMem %}
+								<tr class="editRows">
+									<td>
+									{% if gm.username != grpObj.username %}
+										<input type="checkbox" name="record"></input>
+									{% endif %}
+									</td>
+									<td class="editUName">{{ gm.username }}</td>
+									<td>{{ gm.name }}</td>
+									<td>
+									{% if gm.username == grpObj.username %}
+										Group Creator (Owner)
+									{% else %}
+										<select>
+											{% if 'owner' == gm.role %}
+												<option value="owner" selected="selected">Owner</option>
+												<option value="leader">Leader</option>
+												<option value="member" >Member</option>
+											{% endif %}
+											
+											{% if 'leader' == gm.role %}
+												<option value="owner">Owner</option>
+												<option value="leader" selected="selected">Leader</option>
+												<option value="member" >Member</option>
+											{% endif %}
+											
+											{% if 'member' == gm.role %}
+												<option value="owner">Owner</option>
+												<option value="leader">Leader</option>
+												<option value="member" selected="selected">Member</option>					
+											{% endif %}
+										</select>
+									{% endif %}
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
 
-				<input id="clear-mem-rows" value="Remove Selected" type="button" class="btn btn-primary"></input>
-				<input id="save-changes" value="Save Changes" type="button" class="btn btn-primary"></input>
-			{% endif %}
-			</form>
-	</div>
+					<input id="clear-mem-rows" value="Remove Selected" type="button" class="btn btn-primary"></input>
+					<input id="save-changes" value="Save Changes" type="button" class="btn btn-primary"></input>
+				</form>
+		</div>
+	{% endif %}
+	
 	</div>
 
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">

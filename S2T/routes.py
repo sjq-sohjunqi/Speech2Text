@@ -24,7 +24,7 @@ from werkzeug.datastructures import MultiDict
 @S2T.errorhandler(404)
 def pageNotFound(error):
     return render_template('error.html', title='Error')
-
+	
 @S2T.errorhandler(500)
 def pageNotFound(error):
     return render_template('error.html', title='Error')
@@ -45,7 +45,7 @@ def signup():
             db.session.add(new_user)
             db.session.commit()
         except IntegrityError as e:
-            flash('The email {} has already been taken'.format(form.username.data),'warning')
+            flash('The email {} has already been taken', form.data['username'])
             return render_template('signup.html', title='Sign Up', form=form)
 
         flash('Signup successful for user {}'.format(form.username.data))
@@ -57,7 +57,7 @@ def signup():
 @S2T.route('/logout', methods=['GET'])
 def logout():
     if not session.get('USER') is None:
-        flash('Logged out successfully','success')
+        flash('Logged out successfully')
     session.pop('USER', None)
     session.pop('NAME', None)
     return redirect(url_for('index'))
@@ -77,9 +77,9 @@ def login():
                 return redirect(url_for('profile'))
 
             else:
-                flash('Login unsuccessful for user {}'.format(form.username.data), 'danger')
+                flash('Login unsuccessful for user {}'.format(form.username.data))
         else:
-            flash('No such user {}'.format(form.username))
+            flash('No such user {}'.format(form.data['username']))
     return render_template('login.html', title='Sign In', form=form)
 
 
@@ -110,17 +110,17 @@ def profile():
                     try:
                         '''Change password'''
                         db.session.commit()
-                        flash('Password changed successfully!','success')
+                        flash('Password changed successfully!')
                         return redirect(url_for('profile'))
                     except IntegrityError as e:
                         '''Error'''
                         flash(e)
                 else:
                     '''Old password does not match'''
-                    flash('Old password does not match','warning')
+                    flash('Old password does not match')
             else:
                 '''No user found (unexpected)'''
-                flash('An error has occurred; please sign in again','secondary')
+                flash('An error has occurred; please sign in again')
                 session.pop('USER', None)
                 session.pop('NAME', None)
                 return redirect(url_for('login'))
@@ -135,7 +135,7 @@ def profile():
                 try:
                     '''Change name'''
                     db.session.commit()
-                    flash('Name changed successfully!','success')
+                    flash('Name changed successfully!')
                     session['NAME'] = nameform.data['newname']
                     return redirect(url_for('profile'))
                 except IntegrityError as e:
@@ -143,7 +143,7 @@ def profile():
                     flash(e)
             else:
                 '''No user found (unexpected)'''
-                flash('An error has occurred; please sign in again','secondary')
+                flash('An error has occurred; please sign in again')
                 session.pop('USER', None)
                 session.pop('NAME', None)
                 return redirect(url_for('login'))
@@ -251,11 +251,11 @@ def transcribe():
 
     '''Check if transcript has previously written data'''
     if request.method == 'GET':
-
+		
         transcriptFormName = session.get('transcriptFormName', None)
         transcriptFormNameErr = session.get('transcriptFormNameErr', None)
         transcriptFormTrans = session.get('transcriptFormTrans', None)
-
+		
         if (transcriptFormTrans is not None) or (transcriptFormNameErr is not None) or (transcriptFormName is not None):
             transcriptForm = TranscriptForm(formdata=MultiDict({'name': transcriptFormName, 'transcript': transcriptFormTrans}))
             transcriptForm.name.errors = transcriptFormNameErr
@@ -277,7 +277,7 @@ def transcribe():
 @S2T.route('/save', methods=['POST'])
 def save():
 	transcriptForm = TranscriptForm()
-
+		
 	if transcriptForm.validate_on_submit():
 		'''Save transcript in session for redirect'''
 		transcriptText = transcriptForm.transcript.data
@@ -287,11 +287,11 @@ def save():
 			transObj = Transcripts.query.filter_by(name=transcriptForm.data['name'], username=session.get('USER')).first()
 			if transObj:
 				flash('There is already a transcript with the same name!')
-
+				
 				session['transcriptFormName'] = transcriptForm.name.data
 				session['transcriptFormNameErr'] = transcriptForm.name.errors
 				session['transcriptFormTrans'] = transcriptForm.transcript.data
-
+				
 				return redirect(url_for('transcribe'))
 
 			else:
@@ -310,18 +310,18 @@ def save():
 				new_transcript = Transcripts(name=transcriptForm.data['name'], username=session.get('USER'))
 				db.session.add(new_transcript)
 				db.session.commit()
-
+				
 				flash('File saved successfully!')
-
+				
 		except:
 			flash('An error has occured; the transcript cannot be saved!')
-
+			
 			session['transcriptFormName'] = transcriptForm.name.data
 			session['transcriptFormNameErr'] = transcriptForm.name.errors
 			session['transcriptFormTrans'] = transcriptForm.transcript.data
-
+			
 			return redirect(url_for('transcribe'))
-
+	
 
 	session['transcriptFormName'] = transcriptForm.name.data
 	session['transcriptFormNameErr'] = transcriptForm.name.errors
@@ -339,10 +339,10 @@ def view(owner, filename):
 
 		user = session.get('USER')
 		filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner)
-
+		
 		shared = False
 		try:
-
+			
 			'''Check if transcript is owned by user'''
 			if owner == user:
 				shared = True
@@ -360,16 +360,16 @@ def view(owner, filename):
 						if uGrp:
 							shared = True
 							break
-
+							
 		except IntegrityError as e:
 			print(e)
 			flash('Transcript is not shared with you!')
 			return redirect(url_for('list_transcripts'))
-
+		
 		if shared == False:
 			flash('Transcript is not shared with you!')
 			return redirect(url_for('list_transcripts'))
-
+		
 		'''Populate transcript text area with contents'''
 		try:
 			with open(os.path.join(filepath, filename), 'r') as f:
@@ -394,7 +394,7 @@ def download(owner, filename):
 
 		try:
 			shared = False
-
+			
 			'''Check if transcript is owned by user'''
 			if owner == user:
 				shared = True
@@ -412,7 +412,7 @@ def download(owner, filename):
 						if uGrp:
 							shared = True
 							break
-
+				
 			if shared:
 				transObj = Transcripts.query.filter_by(name=filename, username=owner).first()
 				if transObj:
@@ -439,9 +439,9 @@ def delete(owner, filename):
 		user = session.get('USER')
 
 		try:
-
+			
 			shared = False
-
+			
 			'''Check if transcript is owned by user'''
 			if owner == user:
 				shared = True
@@ -459,21 +459,21 @@ def delete(owner, filename):
 						if uGrp:
 							shared = True
 							break
-
+			
 			if shared:
-
+				
 				'''Remove all share records of transcript'''
 				uShare = Shared_transcripts.query.filter_by(name=filename, owner=owner).all()
 				for u in uShare:
 					db.session.delete(u)
 					db.session.commit()
-
+					
 				gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner).all()
 				for g in gShare:
 					db.session.delete(g)
 					db.session.commit()
-
-
+				
+				
 				transObj = Transcripts.query.filter_by(name=filename, username=owner).first()
 				if transObj:
 					filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner)
@@ -512,11 +512,11 @@ def edit(owner, old_filename):
 
 		user = session.get('USER')
 		filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner)
-
+		
 		'''Check if '''
 		shared = False
 		try:
-
+			
 			'''Check if transcript is owned by user'''
 			if owner == user:
 				shared = True
@@ -534,29 +534,18 @@ def edit(owner, old_filename):
 						if uGrp:
 							shared = True
 							break
-
+							
 		except IntegrityError as e:
 			print(e)
 			flash('Transcript is not shared with you!')
 			return redirect(url_for('list_transcripts'))
-
+		
 		if shared == False:
 			flash('Transcript is not shared with you!')
 			return redirect(url_for('list_transcripts'))
-
+		
 		if transcriptForm.validate_on_submit():
-			'''Update database with new name'''
-			try:
-				transObj = Transcripts.query.filter_by(name=old_filename, username=owner).first()
-				transObj.name = transcriptForm.data['name']
-
-				db.session.commit()
-
-			except IntegrityError as e:
-				print(e)
-				flash('Unable to update database!')
-				return redirect(url_for('list_transcripts'))
-
+			
 			'''Override current file with new contents'''
 			try:
 				os.remove(os.path.join(filepath, old_filename))
@@ -572,6 +561,8 @@ def edit(owner, old_filename):
 				print(e)
 				flash('Unable to save file!')
 				return redirect(url_for('list_transcripts'))
+		else:
+			print(transcriptForm.errors)
 
 		'''Populate transcript text area with contents'''
 		try:
@@ -583,7 +574,7 @@ def edit(owner, old_filename):
 			flash('Unable to read file!')
 			return redirect(url_for('list_transcripts'))
 
-		return render_template('edit.html', title='Edit', transcriptForm=transcriptForm, old_filename=old_filename)
+		return render_template('edit.html', title='Edit', transcriptForm=transcriptForm, owner=owner, old_filename=old_filename)
 
 	else:
 		return redirect(url_for('login'))
@@ -593,7 +584,7 @@ def getGrpOwn(group_id):
 		'''Get all owners of group'''
 		ownGrpObj = Group_roles.query.filter((Group_roles.group_id==group_id) & (Group_roles.role=='owner')).all()
 		uOwnStr = ""
-
+		
 		for og in ownGrpObj:
 			'''Get user object of each leader'''
 			userObj = User.query.filter_by(username=og.username).first()
@@ -601,9 +592,9 @@ def getGrpOwn(group_id):
 				uOwnStr = userObj.name
 			else:
 				uOwnStr += ", " + userObj.name
-
+				
 		return uOwnStr
-
+		
 	except Exception as e:
 		print(e)
 		return ""
@@ -613,7 +604,7 @@ def getGrpLead(group_id):
 		'''Get all leaders of group'''
 		leadGrpObj = Group_roles.query.filter((Group_roles.group_id==group_id) & (Group_roles.role=='leader')).all()
 		uLeadStr = ""
-
+		
 		for lg in leadGrpObj:
 			'''Get user object of each leader'''
 			userObj = User.query.filter_by(username=lg.username).first()
@@ -621,19 +612,19 @@ def getGrpLead(group_id):
 				uLeadStr = userObj.name
 			else:
 				uLeadStr += ", " + userObj.name
-
+					
 		return uLeadStr
-
+		
 	except Exception as e:
 		print(e)
 		return ""
-
+		
 def getGrpMem(group_id):
 	try:
 		'''Get all members of group'''
 		memGrpObj = Group_roles.query.filter((Group_roles.group_id==group_id) & (Group_roles.role=='member')).all()
 		uMemStr = ""
-
+			
 		for mg in memGrpObj:
 			'''Get user object of each member'''
 			userObj = User.query.filter_by(username=mg.username).first()
@@ -641,9 +632,9 @@ def getGrpMem(group_id):
 				uMemStr = userObj.name
 			else:
 				uMemStr += ", " + userObj.name
-
+		
 		return uMemStr
-
+		
 	except Exception as e:
 		print(e)
 		return ""
@@ -656,83 +647,82 @@ def groups():
 	if not session.get('USER') is None:
 
 		user = session.get('USER')
-
+		
 		'''Check whether user is owner'''
 		isOwner = {}
 		grpsTable = []
-
+		
 		names = {}
-
+		
 		'''Store all 3 types members for each grp'''
 		grpsOwn = {}
 		grpsMem = {}
 		grpsLead = {}
-
+		
 		try:
 			'''Get all groups user is in'''
 			grpsObj = Group_roles.query.filter_by(username=user).all()
-
+			
 			for grp in grpsObj:
 				'''check if role of user in grp is owner'''
 				if grp.role == 'owner':
 					isOwner[grp.group_id] = True
 				else:
 					isOwner[grp.group_id] = False
-
+				
 				grpObj = Groups.query.filter_by(group_id=grp.group_id).first()
 				grpsTable.append(grpObj)
-
-				grpsOwn[grp.group_id] = getGrpOwn(grp.group_id)
+						
+				grpsOwn[grp.group_id] = getGrpOwn(grp.group_id)				
 				grpsLead[grp.group_id] = getGrpLead(grp.group_id)
 				grpsMem[grp.group_id] = getGrpMem(grp.group_id)
-
+				
 				userObj = User.query.filter_by(username=grpObj.username).first()
 				names[grpObj.username] = userObj.name
-
+				
 		except IntegrityError as e:
 			print(e)
 			flash('Unable to display groups!')
-
+		
 		'''If add new group form submitted'''
 		if groupform.validate_on_submit():
 			try:
 				'''Check if there is already a group with the same name'''
-				existing_grp = Groups.query.filter_by(
-					group_name=groupform.data['grpname'], username=user).first()
+				existing_grp = Groups.query.filter_by(group_name=groupform.data['grpname'], username=user).first()
 				if existing_grp:
 					flash('You already have a group with that name!')
 				else:
 					new_grp = Groups(groupform.data['grpname'], user)
 					db.session.add(new_grp)
 					db.session.commit()
-
+					
 					'''Get grp id'''
 					grpObj = Groups.query.filter_by(group_name=groupform.data['grpname'], username=user).first()
 					grpId = grpObj.group_id
-
+					
 					'''Add new group owner role'''
 					new_role = Group_roles(grpId, user, 'owner')
 					db.session.add(new_role)
 					db.session.commit()
-
+					
 					flash('Group successfully created!')
 					return redirect(url_for('groups'))
-
+					
 			except IntegrityError as e:
 				print(e)
 				flash('Unable to create new group!')
-
+		
 		return render_template('groups.html', title='Groups', groupform=groupform, names=names, isOwner=isOwner, grpsTable=grpsTable, grpsOwn=grpsOwn, grpsLead=grpsLead, grpsMem=grpsMem)
-
+		
 	else:
 		return redirect(url_for('login'))
 
 @S2T.route('/delete_group/<int:group_id>', methods=['GET'])
 def delete_group(group_id):
 	if not session.get('USER') is None:
-
+		
 		user = session.get('USER')
-
+		
 		'''Check is user is authorised to delete group'''
 		try:
 			grpRole = Group_roles.query.filter_by(username=user, group_id=group_id).first()
@@ -740,26 +730,26 @@ def delete_group(group_id):
 				'''Delete all user role records in group_roles'''
 				db.session.query(Group_roles).filter_by(group_id=group_id).delete()
 				db.session.commit()
-
+				
 				'''Delete all Group_shared_transcripts records'''
 				db.session.query(Group_shared_transcripts).filter_by(group_id=group_id).delete()
 				db.session.commit()
-
+				
 				'''Delete group entry'''
 				db.session.query(Groups).filter_by(group_id=group_id).delete()
 				db.session.commit()
-
+				
 				flash('Group successfully deleted')
-
+			
 			else:
 				flash('Not authorised')
-
+			
 		except IntegrityError as e:
 			print(e)
 			flash('Unable to delete group!')
-
+			
 		return redirect(url_for('groups'))
-
+		
 	else:
 		return redirect(url_for('login'))
 
@@ -778,44 +768,64 @@ def user_dict():
 
 	return jsonify(list_user)
 
+
+'''Return list of searched users'''
+@S2T.route('/search_users/<string:owner>/<string:filename>', methods=['GET'])
+def search_users(owner, filename):
+	list_users = []
+	
+	if not session.get('USER') is None:
+		try:
+			suObj = Shared_transcripts.query.filter_by(name=filename, owner=owner).all()
+			for su in suObj:
+				userObj = User.query.filter_by(username=su.username).first()
+				list_users.append({'user_perm':su.permission, 'username': su.username, 'name':userObj.name})
+		except IntegrityError as e:
+			print(e)
+			return jsonify('Unable to list users')
+		
+	return jsonify(list_users)
+
+
+
 '''Return list of searched groups'''
 @S2T.route('/search_groups/<string:owner>/<string:filename>', methods=['GET'])
 def search_groups(owner, filename):
 	list_grps = []
-
+	
 	if not session.get('USER') is None:
 		try:
 			res = Group_roles.query.filter_by(username=session.get('USER')).all()
-
+			
 			for r in res:
 				grpOwn = getGrpOwn(r.group_id)
 				grpLead = getGrpLead(r.group_id)
 				grpMem = getGrpMem(r.group_id)
-
+				
 				grpObj = Groups.query.filter_by(group_id=r.group_id).first()
-
+				
 				grpShareObj = Group_shared_transcripts.query.filter_by(group_id=r.group_id, name=filename, owner=owner).first()
 				grpPerm = 'Not Shared'
 				if grpShareObj:
 					grpPerm = grpShareObj.permission
-
+				
 				list_grps.append({'group_perm':grpPerm, 'group_id':r.group_id, 'group_name':grpObj.group_name, 'username':grpObj.username, 'owners':grpOwn, 'leaders':grpLead, 'members':grpMem})
-
+				
 			return jsonify(list_grps)
-
+				
 		except IntegrityError as e:
 			print(e)
 			return jsonify('Unable to list groups')
-
+		
 	return jsonify(list_grps)
 
 
 @S2T.route('/share/<string:owner>/<string:filename>', methods=['GET', 'POST'])
 def share(owner, filename):
-
+	
 	'''Check if logged in'''
 	if not session.get('USER') is None:
-
+		
 		'''Get list of users already shared'''
 		shared_usernames = []
 		shared_names = {}
@@ -823,13 +833,13 @@ def share(owner, filename):
 			sharedObj = Shared_transcripts.query.filter_by(owner=owner, name=filename).all()
 			for su in sharedObj:
 				shared_usernames.append(su.username)
-
+				
 				userObj = User.query.filter_by(username=su.username).first()
 				shared_names[su.username] = userObj.name
-
+				
 		except IntegrityError as e:
 			print(e)
-
+		
 		return render_template('share_transcript.html', title='Sharing transcript', owner=owner, filename=filename, shared_names=shared_names, shared_usernames=shared_usernames)
 
 	else:
@@ -840,51 +850,96 @@ def share_users():
 
 	'''Check if logged in'''
 	if not session.get('USER') is None:
-
+		
 		owner = request.form.get('owner')
 		filename = request.form.get('filename')
 		share_users = request.form.getlist('share_users[]')
 		permissions = request.form.getlist('permissions[]')
-
+		
 		'''Add users in shared_transcripts table'''
 		try:
 			for idx, shared_user in enumerate(share_users):
-
+				
 				new_share = Shared_transcripts(filename, owner, shared_user, permissions[idx])
 				db.session.add(new_share)
 				db.session.commit()
-
+				
 		except IntegrityError as e:
 			print(e)
 			return jsonify("Unable to share transcript")
-
-
+		
+		
 		return jsonify("Transcript successfully shared")
-
+		
 	else:
 		return jsonify("not logged in")
+	
 
-@S2T.route('/share_groups', methods=['POST'])
-def share_groups():
-
+@S2T.route('/edit_user_share', methods=['POST'])
+def edit_user_share():
+	
 	'''Check if logged in'''
 	if not session.get('USER') is None:
+	
+		owner = request.form.get('owner')
+		filename = request.form.get('filename')
+		editUsers = request.form.getlist('editUsers[]')
+		permissions = request.form.getlist('permissions[]')
+		
+		'''Add users in shared_transcripts table'''
+		try:
+			for idx, user in enumerate(editUsers):
+				
+				'''Check if user is not shared (may need to delete from db)'''
+				if permissions[idx] == 'NS':
+					'''Check if there is a record in db'''
+					ust = Shared_transcripts.query.filter_by(name=filename, owner=owner, username=user).delete()
+					db.session.commit()
+					
+				else:
+					'''Need to modify or add record'''
+					ust = Shared_transcripts.query.filter_by(name=filename, owner=owner, username=user).first()
+					if ust:
+						ust.permission = permissions[idx]
+					else:
+						ust = Shared_transcripts(filename, owner, user, permissions[idx])
+					
+					
+					db.session.add(ust)
+					db.session.commit()
+				
+			
+			return jsonify("Transcript successfully shared")
+				
+		except IntegrityError as e:
+			print(e)
+			return jsonify("Unable to share transcript")
+		
+	else:
+		return jsonify("not logged in")	
 
+	
+@S2T.route('/share_groups', methods=['POST'])
+def share_groups():
+	
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		
 		owner = request.form.get('owner')
 		filename = request.form.get('filename')
 		group_ids = request.form.getlist('gid[]')
 		permissions = request.form.getlist('permissions[]')
-
+		
 		'''Add groups in shared_transcripts table'''
 		try:
 			for idx, gid in enumerate(group_ids):
-
+				
 				'''Check if gid is not shared (may need to delete from db)'''
 				if permissions[idx] == 'NS':
 					'''Check if there is a record in db'''
 					gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gid).delete()
 					db.session.commit()
-
+					
 				else:
 					'''Need to modify or add record'''
 					gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gid).first()
@@ -892,66 +947,87 @@ def share_groups():
 						gst.permission = permissions[idx]
 					else:
 						gst = Group_shared_transcripts(filename, owner, gid, permissions[idx])
-
-
+					
+					
 					db.session.add(gst)
 					db.session.commit()
-
-
+				
+			
 			return jsonify("Transcript successfully shared")
-
+				
 		except IntegrityError as e:
 			print(e)
 			return jsonify("Unable to share transcript")
-
+		
 	else:
 		return jsonify("not logged in")
 
+@S2T.route('/get_shared_users', methods=['POST'])
+def get_shared_users():
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		
+		suList = []
+		
+		owner = request.form.get('owner')
+		filename = request.form.get('filename')
+		
+		stObj = Shared_transcripts.query.filter_by(name=filename, owner=owner).all()
+		for st in stObj:
+			suList.append({'username':st.username})
+		
+		return jsonify(suList)
+		
+	else:
+		return jsonify("not logged in")
+	
 
 @S2T.route('/get_mem/<int:group_id>', methods=['GET'])
 def get_mem(group_id):
 	'''Check if logged in'''
 	if not session.get('USER') is None:
-
+		
 		user = session.get('USER')
-
+		
 		try:
 			'''Get list of group members (for preventing duplicate entries)'''
 			allMemObj = Group_roles.query.filter_by(group_id=group_id).all()
 			memList = []
 			for am in allMemObj:
-				memList.append({'username':am.username, 'name':am.name, 'role':am.role})
-
+				userObj = User.query.filter_by(username=am.username).first()
+				memList.append({'username':am.username, 'name':userObj.name, 'role':am.role})
+			
 			return jsonify(memList)
-
-		except:
+			
+		except IntegrityError as e:
+			print(e)
 			return jsonify("Unable to get list")
-
+		
 	else:
 		return jsonify("not logged in")
 
 
 @S2T.route('/members/<int:group_id>', methods=['GET'])
 def members(group_id):
-
+	
 	'''Check if logged in'''
 	if not session.get('USER') is None:
-
+		
 		user = session.get('USER')
-
+		
 		try:
 			'''Get group object'''
 			grpObj = Groups.query.filter_by(group_id=group_id).first()
-
+			
 			'''Get authorization of user'''
 			grObj = Group_roles.query.filter_by(group_id=group_id, username=user).first()
 			if grObj:
 				role = grObj.role
-
+				
 				grpOwn = getGrpOwn(group_id)
 				grpLead = getGrpLead(group_id)
 				grpMem = getGrpMem(group_id)
-
+				
 				if role == 'leader' or role == 'owner':
 					'''Get all grp member names and roles for editing'''
 					grpRoles = Group_roles.query.filter_by(group_id=group_id).all()
@@ -959,138 +1035,138 @@ def members(group_id):
 					for gr in grpRoles:
 						uName = User.query.filter_by(username=gr.username).first()
 						name = uName.name
-
+						
 						allGrpMem.append({'username':gr.username, 'name':name, 'role':gr.role})
-
+					
 					return render_template('members.html', title='Members', allGrpMem=allGrpMem, grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role)
 				else:
 					return render_template('members.html', title='Members', grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role)
-
+				
 			else:
 				flash('You are a member of this group!')
 				return redirect(url_for('groups'))
-
+				
 		except Exception as e:
 			print(e)
 			return redirect(url_for('groups'))
-
+			
 	else:
 		return redirect(url_for('login'))
-
+		
 @S2T.route('/add_members', methods=['POST'])
 def add_members():
 	'''Check if logged in'''
 	if not session.get('USER') is None:
-
+		
 		grpId = request.form.get('grpId')
 		add_members = request.form.getlist('add_members[]')
 		roles = request.form.getlist('roles[]')
-
+		
 		try:
-			'''Add users into group'''
+			'''Add users into group (if user is not already in group)'''
 			for idx, addMem in enumerate(add_members):
 				newRole = Group_roles(grpId, addMem, roles[idx])
 				db.session.add(newRole)
 				db.session.commit()
-
+			
 		except IntegrityError as e:
 			print(e)
 			return jsonify("Unable to add member")
-
-
+		
+		
 		return jsonify("Members successfully added")
-
+		
 	else:
 		return jsonify("not logged in")
-
+	
 
 @S2T.route('/edit_members', methods=['POST'])
 def edit_members():
 	'''Check if logged in'''
 	if not session.get('USER') is None:
-
+		
 		editMembers = request.form.getlist('editMembers[]')
 		roles = request.form.getlist('roles[]')
 		grpId = request.form.get('grpId')
 		deleteMembers = request.form.getlist('deleteMembers[]')
-
+		
 		try:
 			'''Delete Members'''
 			for delMem in deleteMembers:
 				db.session.query(Group_roles).filter_by(group_id=grpId, username=delMem).delete()
 				db.session.commit()
-
+				
 			'''Change member roles'''
 			for idx, edMem in enumerate(editMembers):
 				edMemObj = Group_roles.query.filter_by(group_id=grpId, username=edMem).first()
 				edMemObj.role = roles[idx]
 				db.session.add(edMemObj)
 				db.session.commit()
-
+			
 			return jsonify('Members successfully changed')
-
+			
 		except IntegrityError as e:
 			print(e)
 			return jsonify('Unable to edit members')
-
+		
 	else:
 		return jsonify('not logged in')
-
-
+		
+		
 @S2T.route('/list_transcripts', methods=['GET'])
 def list_transcripts():
 	'''Check if logged in'''
 	if not session.get('USER') is None:
-
+		
 		user = session.get('USER')
 		myTranscripts = []
 		sharedUTrans = []
 		sharedGTrans = []
-
+		
 		try:
 			'''Get user's transcripts'''
 			transObj = Transcripts.query.filter_by(username=user).all()
 
 			for tran in transObj:
 				myTranscripts.append(tran)
-
+			
 			'''Get transcripts shared with user'''
-
+			
 			stuObj = Shared_transcripts.query.filter_by(username=user).all()
 			for stu in stuObj:
 				sharedUTrans.append(stu)
-
-
+			
+			
 			'''Get groups the user is in'''
 			grpObj = Group_roles.query.filter_by(username=user).all()
-			for grp in grpObj:
+			for grp in grpObj:			
 				'''Get transcripts shared with group (make sure no duplicate transcripts)'''
 				stgObj = Group_shared_transcripts.query.filter_by(group_id=grp.group_id).all()
 				for stg in stgObj:
 					duplicate = False
-
+					
 					'''Check if duplicated in myTranscripts'''
 					for t in myTranscripts:
 						if t.name == stg.name and t.username == stg.owner:
 							duplicate = True
 							break
-
+					
 					'''Check if duplicated in sharedUTrans'''
 					for t in sharedUTrans:
 						if t.name == stg.name and t.owner == stg.owner:
 							duplicate = True
 							break
-
+					
 					if (duplicate == False):
 						'''Get group name and group owner'''
 						gObj = Groups.query.filter_by(group_id=stg.group_id).first()
-
+						
 						sharedGTrans.append({'name':stg.name,'owner':stg.owner,'group_id':stg.group_id,'group_name':gObj.group_name,'group_creator':gObj.username,'permission':stg.permission})
 		except IntegrityError as e:
 			print(e)
 			return redirect(url_for('profile'))
-
+		
 		return render_template('transcripts.html', title='Transcripts', myTranscripts=myTranscripts, sharedUTrans=sharedUTrans, sharedGTrans=sharedGTrans)
-
+		
 	else:
 		return redirect(url_for('login'))

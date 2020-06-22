@@ -3,7 +3,7 @@
 	<div class="content-section">
 	<h1>Create New Group:</h1>
 
-	<form action="" method="post" novalidate>
+	<form action="" method="post" enctype="multipart/form-data" novalidate>
 		<!-- old
 		{{ groupform.hidden_tag() }} <!Protects against CSRF>
 		<p>
@@ -16,6 +16,7 @@
 
 		<p>{{ groupform.add() }}</p>
 		-->
+	{{ groupform.hidden_tag() }}
 	<div class="row">
 	<div class="form-group col-md-4">
         {{ groupform.grpname.label(class="form-control-label") }}

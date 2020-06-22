@@ -7,7 +7,7 @@
 	<h1>Now Editing: {{ old_filename }}</h1>
 
 	<form action = "{{ url_for('edit', owner=owner, old_filename=old_filename) }}" method = "post" enctype="multipart/form-data" novalidate>
-		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
+		{{ transcriptForm.hidden_tag() }}
 		<div>
 		<p>
 			{{ transcriptForm.transcript(class="container-fluid", rows="20%", style="border-radius: 25px;") }}
@@ -15,7 +15,7 @@
 		</div>
 
 		<p>
-			<label>{{ transcriptForm.name.label}}:  </label> {{ transcriptForm.name(style="border-radius: 10px;") }}<br>
+			<label>{{ transcriptForm.name.label}}:  </label> {{ transcriptForm.name(style="border-radius: 10px;", readonly=True) }}<br>
 			{% for error in transcriptForm.name.errors %}
 			<span style="color: red;">[{{ error }}]</span>
 			{% endfor %}
