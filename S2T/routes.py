@@ -1156,7 +1156,7 @@ def list_transcripts():
 						if t.name == stg.name and t.owner == stg.owner:
 							duplicate = True
 							break
-
+					
 					if (duplicate == False):
 						'''Get group name and group owner'''
 						gObj = Groups.query.filter_by(group_id=stg.group_id).first()
