@@ -39,10 +39,10 @@
 				<td><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
 				<td>{{ tran.owner }}</td>
 				{% if tran.permission == 'RW' %}
-					<td><a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}">Edit</a></td>
-					<td><a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}">Delete</a></td>
+					<td><a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a></td>
+					<td><a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a></td>
 				{% else %}
-					<td><a href="{{ url_for('view', owner=tran.owner, filename=tran.name) }}">View</a></td>
+					<td><a href="{{ url_for('view', owner=tran.owner, filename=tran.name) }}" class="btn btn-warning" role="button">View</a></td>
 				{% endif %}
 			</tr>
 		{% endfor %}
@@ -63,10 +63,10 @@
 				<td><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
 				<td>{{ tran.owner }}</a></td>
 				{% if tran.permission == 'RW' %}
-					<td><a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}">Edit</a></td>
-					<td><a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}">Delete</a></td>
+					<td><a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a></td>
+					<td><a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a></td>
 				{% else %}
-					<td><a href="{{ url_for('view', owner=tran.owner, filename=tran.name) }}">View</a></td>
+					<td><a href="{{ url_for('view', owner=tran.owner, filename=tran.name) }}" class="btn btn-warning" role="button">View</a></td>
 				{% endif %}
 			</tr>
 		{% endfor %}
