@@ -84,9 +84,24 @@ class Group_shared_transcripts(db.Model):
 	owner = db.Column(db.String(255), db.ForeignKey('transcripts.username'))
 	group_id = db.Column(db.Integer, db.ForeignKey('group_list.group_id'))
 	permission = db.Column(db.String(2))
+	allow_share = db.Column(db.String(1))
 	
-	def __init__(self, name, owner, group_id, permission):
+	def __init__(self, name, owner, group_id, permission, allow_share):
 		self.name = name
 		self.owner = owner
 		self.group_id = group_id
+		self.permission = permission
+		self.allow_share = allow_share
+		
+class Group_share_details(db.Model):
+	__tablename__ = 'group_share_details'
+	
+	gsd_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+	gst_id = db.Column(db.Integer, db.ForeignKey('group_shared_transcripts.share_id'))
+	username = db.Column(db.String(255), db.ForeignKey('users.username'))
+	permission = db.Column(db.String(2))
+	
+	def __init__(self, gst_id, username, permission):
+		self.gst_id = gst_id
+		self.username = username
 		self.permission = permission

@@ -137,11 +137,11 @@
 						var markup = "<tr class='editURows'>";
 						
 						if (data[i].user_perm == "RO") {
-							markup += "<td><select class='uperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>"
+							markup += "<td><select class='uperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
 						} else if (data[i].user_perm == "RW") {
-							markup += "<td><select class='uperm'><option value='NS'>Not Shared</option><option value='RO'>Read Only</option><option value='RW' selected='selected'>Read & Write</option></select></td>"
+							markup += "<td><select class='uperm'><option value='NS'>Not Shared</option><option value='RO'>Read Only</option><option value='RW' selected='selected'>Read & Write</option></select></td>";
 						} else {
-							markup += "<td><select class='uperm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>"
+							markup += "<td><select class='uperm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
 						}
 						
 						editUsers.push(data[i].username);
@@ -180,47 +180,93 @@
 			
 		});
 		
+		function updateGroupBody(prevRow, data, grp_perm){
+			
+			// Populate table with members
+			var newRow = "<tr><td colspan='6'><table>"
+			+ "<thead><th>Username</th><th>Name</th><th>Role</th><th>Permissions</th></thead>"
+			+ "<tbody>";
+			
+			for (var i = 0; i < data.length; i++) {
+				newRow += "<tr><td>" + data[i].username + "</td><td>" + data[i].name + "</td><td>" + data[i].role + "</td>";
+				
+				if (grp_perm == "RO") {
+					newRow += "<td><select><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
+				} else if (grp_perm == "RW") {
+					newRow += "<td><select><option value='NS'>Not Shared</option><option value='RO'>Read Only</option><option value='RW' selected='selected'>Read & Write</option></select></td>";
+				} else {
+					newRow += "<td><select disabled=true><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
+				}
+				
+				newRow += "</tr>";
+				
+			}
+			
+			newRow += "</tbody></table></td></tr>";
+			var markup = prevRow + newRow;
+			
+			$("#groupBody").append(markup);
+		}
 		
 		var gid = [];
+		function post_group_mems(group_id, prevRow, grp_perm, updateFunc) {
+			$.post('{{ url_for("get_group_mems") }}', {'group_id': group_id}, function(){
+					
+			}).done(function(data){
+				if (data == "Unable to list members"){
+					alert(data);
+				} else {
+					// Callback function to update html
+					updateFunc(prevRow, data, grp_perm);
+				}
+			});
+			
+		}
+		
 		function search_groups(){
 			url = '{{ url_for("search_groups", owner=owner , filename=filename) }}';
-
-			$.getJSON(url, function(data, status, xhr){
-
+			
+			$.getJSON(url, function(){
+				
+			}).done(function(data) {
 				if (data == "Unable to list groups") {
 					alert(data);
 				} else {
-
+					
 					// Populate table with new entries
-					for (var i = 0; i < data.length; i++ ) {
+					for (var n = 0; n < data.length; n++ ) {
+						
+						var row = "<tr class='groupRows'>";
 
-						var markup = "<tr class='groupRows'>";
-
-						if (data[i].group_perm == "RO") {
-							markup += "<td><select class='gperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>"
-						} else if (data[i].group_perm == "RW") {
-							markup += "<td><select class='gperm'><option value='NS'>Not Shared</option><option value='RO'>Read Only</option><option value='RW' selected='selected'>Read & Write</option></select></td>"
+						if (data[n].group_perm == "RO") {
+							row += "<td><select class='gperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
+						} else if (data[n].group_perm == "RW") {
+							row += "<td><select class='gperm'><option value='NS'>Not Shared</option><option value='RO'>Read Only</option><option value='RW' selected='selected'>Read & Write</option></select></td>";
 						} else {
-							markup += "<td><select class='gperm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>"
+							row += "<td><select class='gperm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
 						}
 
-						gid.push(data[i].group_id);
-
-						markup += "<td class='gname'>" +
-						data[i].group_name + "</td><td class='cname'>" +
-						data[i].username + "</td><td class='owners'>"+
-						data[i].owners + "</td><td class='leaders'>"+
-						data[i].leaders + "</td><td class='members'>" +
-						data[i].members+ "</td></tr>";
-						$("#groupBody").append(markup);
+						gid.push(data[n].group_id);
+						
+						row += "<td class='gname'>" +
+						data[n].group_name + "</td><td class='cname'>" +
+						data[n].username + "</td><td class='owners'>"+
+						data[n].owners + "</td><td class='leaders'>"+
+						data[n].leaders + "</td><td class='members'>" +
+						data[n].members+ "</td></tr>";
+						
+						// Callback function to update HTML
+						post_group_mems(data[n].group_id, row, data[n].group_perm, updateGroupBody);
+						
+						
 					}
-
+					
 				}
+			
 			});
-
+			
 
 		};
-
 		search_groups();
 
 		$('#share-group-btn').click(function(){
@@ -314,6 +360,7 @@
 
 		<p>
 			<table id="groupTable" class="table">
+			<col><col><col><col><col><col>
 				<thead class="thead-dark">
 					<tr>
 						<th>Sharing Permissions</th>

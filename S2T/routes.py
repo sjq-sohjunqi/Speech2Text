@@ -796,7 +796,7 @@ def search_groups(owner, filename):
 	if not session.get('USER') is None:
 		try:
 			res = Group_roles.query.filter_by(username=session.get('USER')).all()
-
+			
 			for r in res:
 				grpOwn = getGrpOwn(r.group_id)
 				grpLead = getGrpLead(r.group_id)
@@ -808,10 +808,8 @@ def search_groups(owner, filename):
 				grpPerm = 'Not Shared'
 				if grpShareObj:
 					grpPerm = grpShareObj.permission
-
+				
 				list_grps.append({'group_perm':grpPerm, 'group_id':r.group_id, 'group_name':grpObj.group_name, 'username':grpObj.username, 'owners':grpOwn, 'leaders':grpLead, 'members':grpMem})
-
-			return jsonify(list_grps)
 
 		except IntegrityError as e:
 			print(e)
@@ -819,6 +817,26 @@ def search_groups(owner, filename):
 
 	return jsonify(list_grps)
 
+'''Return list of group members'''
+@S2T.route('/get_group_mems', methods=['POST'])
+def get_group_mems():
+	group_id = request.form.get('group_id')
+	
+	list_mems = []
+	
+	if not session.get('USER') is None:
+		try:
+			grObj = Group_roles.query.filter_by(group_id=group_id).all()
+			for gr in grObj:
+				'''Get name of user'''
+				userObj = User.query.filter_by(username=gr.username).first()
+				list_mems.append({'username':gr.username, 'name': userObj.name, 'role':gr.role})
+				
+		except IntegrityError as e:
+			print(e)
+			return jsonify('Unable to list members')
+		
+	return jsonify(list_mems)
 
 @S2T.route('/share/<string:owner>/<string:filename>', methods=['GET', 'POST'])
 def share(owner, filename):
@@ -946,7 +964,7 @@ def share_groups():
 					if gst:
 						gst.permission = permissions[idx]
 					else:
-						gst = Group_shared_transcripts(filename, owner, gid, permissions[idx])
+						gst = Group_shared_transcripts(filename, owner, gid, permissions[idx], 'N')
 
 
 					db.session.add(gst)
