@@ -19,6 +19,10 @@
 					$(this).prop('disabled', true);
 				});
 				
+				// Disable allow share dropdown
+				$("#groupBody").find(grpRowId).find(".a_share").each(function(){
+					$(this).prop('disabled', true);
+				});
 				
 			} else {
 				
@@ -31,6 +35,10 @@
 					
 				});
 				
+				// Enable allow share dropdown
+				$("#groupBody").find(grpRowId).find(".a_share").each(function(){
+					$(this).prop('disabled', false);
+				});
 				
 			}
 			
@@ -279,13 +287,15 @@
 					for (var n = 0; n < data.length; n++ ) {
 						
 						var row = "<tr class='groupRows' id='" + data[n].group_id +"'>";
-
+						
+						var shared = true;
 						if (data[n].group_perm == "RO") {
 							row += "<td><select onChange='changeDisabled(" + data[n].group_id + ")' class='gperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
 						} else if (data[n].group_perm == "RW") {
 							row += "<td><select onChange='changeDisabled(" + data[n].group_id + ")' class='gperm'><option value='NS'>Not Shared</option><option value='RO'>Read Only</option><option value='RW' selected='selected'>Read & Write</option></select></td>";
 						} else {
 							row += "<td><select onChange='changeDisabled(" + data[n].group_id + ")' class='gperm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
+							shared = false;
 						}
 
 						gid.push(data[n].group_id);
@@ -295,7 +305,19 @@
 						data[n].username + "</td><td class='owners'>"+
 						data[n].owners + "</td><td class='leaders'>"+
 						data[n].leaders + "</td><td class='members'>" +
-						data[n].members+ "</td></tr>";
+						data[n].members+ "</td>";
+						
+						if (shared) {
+							if (data[n].allow_share == "N") {
+								row += "<td><select class='a_share'><option value='N' selected='selected'>No</option><option value='Y'>Yes</option></select></td>";
+							} else {
+								row += "<td><select class='a_share'><option value='N'>No</option><option value='Y' selected='selected'>Yes</option></select></td>";
+							}
+						} else {
+							row += "<td><select disabled=true class='a_share'><option value='N'>No</option><option value='Y'>Yes</option></select></td>";
+						}
+						
+						row += "</tr>";
 						
 						// Callback function to update HTML
 						post_group_mems(data[n].group_id, row, data[n].group_perm, updateGroupBody);
@@ -318,11 +340,15 @@
 		$('#share-group-btn').click(function(){
 			
 			var member_dets = [];
-			
 			var permissions = [];
+			var allow_share = [];
+			
 			$("#groupBody").find('.groupRows').each(function(){
-				var grpPerm = $(this).find("option:selected").val();
+				var grpPerm = $(this).find(".gperm").find("option:selected").val();
 				permissions.push(grpPerm);
+				
+				var aShare = $(this).find(".a_share").find("option:selected").val();
+				allow_share.push(aShare);
 				
 				var grpId = $(this).attr("id");
 				
@@ -349,7 +375,7 @@
 				}
 			});
 			
-			$.post('/share_groups',{'gid':gid, 'owner':'{{owner}}', 'filename':'{{filename}}', 'permissions':permissions, 'member_dets':member_dets},function(data,status){
+			$.post('/share_groups',{'gid':gid, 'owner':'{{owner}}', 'filename':'{{filename}}', 'permissions':permissions, 'member_dets':member_dets, 'allow_share':allow_share},function(data,status){
 				if (data == 'Transcript successfully shared') {
 
 					alert(data);
@@ -433,7 +459,7 @@
 
 		<p>
 			<table id="groupTable" class="table">
-			<col><col><col><col><col><col>
+			<col><col><col><col><col><col><col>
 				<thead class="thead-dark">
 					<tr>
 						<th>Sharing Permissions</th>
@@ -442,6 +468,7 @@
 						<th>Owners</th>
 						<th>Leaders</th>
 						<th>Members</th>
+						<th>Allow sharing<br/>by Owners/Leaders</th>
 					</tr>
 				</thead>
 				<tbody id="groupBody">

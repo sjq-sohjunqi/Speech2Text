@@ -806,10 +806,12 @@ def search_groups(owner, filename):
 
 				grpShareObj = Group_shared_transcripts.query.filter_by(group_id=r.group_id, name=filename, owner=owner).first()
 				grpPerm = 'Not Shared'
+				allowShare = 'N'
 				if grpShareObj:
 					grpPerm = grpShareObj.permission
+					allowShare = grpShareObj.allow_share
 				
-				list_grps.append({'group_perm':grpPerm, 'group_id':r.group_id, 'group_name':grpObj.group_name, 'username':grpObj.username, 'owners':grpOwn, 'leaders':grpLead, 'members':grpMem})
+				list_grps.append({'group_perm':grpPerm, 'allow_share':allowShare, 'group_id':r.group_id, 'group_name':grpObj.group_name, 'username':grpObj.username, 'owners':grpOwn, 'leaders':grpLead, 'members':grpMem})
 
 		except IntegrityError as e:
 			print(e)
@@ -965,6 +967,7 @@ def share_groups():
 		filename = request.form.get('filename')
 		group_ids = request.form.getlist('gid[]')
 		permissions = request.form.getlist('permissions[]')
+		allow_share = request.form.getlist('allow_share[]')
 		
 		member_dets = request.form.getlist('member_dets[]')
 		members = {}
@@ -1014,6 +1017,9 @@ def share_groups():
 						'''Edit permission'''
 						gst.permission = permissions[idx]
 						
+						'''Edit allow_share'''
+						gst.allow_share = allow_share[idx]
+						
 						'''Check all special permissions for users'''
 						gsdObj = Group_share_details.query.filter_by(gst_id=gst.share_id).all()
 						
@@ -1057,7 +1063,7 @@ def share_groups():
 								
 					else:
 						'''Create new record first'''
-						new_gst = Group_shared_transcripts(filename, owner, gid, permissions[idx], 'N')
+						new_gst = Group_shared_transcripts(filename, owner, gid, permissions[idx], allow_share[idx])
 						db.session.add(new_gst)
 						db.session.commit()
 						
