@@ -6,6 +6,40 @@
 	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 	<script type="text/javascript">
+	
+	function changeDisabled(id) {
+			var memRowId = "#group_mems_" + id;
+			var grpRowId = "#" + id;
+			
+			// Get option selected by user
+			var opt = $("#groupBody").find(grpRowId).find(".gperm").find("option:selected").val();
+			if (opt == "NS") {
+				// Disable all member rows
+				$("#groupBody").find(memRowId).find(".mem_perm").each(function(){
+					$(this).prop('disabled', true);
+				});
+				
+				
+				// Hide all member rows
+				
+				
+			} else {
+				
+				// Enable all member rows
+				$("#groupBody").find(memRowId).find(".mem_perm").each(function(){
+					$(this).prop('disabled', false);
+					
+					// Change all member rows to selected value
+					$(this).val(opt);
+					
+				});
+				
+				
+			}
+			
+			
+	};
+	
 	$(document).ready(function() {
 
 		var all_user_list = [];
@@ -180,23 +214,34 @@
 			
 		});
 		
-		function updateGroupBody(prevRow, data, grp_perm){
+		function updateGroupBody(grpID, prevRow, data, grp_perm){
 			
 			// Populate table with members
-			var newRow = "<tr><td colspan='6'><table>"
+			var newRow = "<tr id='group_mems_" + grpID + "'><td colspan='6'><table>"
 			+ "<thead><th>Username</th><th>Name</th><th>Role</th><th>Permissions</th></thead>"
 			+ "<tbody>";
 			
 			for (var i = 0; i < data.length; i++) {
-				newRow += "<tr><td>" + data[i].username + "</td><td>" + data[i].name + "</td><td>" + data[i].role + "</td>";
+				newRow += "<tr class='gmu'><td class='gmu_name' name='" + data[i].username + "'>" + data[i].username + "</td><td>" + data[i].name + "</td><td>" + data[i].role + "</td>";
 				
-				if (grp_perm == "RO") {
-					newRow += "<td><select><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
-				} else if (grp_perm == "RW") {
-					newRow += "<td><select><option value='NS'>Not Shared</option><option value='RO'>Read Only</option><option value='RW' selected='selected'>Read & Write</option></select></td>";
+				// Check for special permissions
+				if (data[i].perm == "RO") {
+					newRow += "<td><select class='mem_perm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
+				} else if (data[i].perm == "RW") {
+					newRow += "<td><select class='mem_perm'><option value='NS'>Not Shared</option><option value='RO'>Read Only</option><option value='RW' selected='selected'>Read & Write</option></select></td>";
+				} else if (data[i].perm == "NS") {
+					newRow += "<td><select class='mem_perm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
 				} else {
-					newRow += "<td><select disabled=true><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
+					// Use group permissions
+					if (grp_perm == "RO") {
+						newRow += "<td><select class='mem_perm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
+					} else if (grp_perm == "RW") {
+						newRow += "<td><select class='mem_perm'><option value='NS'>Not Shared</option><option value='RO'>Read Only</option><option value='RW' selected='selected'>Read & Write</option></select></td>";
+					} else {
+						newRow += "<td><select disabled=true class='mem_perm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
+					}
 				}
+				
 				
 				newRow += "</tr>";
 				
@@ -210,14 +255,14 @@
 		
 		var gid = [];
 		function post_group_mems(group_id, prevRow, grp_perm, updateFunc) {
-			$.post('{{ url_for("get_group_mems") }}', {'group_id': group_id}, function(){
+			$.post('{{ url_for("get_group_mems") }}', {'group_id': group_id, 'owner':'{{owner}}', 'filename':'{{filename}}'}, function(){
 					
 			}).done(function(data){
 				if (data == "Unable to list members"){
 					alert(data);
 				} else {
 					// Callback function to update html
-					updateFunc(prevRow, data, grp_perm);
+					updateFunc(group_id, prevRow, data, grp_perm);
 				}
 			});
 			
@@ -236,14 +281,14 @@
 					// Populate table with new entries
 					for (var n = 0; n < data.length; n++ ) {
 						
-						var row = "<tr class='groupRows'>";
+						var row = "<tr class='groupRows' id='" + data[n].group_id +"'>";
 
 						if (data[n].group_perm == "RO") {
-							row += "<td><select class='gperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
+							row += "<td><select onChange='changeDisabled(" + data[n].group_id + ")' class='gperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
 						} else if (data[n].group_perm == "RW") {
-							row += "<td><select class='gperm'><option value='NS'>Not Shared</option><option value='RO'>Read Only</option><option value='RW' selected='selected'>Read & Write</option></select></td>";
+							row += "<td><select onChange='changeDisabled(" + data[n].group_id + ")' class='gperm'><option value='NS'>Not Shared</option><option value='RO'>Read Only</option><option value='RW' selected='selected'>Read & Write</option></select></td>";
 						} else {
-							row += "<td><select class='gperm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
+							row += "<td><select onChange='changeDisabled(" + data[n].group_id + ")' class='gperm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
 						}
 
 						gid.push(data[n].group_id);
@@ -268,15 +313,46 @@
 
 		};
 		search_groups();
-
+		
+		
+		
+		
+		
 		$('#share-group-btn').click(function(){
-
+			
+			var member_dets = [];
+			
 			var permissions = [];
 			$("#groupBody").find('.groupRows').each(function(){
-				permissions.push($(this).find("option:selected").val());
+				var grpPerm = $(this).find("option:selected").val();
+				permissions.push(grpPerm);
+				
+				var grpId = $(this).attr("id");
+				
+				// Check each individual
+				if (grpPerm != 'NS') {
+					
+					var eleId = "#group_mems_" + grpId;
+					$(this).parent().find(eleId).find('.gmu').each(function(){
+						
+						// Get each username
+						memUser = $(this).find('.gmu_name').attr("name");
+						
+						// Get each permission
+						memPerm = $(this).find("option:selected").val();
+						
+						// If different than group perm, need to update
+						if (memPerm != grpPerm) {
+							var mem = {"gid":grpId,"username":memUser,"permission":memPerm};
+							member_dets.push(JSON.stringify(mem));
+						}
+						
+					});
+					
+				}
 			});
-
-			$.post('/share_groups',{'gid':gid, 'owner':'{{owner}}', 'filename':'{{filename}}', 'permissions':permissions},function(data,status){
+			
+			$.post('/share_groups',{'gid':gid, 'owner':'{{owner}}', 'filename':'{{filename}}', 'permissions':permissions, 'member_dets':member_dets},function(data,status){
 				if (data == 'Transcript successfully shared') {
 
 					alert(data);

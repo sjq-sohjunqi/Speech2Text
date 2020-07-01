@@ -4,7 +4,7 @@ from S2T import S2T, db, bcrypt
 from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm, TranscriptForm, GroupForm
 from werkzeug.utils import secure_filename
 
-from S2T.models import User, Transcripts, Groups, Group_roles, Shared_transcripts, Group_shared_transcripts
+from S2T.models import User, Transcripts, Groups, Group_roles, Shared_transcripts, Group_shared_transcripts, Group_share_details
 from sqlalchemy.exc import IntegrityError
 
 '''Libraries for Google Cloud Speech-to-Text'''
@@ -822,6 +822,10 @@ def search_groups(owner, filename):
 def get_group_mems():
 	group_id = request.form.get('group_id')
 	
+	'''Transcript information'''
+	filename = request.form.get('filename')
+	owner = request.form.get('owner')
+	
 	list_mems = []
 	
 	if not session.get('USER') is None:
@@ -830,7 +834,21 @@ def get_group_mems():
 			for gr in grObj:
 				'''Get name of user'''
 				userObj = User.query.filter_by(username=gr.username).first()
-				list_mems.append({'username':gr.username, 'name': userObj.name, 'role':gr.role})
+				
+				'''Get current special permission (if any)'''
+				perm = 'GP'
+				
+				'''Get transcript ID (if shared)'''
+				gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gr.group_id).first()
+				if gst:
+					'''Transcript is shared; might have special permissions'''
+					gsd = Group_share_details.query.filter_by(gst_id=gst.share_id, username=gr.username).first()
+					if gsd:
+						'''User has special permissions'''
+						perm = gsd.permission
+				
+				
+				list_mems.append({'username':gr.username, 'name': userObj.name, 'role':gr.role, 'perm':perm})
 				
 		except IntegrityError as e:
 			print(e)
@@ -947,29 +965,129 @@ def share_groups():
 		filename = request.form.get('filename')
 		group_ids = request.form.getlist('gid[]')
 		permissions = request.form.getlist('permissions[]')
-
+		
+		member_dets = request.form.getlist('member_dets[]')
+		members = {}
+		'''Organise member permission details into specific groups'''
+		for mdJSON in member_dets:
+			'''Parse JSON'''
+			md = json.loads(mdJSON)
+			
+			md_gid = md.get('gid')
+			md_user = md.get('username')
+			md_perm = md.get('permission')
+			
+			if members.get(md_gid) is None:
+				newDict = {}
+				'''print(type(newDict))'''
+				newDict[md_user] = md_perm
+				members[md_gid] = newDict
+			else:
+				members[md_gid][md_user] = md_perm
+		
+		
 		'''Add groups in shared_transcripts table'''
 		try:
 			for idx, gid in enumerate(group_ids):
 
 				'''Check if gid is not shared (may need to delete from db)'''
 				if permissions[idx] == 'NS':
+					
 					'''Check if there is a record in db'''
-					gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gid).delete()
-					db.session.commit()
-
+					gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gid).first()
+					if gst:
+						
+						'''Remove any special permissions given in the db'''
+						gsd = Group_share_details.query.filter_by(gst_id=gst.share_id).delete()
+						
+						db.session.delete(gst)
+						db.session.commit()
+					
 				else:
 					'''Need to modify or add record'''
+					
+					'''Check if there is a record in db'''
+					gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gid).first()
+					
+					if gst:
+						'''Record exists'''
+						'''Edit permission'''
+						gst.permission = permissions[idx]
+						
+						'''Check all special permissions for users'''
+						gsdObj = Group_share_details.query.filter_by(gst_id=gst.share_id).all()
+						
+						'''Extract dict of members and permissions'''
+						memPerm = members.get(gid)
+						
+						for gsd in gsdObj:
+							'''Traverse dict to look for respective username (if dict is not empty)'''
+							
+							if memPerm is None:
+								'''No special permissions; remove all related entries'''
+								db.session.delete(gsd)
+								db.session.commit()
+							else:
+								'''There are special permissions'''
+								if memPerm.get(gsd.username) is None:
+									'''Need to remove record from db'''
+									db.session.delete(gsd)
+									db.session.commit()
+								else:
+									'''Need to update permissions'''
+									gsd.permission = memPerm.get(gsd.username)
+									db.session.add(gsd)
+									db.session.commit()
+									
+									'''Remove user from dictionary'''
+									memPerm.pop(gsd.username)
+									
+						
+						'''For any usernames left in dictionary, need to add them into the db'''
+						if not memPerm is None:
+							memPermKeys = memPerm.keys()
+							for mpk in memPermKeys:
+								'''Get corresponding permission'''
+								corrPerm = memPerm.get(mpk)
+								
+								'''Add new record into db'''
+								new_gsd = Group_share_details(gst.share_id, mpk, corrPerm)
+								db.session.add(new_gsd)
+								db.session.commit()
+								
+					else:
+						'''Create new record first'''
+						new_gst = Group_shared_transcripts(filename, owner, gid, permissions[idx], 'N')
+						db.session.add(new_gst)
+						db.session.commit()
+						
+						gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gid).first()
+						
+						'''Update special member permissions (if any)'''
+						memPerm = members.get(gid)
+						
+						if not memPerm is None:
+						
+							memPermKeys = memPerm.keys()
+							for mpk in memPermKeys:
+								'''Get corresponding permission'''
+								corrPerm = memPerm.get(mpk)
+								
+								'''Add new record into db'''
+								new_gsd = Group_share_details(gst.share_id, mpk, corrPerm)
+								db.session.add(new_gsd)
+								db.session.commit()
+						
+					'''
 					gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gid).first()
 					if gst:
 						gst.permission = permissions[idx]
 					else:
 						gst = Group_shared_transcripts(filename, owner, gid, permissions[idx], 'N')
-
-
+						
 					db.session.add(gst)
 					db.session.commit()
-
+					'''
 
 			return jsonify("Transcript successfully shared")
 
