@@ -298,7 +298,7 @@
 							shared = false;
 						}
 
-						gid.push(data[n].group_id);
+						//gid.push(data[n].group_id);
 						
 						row += "<td class='gname'>" +
 						data[n].group_name + "</td><td class='cname'>" +
@@ -351,6 +351,7 @@
 				allow_share.push(aShare);
 				
 				var grpId = $(this).attr("id");
+				gid.push(grpId);
 				
 				// Check each individual
 				if (grpPerm != 'NS') {

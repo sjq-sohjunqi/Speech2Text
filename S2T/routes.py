@@ -74,7 +74,7 @@ def login():
             if authenticated_user:
                 session['USER'] = userObj.username
                 session['NAME'] = userObj.name
-                return redirect(url_for('profile'))
+                return redirect(url_for('index'))
 
             else:
                 flash('Login unsuccessful for user {}'.format(form.username.data),'danger')
@@ -1262,9 +1262,9 @@ def list_transcripts():
 
 		user = session.get('USER')
 		myTranscripts = []
-		sharedUTrans = []
-		sharedGTrans = []
-
+		
+		sharedTrans = []
+		
 		try:
 			'''Get user's transcripts'''
 			transObj = Transcripts.query.filter_by(username=user).all()
@@ -1276,39 +1276,201 @@ def list_transcripts():
 
 			stuObj = Shared_transcripts.query.filter_by(username=user).all()
 			for stu in stuObj:
-				sharedUTrans.append(stu)
-
+				
+				swArr = []
+				swArr.append("You")
+				
+				sharedTrans.append({'name':stu.name, 'owner':stu.owner, 'sharedWith':swArr, 'permission':stu.permission, 'allow_share':'N', 'dup':'false'})
+			
+			
 
 			'''Get groups the user is in'''
 			grpObj = Group_roles.query.filter_by(username=user).all()
+			
+			'''List to store groups with NS permission applied to user'''
+			NSList = {}
+			
 			for grp in grpObj:
+				
 				'''Get transcripts shared with group (make sure no duplicate transcripts)'''
 				stgObj = Group_shared_transcripts.query.filter_by(group_id=grp.group_id).all()
 				for stg in stgObj:
-					duplicate = False
+					owner = False
 
 					'''Check if duplicated in myTranscripts'''
 					for t in myTranscripts:
 						if t.name == stg.name and t.username == stg.owner:
-							duplicate = True
+							owner = True
 							break
-
+					
+					
+					if (owner == False):
+						print("Not owner")
+						'''Check if there is already another share with another group that user is in'''
+						oShare = False
+						for st in sharedTrans:
+							if st.get('name') == stg.name and st.get('owner') == stg.owner:
+								'''There is another share'''
+								print("Got another share leh")
+								oShare = True
+								
+								'''Update shared with and permissions'''
+								if st.get('dup') == 'false':
+								
+									if st.get('permission') == "RO":
+										newText = st['sharedWith'].pop() + " (Read Only)"
+										st['sharedWith'].append(newText)
+									elif st.get('permission') == "RW":
+										newText = st['sharedWith'].pop() + " (Read & Write)"
+										st['sharedWith'].append(newText)							
+									
+									st['dup'] = 'true'
+									
+								
+								
+								'''Query for group name'''
+								g = Groups.query.filter_by(group_id=grp.group_id).first()
+								
+								'''Need to check special permissions (if any)'''
+								gsd = Group_share_details.query.filter_by(gst_id=stg.share_id, username=user).first()
+								
+								if gsd:
+									'''If special permissions are higher than current, use special'''
+									if (gsd.permission == "RW"):
+										st['sharedWith'].append(g.group_name + " (Read & Write)")
+										st['permission'] = "RW"
+										
+									elif (gsd.permission == "RO"):
+										'''No need to change permissions, either current is alrdy RW or RO'''
+										st['sharedWith'].append(g.group_name + " (Read Only)")
+									
+									else:
+										'''Not shared but overrided by other group share'''
+										st['sharedWith'].append(g.group_name + " (Excluded Sharing)")
+										
+										
+								else:
+									'''No special permissions for user; use group permissions if higher'''
+									if (stg.permission == "RW"):
+										st['sharedWith'].append(g.group_name + " (Read & Write)")
+										st['permission'] = "RW"
+										
+									elif (stg.permission == "RO"):
+										st['sharedWith'].append(g.group_name + " (Read Only)")
+									else:
+										st['sharedWith'].append(g.group_name + " (Excluded Sharing)")
+									
+								
+								'''Break out of loop checking'''
+								break
+								
+						if oShare == False:
+							'''No other shares'''
+							'''Create new entry in sharedTrans'''
+							print("No other shares")
+							
+							'''Need to check special permissions'''
+							gsd = Group_share_details.query.filter_by(gst_id=stg.share_id, username=user).first()
+							
+							'''Query for group name'''
+							g = Groups.query.filter_by(group_id=grp.group_id).first()
+							
+							
+							swText = ""
+							swArr = []
+							
+							'''Check NSList for previous group not shared'''
+							NSLI = stg.name + stg.owner
+							NS_Append = False
+							
+							print("Printing NSList: ")
+							print(NSList)
+							
+							if not NSList.get(NSLI) is None:
+								print("There is smt in NSList")
+								NS_Append = True
+								'''Update swText with previous group's name'''
+								swText += NSList.get(NSLI) + " (Excluded Sharing)"
+								swArr.append(swText)
+							
+							swText = g.group_name
+							
+							if gsd:
+								print("There is special perm")
+								print(gsd.permission)
+								'''If special permissions are higher than group, use special'''
+								if (gsd.permission == "RW"):
+									if NS_Append:
+										swText += ' (Read & Write)'
+									
+									swArr.append(swText)
+										
+									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':gsd.permission, 'allow_share':stg.allow_share, 'dup':'false'})
+									
+								elif (gsd.permission == "RO"):
+									if NS_Append:
+										swText += ' (Read Only)'
+									
+									swArr.append(swText)
+										
+									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':gsd.permission, 'allow_share':stg.allow_share, 'dup':'false'})
+								else:
+									'''If not shared, don't add to transcripts'''
+									'''Need to update record of not shared with group name'''
+									NSListInd = stg.name + stg.owner
+									print("Adding to " + NSListInd)
+									
+									NSList[NSListInd] = g.group_name
+								
+							else:
+								print("No special perms")
+							
+								'''No special permissions for user; use group permissions if higher'''
+								if (stg.permission == "RW"):
+									if NS_Append:
+										swText += ' (Read & Write)'
+									
+									swArr.append(swText)
+									
+									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':stg.permission, 'allow_share':stg.allow_share, 'dup':'false'})
+									
+								elif (stg.permission == "RO"):
+									
+									if NS_Append:
+										swText += ' (Read Only)'
+									
+									swArr.append(swText)
+									
+									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':stg.permission, 'allow_share':stg.allow_share, 'dup':'false'})
+								else:
+									'''If not shared, don't add to transcripts'''
+									'''Need to update record of not shared with group name'''
+									NSListInd = stg.name + stg.owner
+									print("Adding to " + NSListInd)
+									
+									NSList[NSListInd] = g.group_name
+								
+					
 					'''Check if duplicated in sharedUTrans'''
+					'''
 					for t in sharedUTrans:
 						if t.name == stg.name and t.owner == stg.owner:
 							duplicate = True
 							break
 					
 					if (duplicate == False):
-						'''Get group name and group owner'''
+						
 						gObj = Groups.query.filter_by(group_id=stg.group_id).first()
 
 						sharedGTrans.append({'name':stg.name,'owner':stg.owner,'group_id':stg.group_id,'group_name':gObj.group_name,'group_creator':gObj.username,'permission':stg.permission})
+						
+					'''
+						
 		except IntegrityError as e:
 			print(e)
 			return redirect(url_for('profile'))
 
-		return render_template('transcripts.html', title='Transcripts', myTranscripts=myTranscripts, sharedUTrans=sharedUTrans, sharedGTrans=sharedGTrans)
+		return render_template('transcripts.html', title='Transcripts', myTranscripts=myTranscripts, sharedTrans=sharedTrans)
 
 	else:
 		return redirect(url_for('login'))
