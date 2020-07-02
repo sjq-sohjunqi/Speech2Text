@@ -35,7 +35,6 @@
 			<th>Shared with</th>
 			<th></th>
 			<th></th>
-			<th></th>
 		</tr>
 		</thead>
 		{% for tran in sharedTrans %}
@@ -47,12 +46,14 @@
 					{{ sw }} <br/>
 				{% endfor %}
 				</td>
+				<td>
 				{% if tran.permission == 'RW' %}
-					<td><a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a></td>
-					<td><a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a></td>
+					<a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a>
+					<a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a>
 				{% else %}
-					<td><a href="{{ url_for('view', owner=tran.owner, filename=tran.name) }}" class="btn btn-warning" role="button">View</a></td>
+					<a href="{{ url_for('view', owner=tran.owner, filename=tran.name) }}" class="btn btn-warning" role="button">View</a>
 				{% endif %}
+				</td>
 			</tr>
 		{% endfor %}
 	</table>
