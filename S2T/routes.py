@@ -330,6 +330,46 @@ def save():
 	return redirect(url_for('transcribe'))
 
 
+def getUPerm(filename, owner, user):
+	perm = 'NS'
+	try:
+		'''Check if transcript is owned by user'''
+		if owner == user:
+			perm = 'RW'
+		else:
+			'''Check if shared with user directly'''
+			uShare = Shared_transcripts.query.filter_by(name=filename, owner=owner, username=user).first()
+			if uShare:
+				perm = uShare.permission
+			else:
+				'''Check if shared with user's group'''
+				gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner).all()
+				for gs in gShare:
+					'''Check if user is in any group'''
+					uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
+					if uGrp:
+						'''Check for any special permissions under the group'''
+						gsd = Group_share_details.query.filter_by(gst_id=gs.share_id, username=user).first()
+						if gsd:
+							'''Use highest permission'''
+							if gsd.permission == 'RW':
+								perm = 'RW'
+							elif gsd.permission == 'RO':
+								if perm != 'RW':
+									perm = 'RO'
+							else:
+								if (perm != 'RO') or (perm != 'RW'):
+									perm = 'NS'
+						else:
+							'''Use group permission'''
+							perm = gs.permission
+		return perm
+	except IntegrityError as e:
+		print(e)
+		return perm
+	
+	
+
 @S2T.route('/view/<string:owner>/<string:filename>', methods=['GET'])
 def view(owner, filename):
 	transcriptForm = TranscriptForm()
@@ -341,30 +381,12 @@ def view(owner, filename):
 		filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner)
 
 		shared = False
-		try:
+		
+		uPerm = getUPerm(filename, owner, user)
+		
+		if (uPerm == 'RO') or (uPerm == 'RW'):
+			shared = True
 
-			'''Check if transcript is owned by user'''
-			if owner == user:
-				shared = True
-			else:
-				'''Check if shared with user directly'''
-				uShare = Shared_transcripts.query.filter_by(name=filename, owner=owner, username=user, permission='RO').first()
-				if uShare:
-					shared = True
-				else:
-					'''Check is shared with user's group'''
-					gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, permission='RO').all()
-					for gs in gShare:
-						'''Check if user is in any group'''
-						uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
-						if uGrp:
-							shared = True
-							break
-
-		except IntegrityError as e:
-			print(e)
-			flash('Transcript is not shared with you!','warning')
-			return redirect(url_for('list_transcripts'))
 
 		if shared == False:
 			flash('Transcript is not shared with you!','warning')
@@ -394,25 +416,11 @@ def download(owner, filename):
 
 		try:
 			shared = False
-
-			'''Check if transcript is owned by user'''
-			if owner == user:
+			
+			uPerm = getUPerm(filename, owner, user)
+			if (uPerm == 'RO') or (uPerm == 'RW'):
 				shared = True
-			else:
-				'''Check if shared with user directly'''
-				uShare = Shared_transcripts.query.filter_by(name=filename, owner=owner, username=user).first()
-				if uShare:
-					shared = True
-				else:
-					'''Check is shared with user's group'''
-					gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner).all()
-					for gs in gShare:
-						'''Check if user is in any group'''
-						uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
-						if uGrp:
-							shared = True
-							break
-
+			
 			if shared:
 				transObj = Transcripts.query.filter_by(name=filename, username=owner).first()
 				if transObj:
@@ -442,23 +450,10 @@ def delete(owner, filename):
 
 			shared = False
 
-			'''Check if transcript is owned by user'''
-			if owner == user:
+			uPerm = getUPerm(filename, owner, user)
+			if uPerm == 'RW':
 				shared = True
-			else:
-				'''Check if shared with user directly'''
-				uShare = Shared_transcripts.query.filter_by(name=filename, owner=owner, username=user, permission='RW').first()
-				if uShare:
-					shared = True
-				else:
-					'''Check is shared with user's group'''
-					gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, permission='RW').all()
-					for gs in gShare:
-						'''Check if user is in any group'''
-						uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
-						if uGrp:
-							shared = True
-							break
+
 
 			if shared:
 
@@ -470,9 +465,15 @@ def delete(owner, filename):
 
 				gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner).all()
 				for g in gShare:
+					'''Check for special permissions given for transcript'''
+					gsdShare = Group_share_details.query.filter_by(gst_id=g.share_id).all()
+					for gsd in gsdShare:
+						db.session.delete(gsd)
+						db.session.commit()
+					
 					db.session.delete(g)
 					db.session.commit()
-
+				
 
 				transObj = Transcripts.query.filter_by(name=filename, username=owner).first()
 				if transObj:
@@ -515,30 +516,34 @@ def edit(owner, old_filename):
 
 		'''Check if '''
 		shared = False
-		try:
+		# try:
 
-			'''Check if transcript is owned by user'''
-			if owner == user:
-				shared = True
-			else:
-				'''Check if shared with user directly'''
-				uShare = Shared_transcripts.query.filter_by(name=old_filename, owner=owner, username=user, permission='RW').first()
-				if uShare:
-					shared = True
-				else:
-					'''Check is shared with user's group'''
-					gShare = Group_shared_transcripts.query.filter_by(name=old_filename, owner=owner, permission='RW').all()
-					for gs in gShare:
-						'''Check if user is in any group'''
-						uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
-						if uGrp:
-							shared = True
-							break
+			# '''Check if transcript is owned by user'''
+			# if owner == user:
+				# shared = True
+			# else:
+				# '''Check if shared with user directly'''
+				# uShare = Shared_transcripts.query.filter_by(name=old_filename, owner=owner, username=user, permission='RW').first()
+				# if uShare:
+					# shared = True
+				# else:
+					# '''Check is shared with user's group'''
+					# gShare = Group_shared_transcripts.query.filter_by(name=old_filename, owner=owner, permission='RW').all()
+					# for gs in gShare:
+						# '''Check if user is in any group'''
+						# uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
+						# if uGrp:
+							# shared = True
+							# break
+							
+		uPerm = getUPerm(old_filename, owner, user)
+		if uPerm == 'RW':
+			shared = True
 
-		except IntegrityError as e:
-			print(e)
-			flash('Transcript is not shared with you!','warning')
-			return redirect(url_for('list_transcripts'))
+		# except IntegrityError as e:
+			# print(e)
+			# flash('Transcript is not shared with you!','warning')
+			# return redirect(url_for('list_transcripts'))
 
 		if shared == False:
 			flash('Transcript is not shared with you!','warning')
@@ -1020,6 +1025,9 @@ def share_groups():
 						'''Edit allow_share'''
 						gst.allow_share = allow_share[idx]
 						
+						db.session.add(gst)
+						db.session.commit()
+						
 						'''Check all special permissions for users'''
 						gsdObj = Group_share_details.query.filter_by(gst_id=gst.share_id).all()
 						
@@ -1305,14 +1313,23 @@ def list_transcripts():
 					
 					
 					if (owner == False):
-						print("Not owner")
 						'''Check if there is already another share with another group that user is in'''
 						oShare = False
 						for st in sharedTrans:
 							if st.get('name') == stg.name and st.get('owner') == stg.owner:
 								'''There is another share'''
-								print("Got another share leh")
 								oShare = True
+								
+								'''Check whether group allows sharing by owners/leaders'''
+								if (stg.allow_share == 'Y') and (st.get('allow_share') != 'Y'):
+									'''Check if user's role is leader/owner'''
+									checkRole = Group_roles.query.filter_by(group_id=grp.group_id, username=user).first()
+									
+									if (checkRole.role == 'leader') or (checkRole.role == 'owner'):
+										'''Override current perm'''
+										st['allow_share'] = 'Y'
+								
+								
 								
 								'''Update shared with and permissions'''
 								if st.get('dup') == 'false':
@@ -1367,7 +1384,17 @@ def list_transcripts():
 						if oShare == False:
 							'''No other shares'''
 							'''Create new entry in sharedTrans'''
-							print("No other shares")
+							
+							'''Check whether group allows sharing by owners/leaders'''
+							allowShare = 'N'
+							if stg.allow_share == 'Y':
+								'''Check if user's role is leader/owner'''
+								checkRole = Group_roles.query.filter_by(group_id=grp.group_id, username=user).first()
+								
+								if (checkRole.role == 'leader') or (checkRole.role == 'owner'):
+									'''Override current perm'''
+									allowShare = 'Y'
+							
 							
 							'''Need to check special permissions'''
 							gsd = Group_share_details.query.filter_by(gst_id=stg.share_id, username=user).first()
@@ -1383,11 +1410,7 @@ def list_transcripts():
 							NSLI = stg.name + stg.owner
 							NS_Append = False
 							
-							print("Printing NSList: ")
-							print(NSList)
-							
 							if not NSList.get(NSLI) is None:
-								print("There is smt in NSList")
 								NS_Append = True
 								'''Update swText with previous group's name'''
 								swText += NSList.get(NSLI) + " (Excluded Sharing)"
@@ -1396,7 +1419,6 @@ def list_transcripts():
 							swText = g.group_name
 							
 							if gsd:
-								print("There is special perm")
 								print(gsd.permission)
 								'''If special permissions are higher than group, use special'''
 								if (gsd.permission == "RW"):
@@ -1405,7 +1427,7 @@ def list_transcripts():
 									
 									swArr.append(swText)
 										
-									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':gsd.permission, 'allow_share':stg.allow_share, 'dup':'false'})
+									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':gsd.permission, 'allow_share':allowShare, 'dup':'false'})
 									
 								elif (gsd.permission == "RO"):
 									if NS_Append:
@@ -1413,18 +1435,14 @@ def list_transcripts():
 									
 									swArr.append(swText)
 										
-									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':gsd.permission, 'allow_share':stg.allow_share, 'dup':'false'})
+									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':gsd.permission, 'allow_share':allowShare, 'dup':'false'})
 								else:
 									'''If not shared, don't add to transcripts'''
 									'''Need to update record of not shared with group name'''
 									NSListInd = stg.name + stg.owner
-									print("Adding to " + NSListInd)
-									
 									NSList[NSListInd] = g.group_name
 								
 							else:
-								print("No special perms")
-							
 								'''No special permissions for user; use group permissions if higher'''
 								if (stg.permission == "RW"):
 									if NS_Append:
@@ -1432,7 +1450,7 @@ def list_transcripts():
 									
 									swArr.append(swText)
 									
-									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':stg.permission, 'allow_share':stg.allow_share, 'dup':'false'})
+									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':stg.permission, 'allow_share':allowShare, 'dup':'false'})
 									
 								elif (stg.permission == "RO"):
 									
@@ -1441,30 +1459,13 @@ def list_transcripts():
 									
 									swArr.append(swText)
 									
-									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':stg.permission, 'allow_share':stg.allow_share, 'dup':'false'})
+									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':stg.permission, 'allow_share':allowShare, 'dup':'false'})
 								else:
 									'''If not shared, don't add to transcripts'''
 									'''Need to update record of not shared with group name'''
 									NSListInd = stg.name + stg.owner
-									print("Adding to " + NSListInd)
-									
 									NSList[NSListInd] = g.group_name
-								
-					
-					'''Check if duplicated in sharedUTrans'''
-					'''
-					for t in sharedUTrans:
-						if t.name == stg.name and t.owner == stg.owner:
-							duplicate = True
-							break
-					
-					if (duplicate == False):
-						
-						gObj = Groups.query.filter_by(group_id=stg.group_id).first()
-
-						sharedGTrans.append({'name':stg.name,'owner':stg.owner,'group_id':stg.group_id,'group_name':gObj.group_name,'group_creator':gObj.username,'permission':stg.permission})
-						
-					'''
+									
 						
 		except IntegrityError as e:
 			print(e)

@@ -47,6 +47,9 @@
 				{% endfor %}
 				</td>
 				<td>
+				{% if tran.allow_share == 'Y'%}
+					<a href="{{ url_for('share', owner=tran.owner, filename=tran.name) }}" class="btn btn-successs" role="button">Share</a>
+				{% endif %}
 				{% if tran.permission == 'RW' %}
 					<a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a>
 					<a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a>
