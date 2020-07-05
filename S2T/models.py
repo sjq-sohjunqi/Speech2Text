@@ -5,19 +5,25 @@ from wtforms.validators import DataRequired, Length
 
 
 class User(db.Model):
-    __tablename__ = 'users'
+	__tablename__ = 'users'
 
-    username = db.Column(db.String(255), primary_key=True)
-    password = db.Column(db.Text, nullable=False)
-    name = db.Column(db.String(255))
+	username = db.Column(db.String(255), primary_key=True)
+	password = db.Column(db.Text, nullable=False)
+	name = db.Column(db.String(255))
+	image = db.Column(db.String(255))
+	bio = db.Column(db.String(255), nullable=True)
+	works_at = db.Column(db.String(255), nullable=True)
+	validated = db.Column(db.String(1))
 
-    def __init__(self, username, password, name):
-        self.username = username
-        self.password = bcrypt.generate_password_hash(password).decode('UTF-8')
-        self.name = name
-
-    def as_dict(self):
-        return {'username': self.username, 'name':self.name}
+	def __init__(self, username, password, name):
+		self.username = username
+		self.password = bcrypt.generate_password_hash(password).decode('UTF-8')
+		self.name = name
+		
+		self.validated = 'Y'
+		
+	def as_dict(self):
+		return {'username': self.username, 'name':self.name}
 
 
 class Transcripts(db.Model):

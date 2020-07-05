@@ -1,7 +1,7 @@
 import os
 from flask import render_template, flash, redirect, url_for, session, request, send_from_directory, jsonify, json
 from S2T import S2T, db, bcrypt
-from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm, TranscriptForm, GroupForm
+from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm, TranscriptForm, GroupForm, UploadImageForm, ChangeBioForm, ChangeWorksAtForm
 from werkzeug.utils import secure_filename
 
 from S2T.models import User, Transcripts, Groups, Group_roles, Shared_transcripts, Group_shared_transcripts, Group_share_details
@@ -20,6 +20,12 @@ from google.cloud import storage
 #import speech_recognition as sr
 
 from werkzeug.datastructures import MultiDict
+
+'''CLEARING CACHE FOR PROFILE PIC TO WORK IMMEDIATELY - REMOVE IF MAKING ERRORS'''
+@S2T.after_request
+def add_header(response):
+    response.headers['Cache-Control'] = 'public, max-age=0'
+    return response
 
 @S2T.errorhandler(404)
 def pageNotFound(error):
@@ -82,78 +88,175 @@ def login():
             flash('No such user {}'.format(form.data['username']), 'warning')
     return render_template('login.html', title='Sign In', form=form)
 
+@S2T.route('/pictures/<string:username>', methods=['GET'])
+def pictures(username):
+	try:
+		user = User.query.filter_by(username=username).first()
+		if user:
+			if not user.image is None:
+				filepath = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'], user.username)
+				return send_from_directory(filepath, user.image)
+		
+		filepath = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'])
+		return send_from_directory(filepath, 'default.jpg')
+	except IntegrityError as e:
+		print(e)
+		
+		filepath = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'])
+		return send_from_directory(filepath, 'default.jpg')
+	
+@S2T.route('/edit_icon', methods=['GET'])
+def edit_icon():
+	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+	return send_from_directory(filepath, 'edit_icon.png')
+	
+@S2T.route('/save_icon', methods=['GET'])
+def save_icon():
+	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+	return send_from_directory(filepath, 'save_icon.png')
+
 
 @S2T.route('/profile', methods=['GET', 'POST'])
 def profile():
-    passform = ChangePassForm()
-    nameform = ChangeNameForm()
-    if not session.get('USER') is None:
-        user = session.get('USER')
-        name = session.get('NAME')
+	passform = ChangePassForm()
+	nameform = ChangeNameForm()
+	changebioform = ChangeBioForm()
+	changeworksatform = ChangeWorksAtForm()
+	
+	uploadImageForm = UploadImageForm()
+	picture = url_for('pictures', username='default')
+	
+	if not session.get('USER') is None:
+		user = session.get('USER')
+		name = session.get('NAME')
+		picture = url_for('pictures', username=user)
+		bio = None
+		works_at = None
+		
+		save_icon = url_for("save_icon")
+		edit_icon = url_for("edit_icon")
+		
+		
+		'''Get user object'''
+		userObj = User.query.filter_by(username=user).first()
+		if userObj:
+			
+			'''Get user's bio and works_at'''
+			bio = userObj.bio
+			works_at = userObj.works_at 
+			
+			if 'chg_bio' in request.form and changebioform.validate_on_submit():
+				'''Get updated bio'''
+				new_bio = changebioform.bio.data
+				userObj.bio = new_bio
+				
+				db.session.add(userObj)
+				db.session.commit()
+				
+				flash("Biography updated", "success")
+				return redirect(url_for("profile"))
+				
+			if 'chg_wa' in request.form and changeworksatform.validate_on_submit():
+				'''Get updated works_at'''
+				new_wa = changeworksatform.works_at.data
+				userObj.works_at = new_wa
+				
+				db.session.add(userObj)
+				db.session.commit()
+				
+				flash("Works At updated", "success")
+				return redirect(url_for("profile"))
+			
+			if 'chg_img' in request.form and uploadImageForm.validate_on_submit():
+				'''Get file uploaded'''
+				file = uploadImageForm.img.data
+				if file.filename == '':
+					flash('Error when changing profile picture','warning')
+					return redirect(url_for("profile"))
+				
+				filename = secure_filename(file.filename)
+				filepath = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'], user, filename)
+				filedir = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'], user)
+				
+				try:
+					'''Remove previous file'''
+					oldImgName = userObj.image
+					
+					if not oldImgName is None:
+						oldfilepath = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'], user, oldImgName)
+						os.remove(oldfilepath)
+						
+					
+					if not os.path.exists(filedir):
+						os.mkdir(filedir)
+					
+					file.save(filepath)
+					
+					try:
+						'''Update database for image uploaded'''
+						userObj.image = file.filename
+						db.session.add(userObj)
+						db.session.commit()
+						
+						flash("Profile picture updated", "success")
+						
+						return redirect(url_for("profile"))
+						
+					except IntegrityError as e:
+						print(e)
+						flash('A database error has occurred', "warning")
+					
+				except:
+					flash('Unable to upload image','warning')
+				
 
-        '''Display all transcripts of user'''
-        transObj = Transcripts.query.filter_by(username=user).all()
-        transTable = []
-        for tran in transObj:
-            transTable.append(tran)
+				return redirect(url_for("profile"))
+			
+			if "chg_passwd" in request.form and passform.validate_on_submit():
 
-        if passform.validate_on_submit():
-            userObj = User.query.filter_by(username=user).first()
-            '''User found'''
-            if userObj:
-                authenticated_user = bcrypt.check_password_hash(
-                    userObj.password, passform.data['oldpass'])
-                '''Old password matches'''
-                if authenticated_user:
-                    userObj.password = bcrypt.generate_password_hash(
-                        passform.data['newpass']).decode('UTF-8')
-                    try:
-                        '''Change password'''
-                        db.session.commit()
-                        flash('Password changed successfully!','success')
-                        return redirect(url_for('profile'))
-                    except IntegrityError as e:
-                        '''Error'''
-                        flash(e,'danger')
-                else:
-                    '''Old password does not match'''
-                    flash('Old password does not match','warning')
-            else:
-                '''No user found (unexpected)'''
-                flash('An error has occurred; please sign in again','secondary')
-                session.pop('USER', None)
-                session.pop('NAME', None)
-                return redirect(url_for('login'))
+				authenticated_user = bcrypt.check_password_hash(userObj.password, passform.data['oldpass'])
+				'''Old password matches'''
+				if authenticated_user:
+					userObj.password = bcrypt.generate_password_hash(passform.data['newpass']).decode('UTF-8')
+					try:
+						'''Change password'''
+						db.session.commit()
+						flash('Password changed successfully!','success')
+						return redirect(url_for('profile'))
+					except IntegrityError as e:
+						'''Error'''
+						print(e)
+				else:
+					'''Old password does not match'''
+					flash('Old password does not match','warning')
 
-            return redirect(url_for('profile'))
+				return redirect(url_for('profile'))
 
-        if nameform.validate_on_submit():
-            userObj = User.query.filter_by(username=user).first()
-            '''User found'''
-            if userObj:
-                userObj.name = nameform.data['newname']
-                try:
-                    '''Change name'''
-                    db.session.commit()
-                    flash('Name changed successfully!','success')
-                    session['NAME'] = nameform.data['newname']
-                    return redirect(url_for('profile'))
-                except IntegrityError as e:
-                    '''Error'''
-                    flash(e)
-            else:
-                '''No user found (unexpected)'''
-                flash('An error has occurred; please sign in again','secondary')
-                session.pop('USER', None)
-                session.pop('NAME', None)
-                return redirect(url_for('login'))
+			if 'chg_name' in request.form and nameform.validate_on_submit():
+			
+				userObj.name = nameform.data['newname']
+				try:
+					'''Change name'''
+					db.session.commit()
+					flash('Name changed successfully!','success')
+					session['NAME'] = nameform.data['newname']
+					return redirect(url_for('profile'))
+				except IntegrityError as e:
+					'''Error'''
+					flash(e)
 
-            return redirect(url_for('profile'))
+				return redirect(url_for('profile'))
+		
+			return render_template('profile.html', name=name, bio=bio, works_at=works_at, title=name + '\'s Page', picture=picture, passform=passform, nameform=nameform, uploadImageForm=uploadImageForm, changeworksatform=changeworksatform, changebioform=changebioform, save_icon=save_icon, edit_icon=edit_icon)
+			
+		else:
+			flash('An error has occurred; please sign in again','secondary')
+			session.pop('USER', None)
+			session.pop('NAME', None)
+			return redirect(url_for('login'))
 
-        return render_template('profile.html', name=name, title=name + '\'s Page', passform=passform, nameform=nameform, transcripts=transTable)
-
-    else:
-        return redirect(url_for('login'))
+	else:
+		return redirect(url_for('login'))
 
 
 def stereo_to_mono(audio_file_name):

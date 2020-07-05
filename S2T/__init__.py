@@ -22,4 +22,10 @@ S2T.config['TEMP_FOLDER'] = 'tran_temp'
 '''Storage folder'''
 S2T.config['STORAGE_FOLDER'] = 'transcripts'
 
+''''Profile pictures folder'''
+S2T.config['PROFILE_FOLDER'] = 'profiles'
+
+''''Icons folder'''
+S2T.config['ICONS_FOLDER'] = 'icons'
+
 from S2T import routes, models

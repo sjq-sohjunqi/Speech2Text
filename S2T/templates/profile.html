@@ -1,12 +1,165 @@
 {% extends "base.html" %}
 
 {% block content %}
+	
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+	<script type="text/javascript">
+		
+		function changeBio() {
+			document.getElementById("bio_functions").innerHTML = '<img id="save_icon" class="profile_icons" src="{{ save_icon }}" onclick="saveBio()"/>';
+			
+			document.getElementById("bio_area").style = 'display:none;';
+			document.getElementById("bio-box").style = 'border-radius: 25px;display:inline;';
+			
+			text = document.getElementById("bio_area").textContent;
+			$("#bio-box").val(text);
+		}
+		
+		function saveBio() {
+			document.getElementById("bio_functions").innerHTML = '<img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeBio()"/>';
+			
+			$("#bio-btn").trigger("click");
+		}
+		
+		function changeWA() {
+			document.getElementById("wa_functions").innerHTML = '<img id="save_icon" class="profile_icons" src="{{ save_icon }}" onclick="saveWA()"/>';
+			
+			document.getElementById("works_at_area").style = 'display:none;';
+			document.getElementById("wa-box").style = 'display:inline;';
+			
+			text = document.getElementById("works_at_area").textContent;
+			$("#wa-box").val(text);
+		}
+		
+		function saveWA() {
+			document.getElementById("wa_functions").innerHTML = '<img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeWA()"/>';
+			
+			$("#works-as-btn").trigger("click");
+		}
+		
+		function changeName() {
+			document.getElementById("name_functions").innerHTML = '<img id="save_icon" class="profile_icons" src="{{ save_icon }}" onclick="saveName()"/>';
+			document.getElementById("profile_name").style="display:none;"
+			
+			text = document.getElementById("profile_name").textContent;
+			
+			document.getElementById("name-box").style = 'display:inline;';
+			$("#name-box").val(text);
+		}
+		
+		function saveName() {
+			document.getElementById("name_functions").innerHTML = '<img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeName()"/>';
+			
+			$("#name-btn").trigger("click");
+		}
+		
+		$(document).ready(function() {
+			
+			// Get the modal
+			var modal = document.getElementById("myModal");
+
+			// Get the image and insert it inside the modal
+			var img = document.getElementById("img");
+			var modalImg = document.getElementById("img01");
+			
+			$("#img").click(function(){
+				modal.style.display = "block";
+				modalImg.src = this.src;
+			});
+			
+			// Get the <span> element that closes the modal
+			var span = document.getElementsByClassName("close")[0];
+
+			// When the user clicks on <span> (x), close the modal
+			$(".close").click(function(){
+				modal.style.display = "none";
+			});
+			
+		});
+		
+	</script>
+	
+	
 	<div class="content-section">
-	<h1>Profile: {{ session['NAME'] }}!</h1>
+	<br/>
+	
+	<div class="image-upload">
+		<img id="img" src="{{ picture }}" />
+		<br/>
+		<form action="" method="post" novalidate>
+		{% if nameform.newname.errors %}
+                {{ nameform.newname(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in nameform.newname.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div><img id="save_icon" class="profile_icons" src="{{ save_icon }}" onclick="saveName()"/>
+        {% else %}
+			<span id="profile_name">{{ session['NAME'] }}</span>  {{ nameform.newname(id="name-box", class="form-control form-control-lg", style="display:none") }}<span id="name_functions"><img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeName()"/></span>
+        {% endif %}
+		{{ nameform.hidden_tag() }} <!Protects against CSRF>
+		{{ nameform.chg_name(id="name-btn", style="display:none;") }}
+		</form>
+		
+		<br/>
+		
+		<form action="" method="post" enctype="multipart/form-data" novalidate>
+			{{ uploadImageForm.hidden_tag() }} <!Protects against CSRF>
+		
+			{{ uploadImageForm.img(id="imgfile", class="imgfile", onchange="form.submit()") }}
+			{{ uploadImageForm.img.label(class="btn btn-danger", for="imgfile", id="imgfilelabel") }}
+			
+			<input type="hidden" name="chg_img" value="chg_img">
+			
+			{% for error in uploadImageForm.img.errors %}
+			<br/><label style="color: red;">{{ error }}</label>
+			{% endfor %}
+			
+		</form>
+	</div>
+	
+	<!--Modal for image-->
+	<div id="myModal" class="modal">
+
+		<!-- The Close Button -->
+		<span class="close">&times;</span>
+
+		<!-- Modal Content (The Image) -->
+		<img class="modal-content" id="img01">
+		
+	</div>
+	<!--Modal for image-->
+	
+	<br/>
+	
+	<div id="profile-text-div">
+		<form action="" method="post" novalidate>
+			<span class="profile_headers" id="works_as_header">Works At:  <span id="works_at_area">{%if works_at%}{{works_at}}{%endif%}</span><span id="wa_functions">  <img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeWA()"/></span></span>
+			{{changeworksatform.works_at(id="wa-box", class="form-control form-control-lg", style="display:none;")}}
+			
+			{{ changeworksatform.chg_wa(id="works-as-btn", style="display:none") }}
+			{{ changeworksatform.hidden_tag() }} <!Protects against CSRF>
+		</form>
+		
+		<hr/>
+		<span class="profile_headers">Biography</span>  <span id="bio_functions"><img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeBio()"/></span>
+		
+		<form action="" method="post" novalidate>
+			{{ changebioform.hidden_tag() }} <!Protects against CSRF>
+			<div id="bio_area">{%if bio%}{{bio}}{%endif%}</div>
+			
+			{{ changebioform.bio(id="bio-box", class="container-fluid", style="border-radius: 25px; display:none;") }}
+			
+			{{ changebioform.chg_bio(id="bio-btn", style="display:none") }}
+		</form>
+	</div>
 	<hr/>
+	
 	<form action="" method="post" novalidate>
 		{{ passform.hidden_tag() }} <!Protects against CSRF>
-		<p>Change Password</p>
+		<p class="profile_headers">Change Password</p>
 		<div class="form-group">
 			{{ passform.oldpass.label(class="form-control-label") }}
 			 {% if passform.oldpass.errors %}
@@ -33,43 +186,10 @@
                 {{ passform.newpass(class="form-control form-control-lg") }}
             {% endif %}
 		</div>
-		<p>{{ passform.submit(class="btn btn-outline-info") }}</p>
+		<p>{{ passform.chg_passwd(class="btn btn-outline-info") }}</p>
 	</form>
-	<hr/>
-	<form action="" method="post" novalidate>
-		{{ nameform.hidden_tag() }} <!Protects against CSRF>
-		<p>Change Name</p>
-		<div class="form-group">
-			{{ nameform.newname.label(class="form-control-label") }}
-			 {% if nameform.newname.errors %}
-                {{ nameform.newname(class="form-control form-control-lg is-invalid") }}
-                <div class="invalid-feedback">
-                    {% for error in nameform.newname.errors %}
-                        <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-            {% else %}
-                {{ nameform.newname(class="form-control form-control-lg") }}
-            {% endif %}
-		</div>
-		<p>{{ nameform.submit(class="btn btn-outline-info") }}</p>
-	</form>
+
 	</div>
-	<!--<h2>Your Transcripts:</h2>
-	<table>
-		<tr>
-			<th>Name</th>
-			<th>Time Created</th>
-		</tr>
-		{% for tran in transcripts %}
-			<tr>
-				<td><a href="{{ url_for('download', owner=tran.username, filename=tran.name) }}">{{ tran.name }}</a></td>
-				<td>{{ tran.created_time }}</a></td>
-				<td><a href="{{ url_for('edit', owner=tran.username, old_filename=tran.name) }}">Edit</a></td>
-				<td><a href="{{ url_for('delete', owner=tran.username, filename=tran.name) }}">Delete</a></td>
-				<td><a href="{{ url_for('share', owner=tran.username, filename=tran.name) }}">Share</a></td>
-			</tr>
-		{% endfor %}
-	</table>-->
+
 
 {% endblock %}

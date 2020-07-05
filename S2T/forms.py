@@ -12,32 +12,41 @@ class LoginForm(FlaskForm):
 
 
 class SignUpForm(FlaskForm):
-    username = StringField('Email', validators=[DataRequired(), Email(
-    ), Length(max=255, message='Email address is too long')])
-    password = PasswordField('Password', validators=[
-                             DataRequired(), Length(min=2, max=255)])
-    confirm_password = PasswordField('Confirm Password',
-                                     validators=[DataRequired(), EqualTo('password')])
-    name = StringField('Name', validators=[DataRequired(
-    ), Length(min=3, max=255)])
-    submit = SubmitField('Sign Up')
+	username = StringField('Email', validators=[DataRequired(), Email(), Length(max=255, message='Email address is too long')])
+	password = PasswordField('Password', validators=[DataRequired(), Length(min=2, max=255)])
+	confirm_password = PasswordField('Confirm Password',validators=[DataRequired(), EqualTo('password')])
+	name = StringField('Name', validators=[DataRequired(), Length(min=3, max=255)])
+#	img = FileField('Upload Image', validators=[FileAllowed(['jpg', 'png'], 'Only JPG or PNG files are supported')])
+#	bio = StringField('Biography', validators=[Length(max=255, message='"Bio" is too long')])
+#	works_at = StringField('Works At', validators=[Length(max=255, message='"Works At" is too long')])
+	submit = SubmitField('Sign Up')
 
+class UploadImageForm(FlaskForm):
+	img = FileField('Change Profile Picture', validators=[FileRequired(), FileAllowed(['jpg', 'png'], 'Only JPG or PNG files are supported')])
+	chg_img = SubmitField()
 
+class ChangeBioForm(FlaskForm):
+	bio = TextField('Biography', widget=TextArea())
+	chg_bio = SubmitField()
+	
+class ChangeWorksAtForm(FlaskForm):
+	works_at = StringField('Works At', validators=[Length(max=255)])
+	chg_wa = SubmitField()
+	
 class ChangePassForm(FlaskForm):
     oldpass = PasswordField('Old Password', validators=[DataRequired()])
     newpass = PasswordField('New Password', validators=[
                             DataRequired(), Length(max=255)])
-    submit = SubmitField('Change Password')
+    chg_passwd = SubmitField('Change Password')
 
 
 class ChangeNameForm(FlaskForm):
-    newname = StringField('New Name', validators=[DataRequired()])
-    submit = SubmitField('Change Name')
+    newname = StringField('New Name', validators=[DataRequired(), Length(max=255)])
+    chg_name = SubmitField('Change Name')
 
 
 class TranscribeForm(FlaskForm):
-    upload = FileField('Upload Audio', validators=[FileRequired(), FileAllowed(
-        ['wav'], 'Only WAV files are supported')])
+    upload = FileField('Upload Audio', validators=[FileRequired(), FileAllowed(['wav'], 'Only WAV files are supported')])
     submit = SubmitField('Transcribe')
 
 
