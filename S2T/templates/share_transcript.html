@@ -124,8 +124,10 @@
 				}
 
 				share_users.push(username);
-
-				var markup = "<tr class='userRows'><td><input type='checkbox' name='record'></input></td><td class='uname'>" + username + "</td><td>" + name + "</td><td><select><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td></tr>";
+				
+				var user_profile = "{{url_for('public_profile', username='UNAME')}}".replace("UNAME", username);
+				
+				var markup = "<tr class='userRows'><td><input type='checkbox' name='record'></input></td><td class='uname'><a href='" + user_profile + "'>" + username + "</a></td><td>" + name + "</td><td><select><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td></tr>";
 				$("#userBody").append(markup);
 			}
 
@@ -185,7 +187,9 @@
 						
 						editUsers.push(data[i].username);
 						
-						markup += "<td class='username'>" +
+						var user_profile = "{{url_for('public_profile', username='UNAME')}}".replace("UNAME", data[i].username);
+						
+						markup += "<td class='username'><a href='" + user_profile + "'>" +
 						data[i].username + "</td><td class='name'>" +
 						data[i].name + "</td></tr>";
 						
@@ -332,10 +336,6 @@
 
 		};
 		search_groups();
-		
-		
-		
-		
 		
 		$('#share-group-btn').click(function(){
 			

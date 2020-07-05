@@ -46,7 +46,7 @@
 			source: all_user_list,
 		});
 
-		$('.select-user').click(function(){
+		$('#select-user').click(function(){
 			var username = $("#username").val();
 			$("#username").val("");
 
@@ -92,8 +92,10 @@
 				}
 
 				add_members.push(username);
+				
+				var user_profile = "{{url_for('public_profile', username='UNAME')}}".replace("UNAME", username);
 
-				var markup = "<tr class='userRows'><td><input type='checkbox' name='record'></input></td><td class='uname'>" + username + "</td><td>" + name + "</td><td><select><option value='member'>Member</option><option value='leader'>Leader</option><option value='owner'>Owner</option></select></td></tr>";
+				var markup = "<tr class='userRows'><td><input type='checkbox' name='record'></input></td><td class='uname'><a href='" + user_profile + "'>" + username + "</td><td>" + name + "</td><td><select><option value='member'>Member</option><option value='leader'>Leader</option><option value='owner'>Owner</option></select></td></tr>";
 				$("#userBody").append(markup);
 			}
 
@@ -183,7 +185,7 @@
 	<div class="row">
 	<div class="container-fluid">
 	<h1>Group: {{ grpObj.group_name }}</h1>
-	Current Members:
+	<h2>Current Members:</h2>
 	<table class="table">
 		<thead class="thead-dark">
 		<tr>
@@ -205,8 +207,9 @@
 	{% if role == 'owner' or role == 'leader' %}
 		<div class="row">
 		<form id="addUserForm" class="container-fluid" action="" method="post" novalidate>
+			<h2>Add New Members:</h2>
 			<div class="form-group ui-widget">
-			Invite Users: <input id="username" name="username"></input> <input type="button" class="select-user" value="Select User">
+			Invite Users: <input id="username" name="username"></input> <input type="button" class="btn btn-primary" id="select-user" value="Select User">
 			</div>
 			<div class="form-group">
 			<table id="userTable" class="table">
@@ -222,8 +225,8 @@
 				</tbody>
 			</table>
 
-			<input id="clear-user-rows" value="Clear Rows" type="button" class="btn btn-primary"></input>
-			<input id="add-member-btn" value="Add users" type="button" class="btn btn-primary"></input>
+			<input id="clear-user-rows" value="Clear Rows" type="button" class="btn btn-danger"></input>
+			<input id="add-member-btn" value="Add users" type="button" class="btn btn-success"></input>
 			</div>
 		</form>
 		</div>
@@ -231,9 +234,9 @@
 		<hr/>
 		<div class="row">
 			<form id="editMemForm" class="container-fluid" action="" method="post" novalidate>
-				Change Current Members:
+				<h2>Change Current Members:</h2>
 						<table id="editTable" class="table">
-						<thead>
+						<thead class="thead-dark">
 							<tr>
 								<th></th>
 								<th>Username</th>
@@ -249,7 +252,7 @@
 										<input type="checkbox" name="record"></input>
 									{% endif %}
 									</td>
-									<td class="editUName">{{ gm.username }}</td>
+									<td class="editUName"><a href="{{ url_for('public_profile', username=gm.username)}}">{{ gm.username }}</a></td>
 									<td>{{ gm.name }}</td>
 									<td>
 									{% if gm.username == grpObj.username %}
@@ -281,8 +284,8 @@
 						</tbody>
 					</table>
 
-					<input id="clear-mem-rows" value="Remove Selected" type="button" class="btn btn-primary"></input>
-					<input id="save-changes" value="Save Changes" type="button" class="btn btn-primary"></input>
+					<input id="clear-mem-rows" value="Remove Selected" type="button" class="btn btn-danger"></input>
+					<input id="save-changes" value="Save Changes" type="button" class="btn btn-success"></input>
 				</form>
 		</div>
 	{% endif %}

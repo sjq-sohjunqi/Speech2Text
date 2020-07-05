@@ -2,7 +2,8 @@
 
 {% block content %}
 	<div class="content-section">
-	<h1>Your Transcripts:</h1>
+	<br/>
+	<h2>Your Transcripts:</h2>
 	<table class="table">
 		<thead class="thead-dark">
 		<tr>
@@ -33,14 +34,13 @@
 			<th>Name</th>
 			<th>Created by</th>
 			<th>Shared with</th>
-			<th></th>
-			<th></th>
+			<th> - </th>
 		</tr>
 		</thead>
 		{% for tran in sharedTrans %}
 			<tr>
 				<td><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
-				<td>{{ tran.owner }}</td>
+				<td><a href="{{ url_for('public_profile', username=tran.owner)}}">{{ tran.owner }}</a></td>
 				<td>
 				{% for sw in tran.sharedWith %}
 					{{ sw }} <br/>
@@ -60,63 +60,6 @@
 			</tr>
 		{% endfor %}
 	</table>
-	
-	
-	
-	
-	
-	
-	<!--
-	<h2>Shared with you:</h2>
-	<table class="table">
-		<thead class="thead-dark">
-		<tr>
-			<th>Name</th>
-			<th>Created by</th>
-			<th></th>
-			<th></th>
-		</tr>
-		</thead>
-		{% for tran in sharedUTrans %}
-			<tr>
-				<td><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
-				<td>{{ tran.owner }}</td>
-				{% if tran.permission == 'RW' %}
-					<td><a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a></td>
-					<td><a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a></td>
-				{% else %}
-					<td><a href="{{ url_for('view', owner=tran.owner, filename=tran.name) }}" class="btn btn-warning" role="button">View</a></td>
-				{% endif %}
-			</tr>
-		{% endfor %}
-	</table>
-	<hr/>
-	<h2>Shared with your group:</h2>
-	<table class="table">
-		<thead class="thead-dark">
-		<tr>
-			<th>Name</th>
-			<th>Created by</th>
-			<th>Shared with</th>
-			<th></th>
-			<th></th>
-		</tr>
-		</thead>
-		{% for tran in sharedGTrans %}
-			<tr>
-				<td><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
-				<td>{{ tran.owner }}</a></td>
-				<td>{{ tran.group_name }}</td>
-				{% if tran.permission == 'RW' %}
-					<td><a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a></td>
-					<td><a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a></td>
-				{% else %}
-					<td><a href="{{ url_for('view', owner=tran.owner, filename=tran.name) }}" class="btn btn-warning" role="button">View</a></td>
-				{% endif %}
-			</tr>
-		{% endfor %}
-	</table>
-	-->
 	
 	</div>
 {% endblock %}

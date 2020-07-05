@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 	<div class="content-section">
+	<br/>
 	<h1>Create New Group:</h1>
 
 	<form action="" method="post" enctype="multipart/form-data" novalidate>
@@ -61,7 +62,7 @@
 				<td>{{ grpsLead.get(grp.group_id) }}</td>
 				<td>{{ grpsMem.get(grp.group_id) }}</td>
 				{% if isOwner[grp.group_id] %}
-					<td><a href="{{ url_for('delete_group', group_id=grp.group_id)}}">Delete</a></td>
+					<td><a href="{{ url_for('delete_group', group_id=grp.group_id)}}" class="btn btn-danger" role="button">Delete</a></td>
 				{% else %}
 					<td></td>
 				{% endif %}
