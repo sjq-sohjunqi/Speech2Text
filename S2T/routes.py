@@ -116,6 +116,33 @@ def save_icon():
 	return send_from_directory(filepath, 'save_icon.png')
 
 
+@S2T.route('/public/<string:username>', methods=['GET'])
+def public_profile(username):
+	if not session.get('USER') is None:
+		
+		try:
+			userObj = User.query.filter_by(username=username).first()
+			if userObj:
+				
+				name = userObj.name
+				bio = userObj.bio
+				works_at = userObj.works_at
+				picture = url_for('pictures', username=username)
+				
+				return render_template('profile.html', name=name, bio=bio, works_at=works_at, title=name + '\'s Page', picture=picture)
+			
+			else:
+				flash("Unabel to view user's profile")
+				return redirect(url_for('index'))
+			
+		except IntegrityError as e:
+			print(e)
+			flash("Unabel to view user's profile")
+			return redirect(url_for('index'))
+		
+	else:
+		return redirect(url_for('login'))
+
 @S2T.route('/profile', methods=['GET', 'POST'])
 def profile():
 	passform = ChangePassForm()

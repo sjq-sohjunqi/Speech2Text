@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+	
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+	<script type="text/javascript">
+
+		$(document).ready(function() {
+			
+			// Get the modal
+			var modal = document.getElementById("myModal");
+
+			// Get the image and insert it inside the modal
+			var img = document.getElementById("img");
+			var modalImg = document.getElementById("img01");
+			
+			$("#img").click(function(){
+				modal.style.display = "block";
+				modalImg.src = this.src;
+			});
+			
+			// Get the <span> element that closes the modal
+			var span = document.getElementsByClassName("close")[0];
+
+			// When the user clicks on <span> (x), close the modal
+			$(".close").click(function(){
+				modal.style.display = "none";
+			});
+			
+		});
+		
+	</script>
+	
+	
+	<div class="content-section">
+	<br/>
+	
+	<div class="image-upload">
+		<img id="img" src="{{ picture }}" />
+		<br/>
+		<span id="profile_name">{{ name }}</span>	
+	</div>
+	
+	<!--Modal for image-->
+	<div id="myModal" class="modal">
+
+		<!-- The Close Button -->
+		<span class="close">&times;</span>
+
+		<!-- Modal Content (The Image) -->
+		<img class="modal-content" id="img01">
+		
+	</div>
+	<!--Modal for image-->
+	
+	<br/>
+	
+	<div id="profile-text-div">
+			<span class="profile_headers" id="works_as_header">Works At:  <span id="works_at_area">{%if works_at%}{{works_at}}{%endif%}</span></span>
+		
+		<hr/>
+		<span class="profile_headers">Biography</span>
+		<div id="bio_area">{%if bio%}{{bio}}{%endif%}</div>
+			
+	</div>
+
+	</div>
+
+
+{% endblock %}

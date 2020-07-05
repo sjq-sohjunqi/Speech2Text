@@ -42,7 +42,7 @@
 				<label style="color: red;">[{{ error }}]</label>
 		{% endfor %}
 
-		<p>
+		<p style="text-align: center;">
 		{{ transcribeForm.submit(class="btn btn-primary") }}</p>
     </form>
     <div class="row">
@@ -58,12 +58,13 @@
 
 		{% if user is defined %}
 			<p>
-				<label>{{ transcriptForm.name.label }}: </label> {{ transcriptForm.name(style="border-radius: 10px;") }}<br>
+				<label>{{ transcriptForm.name.label }}: </label> {{ transcriptForm.name(style="border-radius: 10px;") }} {{ transcriptForm.save(class="btn btn-primary") }}
+				<br>
 				{% for error in transcriptForm.name.errors %}
 					<label style="color: red;">[{{ error }}]</label><br>
 				{% endfor %}
 
-				{{ transcriptForm.save(class="btn btn-primary") }}
+				
 			</p>
 		{%endif%}
 

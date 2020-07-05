@@ -79,7 +79,7 @@
 			source: all_user_list,
 		});
 
-		$('.select-user').click(function(){
+		$('#select-user').click(function(){
 			var username = $("#username").val();
 			$("#username").val("");
 
@@ -404,7 +404,7 @@
 	<div class="row">
 	<form id="addUserForm" class="container-fluid" action="" method="post" novalidate>
 		<div class="form-group ui-widget">
-		Add User: <input id="username" name="username"></input> <input type="button" class="select-user" value="Select User">
+		Add User: <input id="username" name="username"></input> <input type="button" class="btn btn-primary" id="select-user" value="Select User">
 		</div>
 		<div class="form-group">
 		<table id="userTable" class="table">
@@ -421,8 +421,8 @@
 		</table>
 
 
-		<input id="clear-user-rows" value="Clear Rows" type="button" class="btn btn-primary"></input>
-		<input id="share-user-btn" value="Share with users" type="button" class="btn btn-primary"></input>
+		<input id="clear-user-rows" value="Clear Rows" type="button" class="btn btn-danger"></input>
+		<input id="share-user-btn" value="Share with users" type="button" class="btn btn-success"></input>
 		</div>
 	</form>
 	</div>
@@ -450,7 +450,7 @@
 			</table>
 		</p>
 
-		<input id="edit-user-btn" value="Save Changes" type="button" class="btn btn-primary"></input>
+		<input id="edit-user-btn" value="Save Changes" type="button" class="btn btn-success"></input>
 
 	</form>
 	</div>
@@ -477,7 +477,7 @@
 			</table>
 		</p>
 
-		<input id="share-group-btn" value="Save Changes" type="button" class="btn btn-primary"></input>
+		<input id="share-group-btn" value="Save Changes" type="button" class="btn btn-success"></input>
 
 	</form>
 	</div>
