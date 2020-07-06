@@ -175,6 +175,10 @@ def save_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
 	return send_from_directory(filepath, 'save_icon.png')
 
+@S2T.route('/logo', methods=['GET'])
+def logo():
+	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+	return send_from_directory(filepath, 'logo.png')
 
 @S2T.route('/public_profile/<string:username>', methods=['GET'])
 def public_profile(username):
