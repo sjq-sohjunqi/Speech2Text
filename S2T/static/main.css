@@ -6,11 +6,11 @@
 	border-radius: 50%;
 	cursor: pointer;
 	transition: 0.3s;
-	
+
 	width: 250px;
 	height: 250px;
 	object-fit: cover;
-	
+
 }
 
 #img:hover {opacity: 0.7;}
@@ -114,4 +114,62 @@
 	overflow: hidden;
 	position: absolute;
 	z-index: -1;
+}
+
+
+/* change the brand and text color */
+.navbar-custom .navbar-brand,
+.navbar-custom .navbar-text {
+    color: #AAABB8;
+}
+/* change the link color and add padding for height */
+.navbar-custom .navbar-nav .nav-link {
+    color: #464866;
+}
+
+/* change the color of active or hovered links */
+.navbar-custom .nav-item .nav-link{
+    color: #AAABB8;
+    /*background-color: #2e9cca;  add background-color to active links */
+}
+
+.navbar-custom .nav-item:hover .nav-link {
+    color:#000000;
+    background-color: #d3d3d3;
+    border-radius: 25px;
+
+}
+
+
+.navbar-custom{
+    /*background-color: #25274d;*/
+    border-bottom: 1px solid #AAABB8;
+}
+
+#navbarContent{
+    padding-left: 17px;
+}
+
+.content-section{
+    border:1px solid blue;
+    margin-left:  12px;
+}
+.color1{
+    color: #25274d;
+}
+
+.color2{
+    color: #464866;
+}
+
+.color3{
+    color: #AAABB8;
+}
+
+.color4{
+    color: #2e9cca;
+}
+
+.color5{
+    color: #29648a;
 }
