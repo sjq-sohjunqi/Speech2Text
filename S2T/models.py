@@ -14,13 +14,15 @@ class User(db.Model):
 	bio = db.Column(db.String(255), nullable=True)
 	works_at = db.Column(db.String(255), nullable=True)
 	validated = db.Column(db.String(1))
+	validate_str = db.Column(db.String(10), nullable=True)
 
-	def __init__(self, username, password, name):
+	def __init__(self, username, password, name, validate_str):
 		self.username = username
 		self.password = bcrypt.generate_password_hash(password).decode('UTF-8')
 		self.name = name
+		self.validate_str = validate_str
 		
-		self.validated = 'Y'
+		self.validated = 'N'
 		
 	def as_dict(self):
 		return {'username': self.username, 'name':self.name}

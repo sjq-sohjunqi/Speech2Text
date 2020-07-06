@@ -1,6 +1,6 @@
 import os
 from flask import render_template, flash, redirect, url_for, session, request, send_from_directory, jsonify, json
-from S2T import S2T, db, bcrypt
+from S2T import S2T, db, bcrypt, mail
 from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm, TranscriptForm, GroupForm, UploadImageForm, ChangeBioForm, ChangeWorksAtForm
 from werkzeug.utils import secure_filename
 
@@ -17,7 +17,10 @@ from google.cloud.speech import types
 import wave
 from google.cloud import storage
 
-#import speech_recognition as sr
+'''Mail'''
+from flask_mail import Mail, Message
+import random
+import string
 
 from werkzeug.datastructures import MultiDict
 
@@ -41,23 +44,76 @@ def index():
     return render_template('index.html', title='Home')
 
 
+def randomString(stringLength=10):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
+
+@S2T.route('/verify/<string:vStr>', methods=['GET'])
+def verify(vStr):
+	try:
+		
+		userObj = User.query.filter_by(validate_str=vStr).first()
+		if userObj:
+			'''User found; validate user and allow logins'''
+			userObj.validate_str = None
+			userObj.validated = 'Y'
+			db.session.add(userObj)
+			db.session.commit()
+			
+			flash('User verification complete! Please sign in to start using Speech2Text!', 'success')
+			
+		else:
+			'''No user found'''
+			flash('Invalid verification Link', 'warning')
+			
+		return redirect(url_for('index'))
+		
+	except IntegrityError as e:
+		flash('An error has occurred', 'warning')
+		return redirect(url_for('index'))
+		
+
 @S2T.route('/signup', methods=['GET', 'POST'])
 def signup():
-    form = SignUpForm()
-    if form.validate_on_submit():
-        try:
-            new_user = User(form.data['username'],
-                            form.data['password'], form.data['name'])
-            db.session.add(new_user)
-            db.session.commit()
-        except IntegrityError as e:
-            flash('The email {} has already been taken'.format(form.username.data),'warning')
-            return render_template('signup.html', title='Sign Up', form=form)
+	form = SignUpForm()
+	if form.validate_on_submit():
+		try:
+			'''Check if username is taken'''
+			userObj = User.query.filter_by(username=form.username.data).first()
+			
+			if userObj is None:
+				
+				vStr = randomString()
+				
+				'''Create verification link'''
+				vLink = url_for('verify', vStr=vStr, _external=True)
+				
+				new_user = User(form.data['username'], form.data['password'], form.data['name'], vStr)
+				db.session.add(new_user)
+				db.session.commit()
 
-        flash('Signup successful for user {}'.format(form.username.data), 'success')
-        return redirect(url_for('index'))
-
-    return render_template('signup.html', title='Sign Up', form=form)
+				try:
+					msg = Message('Verification Link for Speech2text', sender='speechtextapplication@gmail.com', recipients=[form.username.data])
+					msg.body = "Please click on the following link to verify your Speech2Text account: " + vLink 
+					mail.send(msg)
+					
+					flash('A verification link has been sent to your email address. Please verify before signing in', 'success')
+					return redirect(url_for('index'))
+					
+				except Exception as e:
+					flash('An error has occured. Please try again.', 'warning')
+					print(e)
+					return render_template('signup.html', title='Sign Up', form=form)
+			else:
+				flash('The email {} has already been taken'.format(form.username.data),'warning')
+				return render_template('signup.html', title='Sign Up', form=form)
+			
+		except IntegrityError as e:
+				flash('An error has occured. Please try again.', 'warning')
+				print(e)
+				return render_template('signup.html', title='Sign Up', form=form)
+				
+	return render_template('signup.html', title='Sign Up', form=form)
 
 
 @S2T.route('/logout', methods=['GET'])
@@ -71,22 +127,26 @@ def logout():
 
 @S2T.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        userObj = User.query.filter_by(username=form.data['username']).first()
-        if userObj:
-            authenticated_user = bcrypt.check_password_hash(
-                userObj.password, form.data['password'])
-            if authenticated_user:
-                session['USER'] = userObj.username
-                session['NAME'] = userObj.name
-                return redirect(url_for('index'))
+	form = LoginForm()
+	if form.validate_on_submit():
+		userObj = User.query.filter_by(username=form.data['username']).first()
+		if userObj:
+			authenticated_user = bcrypt.check_password_hash(userObj.password, form.data['password'])
+			if authenticated_user:
+				if userObj.validated == 'Y':
+				
+					session['USER'] = userObj.username
+					session['NAME'] = userObj.name
+					return redirect(url_for('index'))
+					
+				else:
+					flash('Please verify your email address before signing in', 'warning')
 
-            else:
-                flash('Login unsuccessful for user {}'.format(form.username.data),'danger')
-        else:
-            flash('No such user {}'.format(form.data['username']), 'warning')
-    return render_template('login.html', title='Sign In', form=form)
+			else:
+				flash('Login unsuccessful for user {}'.format(form.username.data),'danger')
+		else:
+			flash('No such user {}'.format(form.data['username']), 'warning')
+	return render_template('login.html', title='Sign In', form=form)
 
 @S2T.route('/pictures/<string:username>', methods=['GET'])
 def pictures(username):
