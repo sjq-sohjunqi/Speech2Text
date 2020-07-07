@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<div class="content-section">
-		<form action="" method="post" novalidate>
+        <form action="" method="post" novalidate>
+        <div class="row">
+        <div class='col-md-5'>
 			{{ form.hidden_tag() }} <!Protects against CSRF>
 			 <fieldset class="form-group">
                 <legend class="border-bottom mb-4">Log In</legend>
@@ -34,12 +35,19 @@
                 </div>
                 <br>
             </fieldset>
-            <div class="form-group">
+        </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-1 form-group">
+                <div class="loginButton">
                 {{ form.submit(class="btn btn-outline-info") }}
+                </div>
             </div>
-            
+        </div>
 		</form>
-	</div>
+
+
 {% endblock %}
 
 <!--

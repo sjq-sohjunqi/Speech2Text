@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-	<div class="content-section">
 		<form action="" method="post" novalidate>
+        <div class="row">
+        <div class='col-md-5'>
 			{{ form.hidden_tag() }} <!Protects against CSRF>
 			 <fieldset class="form-group">
                 <legend class="border-bottom mb-4">Sign Up</legend>
-				
+
                 <div class="form-group">
                     {{ form.username.label(class="form-control-label") }}
                     {% if form.username.errors %}
@@ -19,7 +20,7 @@
                         {{ form.username(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
-				
+
                 <div class="form-group">
                     {{ form.name.label(class="form-control-label") }}
                     {% if form.name.errors %}
@@ -33,7 +34,7 @@
                         {{ form.name(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
-				
+
                 <div class="form-group">
                     {{ form.password.label(class="form-control-label") }}
                     {% if form.password.errors %}
@@ -47,7 +48,7 @@
                         {{ form.password(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
-				
+
 				<div class="form-group">
 				{{ form.confirm_password.label(class="form-control-label") }}
 				{% if form.confirm_password.errors %}
@@ -61,17 +62,24 @@
 					{{ form.confirm_password(class="form-control form-control-lg") }}
 				{% endif %}
 				</div>
-				
+
                 <br>
             </fieldset>
-            <div class="form-group">
-                {{ form.submit(class="btn btn-outline-info") }}
-            </div>
             <small class="text-muted ml-2">
                 <a href="{{ url_for('login') }}">Already have an account?</a>
             </small>
+            </div>
+            </div>
+            <div class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-1 form-group">
+                <div class="loginButton">
+                {{ form.submit(class="btn btn-outline-info") }}
+                </div>
+            </div>
+            </div>
+
 		</form>
-	</div>
 {% endblock %}
 
 <!--
