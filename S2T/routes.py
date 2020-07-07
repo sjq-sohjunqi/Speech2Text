@@ -501,13 +501,16 @@ def save():
 				save_text.close()
 
 				'''Update database'''
-				new_transcript = Transcripts(name=transcriptForm.data['name'], username=session.get('USER'))
+				new_transcript = Transcripts(name=transcriptForm.data['name'], username=session.get('USER'), locked='N')
 				db.session.add(new_transcript)
 				db.session.commit()
 
 				flash('File saved successfully!','success')
+				
+				return redirect(url_for('index'))
 
-		except:
+		except Exception as e:
+			print(e)
 			flash('An error has occured; the transcript cannot be saved!','danger')
 
 			session['transcriptFormName'] = transcriptForm.name.data
@@ -650,7 +653,13 @@ def delete(owner, filename):
 
 
 			if shared:
-
+				
+				'''Check if transcript is locked'''
+				trans = Transcripts.query.filter_by(name=old_filename, username=owner).first()
+				if trans.locked == 'Y':
+					flash('Transcript is locked! Someone else is currently editing the document!')
+					return redirect(url_for('list_transcripts'))
+				
 				'''Remove all share records of transcript'''
 				uShare = Shared_transcripts.query.filter_by(name=filename, owner=owner).all()
 				for u in uShare:
@@ -710,39 +719,18 @@ def edit(owner, old_filename):
 
 		'''Check if '''
 		shared = False
-		# try:
-
-			# '''Check if transcript is owned by user'''
-			# if owner == user:
-				# shared = True
-			# else:
-				# '''Check if shared with user directly'''
-				# uShare = Shared_transcripts.query.filter_by(name=old_filename, owner=owner, username=user, permission='RW').first()
-				# if uShare:
-					# shared = True
-				# else:
-					# '''Check is shared with user's group'''
-					# gShare = Group_shared_transcripts.query.filter_by(name=old_filename, owner=owner, permission='RW').all()
-					# for gs in gShare:
-						# '''Check if user is in any group'''
-						# uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
-						# if uGrp:
-							# shared = True
-							# break
 							
 		uPerm = getUPerm(old_filename, owner, user)
 		if uPerm == 'RW':
 			shared = True
 
-		# except IntegrityError as e:
-			# print(e)
-			# flash('Transcript is not shared with you!','warning')
-			# return redirect(url_for('list_transcripts'))
-
 		if shared == False:
 			flash('Transcript is not shared with you!','warning')
 			return redirect(url_for('list_transcripts'))
-
+		
+		'''Check if transcript is locked'''
+		trans = Transcripts.query.filter_by(name=old_filename, username=owner).first()
+		
 		if transcriptForm.validate_on_submit():
 
 			'''Override current file with new contents'''
@@ -752,7 +740,11 @@ def edit(owner, old_filename):
 				save_text = open(os.path.join(filepath, transcriptForm.data['name']), 'w')
 				save_text.write(transcriptForm.data['transcript'])
 				save_text.close()
-
+				
+				trans.locked = 'N'
+				db.session.add(trans)
+				db.session.commit()
+				
 				flash('File Edited!','success')
 				return redirect(url_for('list_transcripts'))
 
@@ -762,18 +754,29 @@ def edit(owner, old_filename):
 				return redirect(url_for('list_transcripts'))
 		else:
 			print(transcriptForm.errors)
-
-		'''Populate transcript text area with contents'''
-		try:
-			with open(os.path.join(filepath, old_filename), 'r') as f:
-				transcription = f.read()
-				transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription, 'name': old_filename}))
-		except IntegrityError as e:
-			print(e)
-			flash('Unable to read file!','warning')
+		
+		
+		if trans.locked == 'Y':
+			flash('Transcript is locked! Someone else is currently editing the document!')
 			return redirect(url_for('list_transcripts'))
+		else:
+		
+			'''Populate transcript text area with contents'''
+			try:
+				with open(os.path.join(filepath, old_filename), 'r') as f:
+					transcription = f.read()
+					transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription, 'name': old_filename}))
+					
+					trans.locked = 'Y'
+					db.session.add(trans)
+					db.session.commit()
+					
+			except IntegrityError as e:
+				print(e)
+				flash('Unable to read file!','warning')
+				return redirect(url_for('list_transcripts'))
 
-		return render_template('edit.html', title='Edit', transcriptForm=transcriptForm, owner=owner, old_filename=old_filename)
+			return render_template('edit.html', title='Edit', transcriptForm=transcriptForm, owner=owner, old_filename=old_filename)
 
 	else:
 		return redirect(url_for('login'))

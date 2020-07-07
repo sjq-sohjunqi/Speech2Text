@@ -29,17 +29,19 @@ class User(db.Model):
 
 
 class Transcripts(db.Model):
-    __tablename__ = 'transcripts'
+	__tablename__ = 'transcripts'
 
-    name = db.Column(db.String(255), primary_key=True)
-    username = db.Column(db.String(255), db.ForeignKey(
+	name = db.Column(db.String(255), primary_key=True)
+	username = db.Column(db.String(255), db.ForeignKey(
         'users.username'), primary_key=True)
-    created_time = db.Column(db.DateTime, nullable=False)
+	created_time = db.Column(db.DateTime, nullable=False)
+	locked = db.Column(db.String(1), nullable=False)
 
-    def __init__(self, name, username):
-        self.name = name
-        self.username = username
-        self.created_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+	def __init__(self, name, username, locked):
+		self.name = name
+		self.username = username
+		self.created_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+		self.locked = locked
 
 
 class Groups(db.Model):
