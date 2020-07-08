@@ -51,9 +51,9 @@
 	<form action = "{{ url_for('save') }}" method = "post" enctype="multipart/form-data" novalidate>
 		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
 		<div>
-		<p>
-			{{ transcriptForm.transcript(class="container-fluid", rows="20%", style="border-radius: 25px;") }}
-		</p>
+		{% if user is defined %}<div id="annotateCorner"></div>{%endif%}
+		{{ transcriptForm.transcript(class="container-fluid", rows="20%", style="border-radius: 25px;") }}
+		{% if user is defined %}<div id="annotateBtn">Annotations</div>{%endif%}
 		</div>
 
 		{% if user is defined %}
@@ -64,7 +64,7 @@
 					<label style="color: red;">[{{ error }}]</label><br>
 				{% endfor %}
 
-
+				
 			</p>
 		{%endif%}
 
