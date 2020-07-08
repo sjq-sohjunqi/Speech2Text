@@ -35,6 +35,7 @@
 			$("#myModal").find('#annotationBox').val(prevVal);
 			
 		});
+		
 	});
 	</script>
 	<br/>
@@ -68,9 +69,9 @@
 	<form action = "{{ url_for('save') }}" method = "post" enctype="multipart/form-data" novalidate>
 		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
 		<div>
-		{% if user is defined %}<div id="annotateCorner"></div>{%endif%}
+		{% if user is defined %}<div id="annotateCorner" class="annotateCorner"></div>{%endif%}
 		{{ transcriptForm.transcript(class="container-fluid", rows="20%", style="border-radius: 25px;") }}
-		{% if user is defined %}<div id="annotateBtn" class="launch-modal"  data-toggle="modal" data-target="#myModal">Annotations</div>{%endif%}
+		{% if user is defined %}<div id="annotateBtn" class="annotateBtn launch-modal"  data-toggle="modal" data-target="#myModal">Annotations</div>{%endif%}
 		</div>
 		
 		{% if user is defined %}
@@ -79,13 +80,13 @@
 		  <div class="modal-dialog">
 			<div class="modal-content">
 			  <div class="modal-header">
-				<!-- <button type="button" class="close" style="margin-top: -30px;" data-dismiss="modal" aria-hidden="true">&times;</button> -->
 				<h4 class="modal-title" id="myModalLabel" style="line-height:10px;">Annotations<br/>
 				<span style="font-style:italic;font-size:10px;line-height:10px;">Enter a short description of your transcript (optional)</span></h4>
 			  </div>
 			 
 			  <div class="modal-body">
-				<textarea id="annotationBox" class="form-control"></textarea>
+				<!-- <textarea id="annotationBox" class="form-control"></textarea> -->
+				{{ transcriptForm.annotation(class="form-control", id="annotationBox") }}
 			  </div>
 			  <div class="modal-footer">
 				<button type="button" id="annotateClose" class="btn btn-default" data-dismiss="modal">Close</button>

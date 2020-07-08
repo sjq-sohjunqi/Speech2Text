@@ -53,6 +53,7 @@ class TranscribeForm(FlaskForm):
 class TranscriptForm(FlaskForm):
 	transcript = TextField('transcript', widget=TextArea())
 	name = StringField('Save Transcript As', validators=[InputRequired(), Regexp('^((?![\"\*\:\<\>\?\/\\\|]).)*$', message='A valid filename cannot have " * : < > ? / \ or |')])
+	annotation = TextField('annotation', widget=TextArea())
 	save = SubmitField('Save Transcript')
 	
 class GroupForm(FlaskForm):

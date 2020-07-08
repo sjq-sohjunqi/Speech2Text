@@ -1,6 +1,43 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$('#myModal').on('shown.bs.modal', function () {
+			$('#annotationBox').focus();
+		})
+		
+		var prevVal = '';
+		$('.annotateBtn').click(function() {
+			// Get previous value in annotations (if any)
+			prevVal = $("#myModal").find('#annotationBox').val();
+		});
+		
+		$('#annotateClose').click(function() {
+			
+			// Change annotation box to previous value
+			$("#myModal").find('#annotationBox').val(prevVal);
+			
+		});
+		
+		$(window).on('unload', function() {
+			var fd = new FormData();
+			fd.append('owner', '{{owner}}');
+			fd.append('filename', '{{old_filename}}');
+
+			navigator.sendBeacon('/unlock', fd);
+		});
+		
+	});
+	
+	
+	
+	</script>
+
 	<div class="content-section">
 	<div class="row">
     <div class="col col-md-12">
@@ -10,9 +47,9 @@
 	<form action = "{{ url_for('edit', owner=owner, old_filename=old_filename) }}" method = "post" enctype="multipart/form-data" novalidate>
 		{{ transcriptForm.hidden_tag() }}
 		<div>
-		<p>
+			<div id="annotateCorner-edit" class="annotateCorner"></div>
 			{{ transcriptForm.transcript(class="container-fluid", rows="20%", style="border-radius: 25px;") }}
-		</p>
+			<div id="annotateBtn-edit" class="annotateBtn launch-modal"  data-toggle="modal" data-target="#myModal">Annotations</div>
 		</div>
 
 		<p>
@@ -21,7 +58,29 @@
 			<span style="color: red;">[{{ error }}]</span>
 			{% endfor %}
 		</p>
-
+		
+		<!-- Modal -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h4 class="modal-title" id="myModalLabel" style="line-height:10px;">Annotations<br/>
+				<span style="font-style:italic;font-size:10px;line-height:10px;">Enter a short description of your transcript (optional)</span></h4>
+			  </div>
+			 
+			  <div class="modal-body">
+				<!-- <textarea id="annotationBox" class="form-control"></textarea> -->
+				{{ transcriptForm.annotation(class="form-control", id="annotationBox") }}
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" id="annotateClose" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+			  </div>
+			</div><!-- /.modal-content -->
+		  </div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+		
+		
 		<div>
 			{{ transcriptForm.save(class="btn btn-primary") }}
 		</div>

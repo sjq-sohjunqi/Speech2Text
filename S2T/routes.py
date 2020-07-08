@@ -449,14 +449,16 @@ def transcribe():
         transcriptFormName = session.get('transcriptFormName', None)
         transcriptFormNameErr = session.get('transcriptFormNameErr', None)
         transcriptFormTrans = session.get('transcriptFormTrans', None)
+        transcriptFormAnn = session.get('transcriptFormAnn', None)
 
         if (transcriptFormTrans is not None) or (transcriptFormNameErr is not None) or (transcriptFormName is not None):
-            transcriptForm = TranscriptForm(formdata=MultiDict({'name': transcriptFormName, 'transcript': transcriptFormTrans}))
+            transcriptForm = TranscriptForm(formdata=MultiDict({'name': transcriptFormName, 'transcript': transcriptFormTrans, 'annotation': transcriptFormAnn}))
             transcriptForm.name.errors = transcriptFormNameErr
 
             session.pop('transcriptFormName')
             session.pop('transcriptFormNameErr')
             session.pop('transcriptFormTrans')
+            session.pop('transcriptFormAnn')
         else:
             transcriptForm = TranscriptForm()
     else:
@@ -475,7 +477,8 @@ def save():
 	if transcriptForm.validate_on_submit():
 		'''Save transcript in session for redirect'''
 		transcriptText = transcriptForm.transcript.data
-
+		annotationText = transcriptForm.annotation.data
+		
 		try:
 			'''Check if there is a duplicate entry'''
 			transObj = Transcripts.query.filter_by(name=transcriptForm.data['name'], username=session.get('USER')).first()
@@ -485,23 +488,36 @@ def save():
 				session['transcriptFormName'] = transcriptForm.name.data
 				session['transcriptFormNameErr'] = transcriptForm.name.errors
 				session['transcriptFormTrans'] = transcriptForm.transcript.data
+				session['transcriptFormAnn'] = transcriptForm.annotation.data
 
 				return redirect(url_for('transcribe'))
 
 			else:
-				filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'])
-				filedir = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'))
+				filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'], transcriptForm.data['name'])
+				filedir = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'])
 
 				'''Save new file'''
 				if not os.path.exists(filedir):
-					os.mkdir(filedir)
+					os.makedirs(filedir)
 
 				save_text = open(filepath, 'w')
 				save_text.write(transcriptText)
 				save_text.close()
+				
+				'''Check if there is any annotations'''
+				anyAnnotation = 'N'
+				if annotationText != '':
+					print(annotationText)
+					anyAnnotation = 'Y'
+					
+					'''Create new annotation text file'''
+					filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'], 'annotation')
+					save_text = open(filepath, 'w')
+					save_text.write(annotationText)
+					save_text.close()
 
 				'''Update database'''
-				new_transcript = Transcripts(name=transcriptForm.data['name'], username=session.get('USER'), locked='N')
+				new_transcript = Transcripts(name=transcriptForm.data['name'], username=session.get('USER'), locked='N', annotation=anyAnnotation)
 				db.session.add(new_transcript)
 				db.session.commit()
 
@@ -516,6 +532,7 @@ def save():
 			session['transcriptFormName'] = transcriptForm.name.data
 			session['transcriptFormNameErr'] = transcriptForm.name.errors
 			session['transcriptFormTrans'] = transcriptForm.transcript.data
+			session['transcriptFormAnn'] = transcriptForm.annotation.data
 
 			return redirect(url_for('transcribe'))
 
@@ -523,6 +540,7 @@ def save():
 	session['transcriptFormName'] = transcriptForm.name.data
 	session['transcriptFormNameErr'] = transcriptForm.name.errors
 	session['transcriptFormTrans'] = transcriptForm.transcript.data
+	session['transcriptFormAnn'] = transcriptForm.annotation.data
 
 	return redirect(url_for('transcribe'))
 
@@ -575,7 +593,7 @@ def view(owner, filename):
 	if not session.get('USER') is None:
 
 		user = session.get('USER')
-		filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner)
+		filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner, filename)
 
 		shared = False
 		
@@ -591,9 +609,19 @@ def view(owner, filename):
 
 		'''Populate transcript text area with contents'''
 		try:
+			transcription = ""
+			annotation = ""
+			
+			trans = Transcripts.query.filter_by(name=filename, username=owner).first()
+			
 			with open(os.path.join(filepath, filename), 'r') as f:
 				transcription = f.read()
-				transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription, 'name': filename}))
+				
+			if trans.annotation == 'Y':
+					with open(os.path.join(filepath, 'annotation'), 'r') as f:
+						annotation = f.read()
+				
+			transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription, 'name': filename, 'annotation': annotation}))
 		except IntegrityError as e:
 			print(e)
 			flash('Unable to read file!','warning')
@@ -655,7 +683,7 @@ def delete(owner, filename):
 			if shared:
 				
 				'''Check if transcript is locked'''
-				trans = Transcripts.query.filter_by(name=old_filename, username=owner).first()
+				trans = Transcripts.query.filter_by(name=filename, username=owner).first()
 				if trans.locked == 'Y':
 					flash('Transcript is locked! Someone else is currently editing the document!')
 					return redirect(url_for('list_transcripts'))
@@ -680,14 +708,18 @@ def delete(owner, filename):
 
 				transObj = Transcripts.query.filter_by(name=filename, username=owner).first()
 				if transObj:
-					filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner)
+					filedir = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner, filename)
 
+					if transObj.annotation == 'Y':
+						os.remove(os.path.join(filepath, 'annotation'))
+					
 					'''Remove file from database'''
 					db.session.delete(transObj)
 					db.session.commit()
 
 					'''Remove file from filesystem'''
-					os.remove(os.path.join(filepath, filename))
+					os.remove(os.path.join(filedir, filename))
+					os.rmdir(filedir)
 					flash('File successfully deleted!','success')
 
 				else:
@@ -706,6 +738,31 @@ def delete(owner, filename):
 	return redirect(url_for('list_transcripts'))
 
 
+@S2T.route('/unlock', methods=['POST'])
+def unlock():
+	
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		'''Transcript information'''
+		filename = request.form.get('filename')
+		owner = request.form.get('owner')
+		
+		try:
+			'''Unlock transcript'''
+			trans = Transcripts.query.filter_by(name=filename, username=owner).first()
+			if trans:
+				trans.locked = 'N'
+			
+				db.session.add(trans)
+				db.session.commit()
+				
+				return "Success"
+				
+		except IntegrityError as e:
+			print(e)
+	
+	return "Failure"
+
 @S2T.route('/edit/<string:owner>/<string:old_filename>', methods=['GET', 'POST'])
 def edit(owner, old_filename):
 
@@ -715,7 +772,7 @@ def edit(owner, old_filename):
 	if not session.get('USER') is None:
 
 		user = session.get('USER')
-		filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner)
+		filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner, old_filename)
 
 		'''Check if '''
 		shared = False
@@ -732,14 +789,34 @@ def edit(owner, old_filename):
 		trans = Transcripts.query.filter_by(name=old_filename, username=owner).first()
 		
 		if transcriptForm.validate_on_submit():
-
+			
 			'''Override current file with new contents'''
 			try:
-				os.remove(os.path.join(filepath, old_filename))
+				#os.remove(os.path.join(filepath, old_filename))
 
 				save_text = open(os.path.join(filepath, transcriptForm.data['name']), 'w')
 				save_text.write(transcriptForm.data['transcript'])
 				save_text.close()
+				
+				'''Update annotations (if any)'''
+				anyAnnotation = 'N'
+				filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'], 'annotation')
+				
+				annotationText = transcriptForm.data['annotation']
+				if annotationText != '':
+					anyAnnotation = 'Y'
+					
+					'''Edit annotation text file'''
+					save_text = open(filepath, 'w')
+					save_text.write(annotationText)
+					save_text.close()
+					
+					trans.annotation = 'Y'
+					
+				else:
+					'''Remove annotation file'''
+					os.remove(filepath)
+					trans.annotation = 'N'
 				
 				trans.locked = 'N'
 				db.session.add(trans)
@@ -763,13 +840,23 @@ def edit(owner, old_filename):
 		
 			'''Populate transcript text area with contents'''
 			try:
+				
+				transcription = ""
+				annotation = ""
+				
 				with open(os.path.join(filepath, old_filename), 'r') as f:
 					transcription = f.read()
-					transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription, 'name': old_filename}))
 					
-					trans.locked = 'Y'
-					db.session.add(trans)
-					db.session.commit()
+					
+				if trans.annotation == 'Y':
+					with open(os.path.join(filepath, 'annotation'), 'r') as f:
+						annotation = f.read()
+				
+				transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription, 'name': old_filename, 'annotation': annotation}))
+				
+				trans.locked = 'Y'
+				db.session.add(trans)
+				db.session.commit()
 					
 			except IntegrityError as e:
 				print(e)

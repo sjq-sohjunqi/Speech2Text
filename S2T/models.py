@@ -36,14 +36,14 @@ class Transcripts(db.Model):
         'users.username'), primary_key=True)
 	created_time = db.Column(db.DateTime, nullable=False)
 	locked = db.Column(db.String(1), nullable=False)
-	annontation = db.Column(db.String(1), nullable=False)
+	annotation = db.Column(db.String(1), nullable=False)
 
-	def __init__(self, name, username, locked):
+	def __init__(self, name, username, locked, annotation):
 		self.name = name
 		self.username = username
 		self.created_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 		self.locked = locked
-		self.annotation = 'N'
+		self.annotation = annotation
 
 
 class Groups(db.Model):
