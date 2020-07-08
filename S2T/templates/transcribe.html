@@ -17,7 +17,24 @@
 			}
 
 		});
-
+		
+		
+		$('#myModal').on('shown.bs.modal', function () {
+			$('#annotationBox').focus();
+		})
+		
+		var prevVal = '';
+		$('#annotateBtn').click(function() {
+			// Get previous value in annotations (if any)
+			prevVal = $("#myModal").find('#annotationBox').val();
+		});
+		
+		$('#annotateClose').click(function() {
+			
+			// Change annotation box to previous value
+			$("#myModal").find('#annotationBox').val(prevVal);
+			
+		});
 	});
 	</script>
 	<br/>
@@ -51,11 +68,34 @@
 	<form action = "{{ url_for('save') }}" method = "post" enctype="multipart/form-data" novalidate>
 		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
 		<div>
-		<p>
-			{{ transcriptForm.transcript(class="container-fluid", rows="20%", style="border-radius: 25px;") }}
-		</p>
+		{% if user is defined %}<div id="annotateCorner"></div>{%endif%}
+		{{ transcriptForm.transcript(class="container-fluid", rows="20%", style="border-radius: 25px;") }}
+		{% if user is defined %}<div id="annotateBtn" class="launch-modal"  data-toggle="modal" data-target="#myModal">Annotations</div>{%endif%}
 		</div>
-
+		
+		{% if user is defined %}
+		<!-- Modal -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<!-- <button type="button" class="close" style="margin-top: -30px;" data-dismiss="modal" aria-hidden="true">&times;</button> -->
+				<h4 class="modal-title" id="myModalLabel" style="line-height:10px;">Annotations<br/>
+				<span style="font-style:italic;font-size:10px;line-height:10px;">Enter a short description of your transcript (optional)</span></h4>
+			  </div>
+			 
+			  <div class="modal-body">
+				<textarea id="annotationBox" class="form-control"></textarea>
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" id="annotateClose" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+			  </div>
+			</div><!-- /.modal-content -->
+		  </div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+		{%endif%}
+		
 		{% if user is defined %}
 			<p>
 				<label>{{ transcriptForm.name.label }}: </label> {{ transcriptForm.name(style="border-radius: 10px;") }} {{ transcriptForm.save(class="btn btn-primary") }}
@@ -64,7 +104,7 @@
 					<label style="color: red;">[{{ error }}]</label><br>
 				{% endfor %}
 
-
+				
 			</p>
 		{%endif%}
 
