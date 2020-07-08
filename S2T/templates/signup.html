@@ -1,5 +1,62 @@
 {% extends "base.html" %}
 {% block content %}
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.2.0/zxcvbn.js"></script>
+        <script type="text/javascript">
+            var password = document.getElementById('password');
+            var meter = document.getElementById('password-strength-meter');
+            var text = document.getElementById('password-strength-text');
+
+             function validatePassword(password) {
+
+                // Do not show anything when the length of password is zero.
+                if (password.length === 0) {
+                    document.getElementById("msg").innerHTML = "";
+                    return;
+                }
+                // Create an array and push all possible values that you want in password
+                var matchedCase = new Array();
+                matchedCase.push("[$@$!%*#?&]"); // Special Charector
+                matchedCase.push("[A-Z]");      // Uppercase Alpabates
+                matchedCase.push("[0-9]");      // Numbers
+                matchedCase.push("[a-z]");     // Lowercase Alphabates
+
+                // Check the conditions
+                var ctr = 0;
+                for (var i = 0; i < matchedCase.length; i++) {
+                    if (new RegExp(matchedCase[i]).test(password)) {
+                        ctr++;
+                    }
+                }
+                // Display it
+                var color = "";
+                var strength = "";
+                var mete=0;
+                switch (ctr) {
+                    case 0:
+                        mete=0;
+                    case 1:
+                        mete=1;
+                    case 2:
+                        mete=2;
+                        strength = "Very Weak";
+                        color = "red";
+                        break;
+                    case 3:
+                        mete=3;
+                        strength = "Medium";
+                        color = "orange";
+                        break;
+                    case 4:
+                        mete=4;
+                        strength = "Strong";
+                        color = "green";
+                        break;
+                }
+                document.getElementById('password-strength-text').innerHTML = strength;
+                document.getElementById('password-strength-text').style.color = color;
+                document.getElementById('password-strength-meter').value = mete;
+            }
+        </script>
 		<form action="" method="post" novalidate>
         <div class="row">
         <div class='col-md-5'>
@@ -45,9 +102,11 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.password(class="form-control form-control-lg") }}
+                        {{ form.password(class="form-control form-control-lg",onkeyup="validatePassword(this.value);") }}
                     {% endif %}
                 </div>
+                <meter max="4" low="1" high="3" optimum="4" id="password-strength-meter" style="width: 100%; height: 20px;"></meter>
+                <p id="password-strength-text"></p>
 
 				<div class="form-group">
 				{{ form.confirm_password.label(class="form-control-label") }}
@@ -82,31 +141,3 @@
 		</form>
 {% endblock %}
 
-<!--
-	<h1>Sign Up</h1>
-	<form action="" method="post" novalidate>
-		{{ form.hidden_tag() }} <!Protects against CSRF>
-		<p>
-			{{ form.username.label }}<br>
-			{{ form.username(size=32) }}<br>
-			{% for error in form.username.errors %}
-			<span style="color: red;">[{{ error }}]</span>
-			{% endfor %}
-		</p>
-		<p>
-			{{ form.password.label }}<br>
-			{{ form.password(size=32) }}
-			{% for error in form.password.errors %}
-			<span style="color: red;">[{{ error }}]</span>
-			{% endfor %}
-		</p>
-		<p>
-			{{ form.name.label }}<br>
-			{{ form.name(size=32) }}
-			{% for error in form.name.errors %}
-			<span style="color: red;">[{{ error }}]</span>
-			{% endfor %}
-		</p>
-		<p>{{ form.submit() }}</p>
-	</form>
--->
