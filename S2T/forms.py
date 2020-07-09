@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextField, SelectField
 from wtforms.validators import DataRequired, Regexp, Length, Email, EqualTo, InputRequired
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.widgets import TextArea
@@ -16,9 +16,6 @@ class SignUpForm(FlaskForm):
 	password = PasswordField('Password', validators=[DataRequired(), Length(min=2, max=255)])
 	confirm_password = PasswordField('Confirm Password',validators=[DataRequired(), EqualTo('password')])
 	name = StringField('Name', validators=[DataRequired(), Length(min=3, max=255)])
-#	img = FileField('Upload Image', validators=[FileAllowed(['jpg', 'png'], 'Only JPG or PNG files are supported')])
-#	bio = StringField('Biography', validators=[Length(max=255, message='"Bio" is too long')])
-#	works_at = StringField('Works At', validators=[Length(max=255, message='"Works At" is too long')])
 	submit = SubmitField('Sign Up')
 
 class UploadImageForm(FlaskForm):
@@ -46,8 +43,9 @@ class ChangeNameForm(FlaskForm):
 
 
 class TranscribeForm(FlaskForm):
-    upload = FileField('Upload Audio', validators=[FileRequired(), FileAllowed(['wav'], 'Only WAV files are supported')])
-    submit = SubmitField('Transcribe')
+	upload = FileField('Upload Audio', validators=[FileRequired(), FileAllowed(['wav'], 'Only WAV files are supported')])
+	language = SelectField('Audio Language', choices=[('en-SG','English (SG)'), ('en-GB','English (UK)'), ('en-US','English (US)'), ('zh','Mandarin (Simplified, China)'), ('zh-TW','Mandarin (Traditional, Taiwan)'), ('ms-MY','Malay (Malaysia)'), ('ta-SG','Tamil (Singapore)'), ('ta-IN','Tamil (India)'), ('ta-LK','Tamil (Sri Lanka)')])
+	submit = SubmitField('Transcribe')
 
 
 class TranscriptForm(FlaskForm):

@@ -4,8 +4,9 @@
 
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
+	
 	<script type="text/javascript">
+	
 	$(document).ready(function() {
 
 		$('#uploadField').change(function() {
@@ -36,13 +37,25 @@
 			
 		});
 		
+		$('#transcribeBtn').click(function(){
+			
+			// Added loading gif
+			$('#loader').css('display', 'inline');
+			
+		});
+		
 	});
 	</script>
+	
+	
+	
 	<br/>
 	<h1>Transcribe Audio File</h1>
 	<form action = "" method = "post" enctype="multipart/form-data" novalidate>
          {{ transcribeForm.hidden_tag() }} <!Protects against CSRF>
          <p>
+		 <span style="position:absolute; top:180px;">{{ transcribeForm.language.label }}: {{ transcribeForm.language() }}</span>
+		 
 		 <div class="form-group">
 			  <label>Select an Audio</label>
 			  <div class="custom-file">
@@ -61,11 +74,13 @@
 		{% endfor %}
 
 		<p style="text-align: right;">
-		{{ transcribeForm.submit(class="btn btn-primary") }}</p>
+		{{ transcribeForm.submit(class="btn btn-primary", id="transcribeBtn") }} </p>
     </form>
     <div class="row">
     <div class="col col-md-12"> <!-- style=" border: 2px solid red; border-radius: 25px;"-->
-
+	
+	<img id="loader" height="25px" width="25px" style="position: absolute;top:10px;left:30px;display: none;border-radius:20px;" src="{{ url_for('load_icon') }}"/>
+	
 	<form action = "{{ url_for('save') }}" method = "post" enctype="multipart/form-data" novalidate>
 		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
 		<div>

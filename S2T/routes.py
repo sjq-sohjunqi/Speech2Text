@@ -180,6 +180,11 @@ def logo():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
 	return send_from_directory(filepath, 'logo.png')
 
+@S2T.route('/load_icon', methods=['GET'])
+def load_icon():
+	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+	return send_from_directory(filepath, 'loading.gif')
+
 @S2T.route('/public_profile/<string:username>', methods=['GET'])
 def public_profile(username):
 	if not session.get('USER') is None:
@@ -363,7 +368,7 @@ def frame_rate_channel(audio_file_name):
         return frame_rate, channels
 
 
-def convert(filepath, filename):
+def convert(filepath, filename, language):
     try:
 
         '''Convert speech to text'''
@@ -386,7 +391,7 @@ def convert(filepath, filename):
         audio = types.RecognitionAudio(uri=gcs_uri)
 
         config = types.RecognitionConfig(
-            encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16, sample_rate_hertz=frame_rate, language_code='en-US')
+            encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16, sample_rate_hertz=frame_rate, language_code=language)
 
         ''' Detects speech in the audio file '''
         operation = client.long_running_recognize(config, audio)
@@ -426,7 +431,7 @@ def transcribe():
             flash('Unable to upload file','warning')
             return redirect(request.url)
 
-        transcription = convert(filepath, filename)
+        transcription = convert(filepath, filename, transcribeForm.language.data)
         if transcription == '%unrecognised%':
             transcriptForm = TranscriptForm()
             flash('Unable to transcript audio!','warning')
@@ -500,7 +505,7 @@ def save():
 				if not os.path.exists(filedir):
 					os.makedirs(filedir)
 
-				save_text = open(filepath, 'w')
+				save_text = open(filepath, 'w', encoding='utf-8')
 				save_text.write(transcriptText)
 				save_text.close()
 				
@@ -512,7 +517,7 @@ def save():
 					
 					'''Create new annotation text file'''
 					filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'], 'annotation')
-					save_text = open(filepath, 'w')
+					save_text = open(filepath, 'w', encoding='utf-8')
 					save_text.write(annotationText)
 					save_text.close()
 
@@ -685,7 +690,7 @@ def delete(owner, filename):
 				'''Check if transcript is locked'''
 				trans = Transcripts.query.filter_by(name=filename, username=owner).first()
 				if trans.locked == 'Y':
-					flash('Transcript is locked! Someone else is currently editing the document!')
+					flash('Transcript is locked! Someone else is currently editing the document!', 'warning')
 					return redirect(url_for('list_transcripts'))
 				
 				'''Remove all share records of transcript'''
@@ -711,7 +716,7 @@ def delete(owner, filename):
 					filedir = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner, filename)
 
 					if transObj.annotation == 'Y':
-						os.remove(os.path.join(filepath, 'annotation'))
+						os.remove(os.path.join(filedir, 'annotation'))
 					
 					'''Remove file from database'''
 					db.session.delete(transObj)
@@ -794,7 +799,7 @@ def edit(owner, old_filename):
 			try:
 				#os.remove(os.path.join(filepath, old_filename))
 
-				save_text = open(os.path.join(filepath, transcriptForm.data['name']), 'w')
+				save_text = open(os.path.join(filepath, transcriptForm.data['name']), 'w', encoding="utf-8")
 				save_text.write(transcriptForm.data['transcript'])
 				save_text.close()
 				
@@ -807,7 +812,7 @@ def edit(owner, old_filename):
 					anyAnnotation = 'Y'
 					
 					'''Edit annotation text file'''
-					save_text = open(filepath, 'w')
+					save_text = open(filepath, 'w', encoding="utf-8")
 					save_text.write(annotationText)
 					save_text.close()
 					
@@ -834,7 +839,7 @@ def edit(owner, old_filename):
 		
 		
 		if trans.locked == 'Y':
-			flash('Transcript is locked! Someone else is currently editing the document!')
+			flash('Transcript is locked! Someone else is currently editing the document!', 'warning')
 			return redirect(url_for('list_transcripts'))
 		else:
 		
@@ -844,12 +849,12 @@ def edit(owner, old_filename):
 				transcription = ""
 				annotation = ""
 				
-				with open(os.path.join(filepath, old_filename), 'r') as f:
+				with open(os.path.join(filepath, old_filename), 'r', encoding="utf-8") as f:
 					transcription = f.read()
 					
 					
 				if trans.annotation == 'Y':
-					with open(os.path.join(filepath, 'annotation'), 'r') as f:
+					with open(os.path.join(filepath, 'annotation'), 'r', encoding="utf-8") as f:
 						annotation = f.read()
 				
 				transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription, 'name': old_filename, 'annotation': annotation}))
