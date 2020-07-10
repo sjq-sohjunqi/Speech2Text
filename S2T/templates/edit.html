@@ -53,7 +53,8 @@
 		</div>
 
 		<p>
-			<label>{{ transcriptForm.name.label}}:  </label> {{ transcriptForm.name(style="border-radius: 10px;", readonly=True) }}<br>
+			<label>{{ transcriptForm.name.label}}:  </label> {{ transcriptForm.name(style="border-radius: 10px;", readonly=True) }} {{ transcriptForm.save(class="btn btn-primary") }}
+			<br>
 			{% for error in transcriptForm.name.errors %}
 			<span style="color: red;">[{{ error }}]</span>
 			{% endfor %}
@@ -79,11 +80,6 @@
 			</div><!-- /.modal-content -->
 		  </div><!-- /.modal-dialog -->
 		</div><!-- /.modal -->
-		
-		
-		<div>
-			{{ transcriptForm.save(class="btn btn-primary") }}
-		</div>
 
 	</form>
 	</div>

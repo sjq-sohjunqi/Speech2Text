@@ -44,6 +44,93 @@
 			
 		});
 		
+		var currentTab = 1;
+		$('#transcript_1_tab').click(function(){
+			
+			if (currentTab != 1) {
+				if (currentTab == 2) {
+					// Update current tab
+					$('#transcript_2').html($('#transcript_box').val());
+				} else if (currentTab == 3) {
+					// Update current tab
+					$('#transcript_3').html($('#transcript_box').val());
+				}
+				
+				// Update transcript box with transcript_1
+				$('#transcript_box').val($('#transcript_1').html());
+				
+				// Update z-index
+				$("#transcript_1_tab").css("z-index", "83");
+				$("#transcript_1_tab").css("border-bottom-color", "white");
+				
+				$("#transcript_2_tab").css("z-index", "82");
+				$("#transcript_2_tab").css("border-bottom-color", "DarkGray");
+				
+				$("#transcript_3_tab").css("z-index", "81");
+				$("#transcript_3_tab").css("border-bottom-color", "DarkGray");
+				
+				currentTab = 1;
+			}
+			
+		});
+		
+		$('#transcript_2_tab').click(function(){
+			
+			if (currentTab != 2) {
+				if (currentTab == 1) {
+					// Update current tab
+					$('#transcript_1').html($('#transcript_box').val());
+				} else if (currentTab == 3) {
+					// Update current tab
+					$('#transcript_3').html($('#transcript_box').val());
+				}
+				
+				// Update transcript box with transcript_2
+				$('#transcript_box').val($('#transcript_2').html());
+				
+				// Update z-index
+				$("#transcript_1_tab").css("z-index", "82");
+				$("#transcript_1_tab").css("border-bottom-color", "DarkGray");
+				
+				$("#transcript_2_tab").css("z-index", "83");
+				$("#transcript_2_tab").css("border-bottom-color", "white");
+				
+				$("#transcript_3_tab").css("z-index", "81");
+				$("#transcript_3_tab").css("border-bottom-color", "DarkGray");
+				
+				currentTab = 2;
+			}
+			
+		});
+		
+		$('#transcript_3_tab').click(function(){
+			if (currentTab != 3) {
+				if (currentTab == 1) {
+					// Update current tab
+					$('#transcript_1').html($('#transcript_box').val());
+				} else if (currentTab == 2) {
+					// Update current tab
+					$('#transcript_2').html($('#transcript_box').val());
+				}
+				
+				// Update transcript box with transcript_3
+				$('#transcript_box').val($('#transcript_3').html());
+				
+				// Update z-index
+				$("#transcript_1_tab").css("z-index", "81");
+				$("#transcript_1_tab").css("border-bottom-color", "DarkGray");
+				
+				$("#transcript_2_tab").css("z-index", "82");
+				$("#transcript_2_tab").css("border-bottom-color", "DarkGray");
+				
+				$("#transcript_3_tab").css("z-index", "83");
+				$("#transcript_3_tab").css("border-bottom-color", "white");
+					
+				currentTab = 3;
+			}
+			
+		});
+		
 	});
 	</script>
 	
@@ -54,8 +141,6 @@
 	<form action = "" method = "post" enctype="multipart/form-data" novalidate>
          {{ transcribeForm.hidden_tag() }} <!Protects against CSRF>
          <p>
-		 <span style="position:absolute; top:180px;">{{ transcribeForm.language.label }}: {{ transcribeForm.language() }}</span>
-		 
 		 <div class="form-group">
 			  <label>Select an Audio</label>
 			  <div class="custom-file">
@@ -73,19 +158,32 @@
 				<label style="color: red;">[{{ error }}]</label>
 		{% endfor %}
 
+		 <div style="margin-bottom: -40px; margin-top:25px;">{{ transcribeForm.language.label }}: {{ transcribeForm.language() }}</div>
+
 		<p style="text-align: right;">
 		{{ transcribeForm.submit(class="btn btn-primary", id="transcribeBtn") }} </p>
     </form>
     <div class="row">
     <div class="col col-md-12"> <!-- style=" border: 2px solid red; border-radius: 25px;"-->
 	
-	<img id="loader" height="25px" width="25px" style="position: absolute;top:10px;left:30px;display: none;border-radius:20px;" src="{{ url_for('load_icon') }}"/>
+	
+	<div id="transcript_1" style="display: none"> {{ transcript_1 }} </div>
+	<div id="transcript_2" style="display: none"> {{ transcript_2 }} </div>
+	<div id="transcript_3" style="display: none"> {{ transcript_3 }} </div>
+	
+	<div id="trans_tabs">
+		<div id="transcript_1_tab" style="z-index:83">Result</div>
+		<div id="transcript_2_tab" style="z-index:82">Alternative 1</div>
+		<div id="transcript_3_tab" style="z-index:81">Alternative 2</div>
+	</div>
+	
+	<img id="loader" height="25px" width="25px" style="position: absolute;top:35px;left:30px;display: none;border-radius:20px;" src="{{ url_for('load_icon') }}"/>
 	
 	<form action = "{{ url_for('save') }}" method = "post" enctype="multipart/form-data" novalidate>
 		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
 		<div>
 		{% if user is defined %}<div id="annotateCorner" class="annotateCorner"></div>{%endif%}
-		{{ transcriptForm.transcript(class="container-fluid", rows="20%", style="border-radius: 25px;") }}
+		{{ transcriptForm.transcript(id="transcript_box", class="container-fluid", rows="20%", style="border-radius: 25px;") }}
 		{% if user is defined %}<div id="annotateBtn" class="annotateBtn launch-modal"  data-toggle="modal" data-target="#myModal">Annotations</div>{%endif%}
 		</div>
 		

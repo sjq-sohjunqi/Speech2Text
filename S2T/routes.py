@@ -385,20 +385,31 @@ def convert(filepath, filename, language):
         blob.upload_from_filename(filepath)
 
         gcs_uri = 'gs://s2t-audio-bucket/' + filename
-        transcript = ''
+        transcript = []
+		
+        '''Initialise transcript'''
+        transcript_1 = ''
+        transcript_2 = ''
+        transcript_3 = ''
 
         client = speech.SpeechClient()
         audio = types.RecognitionAudio(uri=gcs_uri)
 
         config = types.RecognitionConfig(
-            encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16, sample_rate_hertz=frame_rate, language_code=language)
+            encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16, sample_rate_hertz=frame_rate, language_code=language, enable_automatic_punctuation=True, max_alternatives=3)
 
         ''' Detects speech in the audio file '''
         operation = client.long_running_recognize(config, audio)
         response = operation.result(timeout=10000)
 
         for result in response.results:
-            transcript += result.alternatives[0].transcript
+            transcript_1 += result.alternatives[0].transcript
+            transcript_2 += result.alternatives[1].transcript
+            transcript_3 += result.alternatives[2].transcript
+		
+        transcript.append(transcript_1)
+        transcript.append(transcript_2)
+        transcript.append(transcript_3)
 
         '''Delete files from Google Cloud'''
         blob.delete()
@@ -437,16 +448,16 @@ def transcribe():
             flash('Unable to transcript audio!','warning')
         else:
             transcriptForm = TranscriptForm(
-                formdata=MultiDict({'transcript': transcription}))
+                formdata=MultiDict({'transcript': transcription[0]}))
             flash('Audio Transcribed!','success')
 
             '''Remove file from temp folder'''
             os.remove(filepath)
 
         if session.get('USER') is None:
-            return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm)
+            return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2])
         else:
-            return render_template('transcribe.html', title='Transcribe',transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))
+            return render_template('transcribe.html', title='Transcribe',transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2])
 
     '''Check if transcript has previously written data'''
     if request.method == 'GET':
