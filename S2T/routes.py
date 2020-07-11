@@ -42,7 +42,7 @@ def pageNotFound(error):
 @S2T.route('/', methods=['GET'])
 @S2T.route('/index', methods=['GET'])
 def index():
-    return render_template('index.html', title='Home')
+    return render_template('index.html', title='Home', navActive='home')
 
 
 def randomString(stringLength=10):
@@ -496,9 +496,9 @@ def transcribe():
 			flash('Audio Transcribed!','success')
 
 		if session.get('USER') is None:
-			return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_file=filename)
+			return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_file=filename, navActive='transcribe')
 		else:
-			return render_template('transcribe.html', title='Transcribe',transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_file=filename)
+			return render_template('transcribe.html', title='Transcribe',transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_file=filename, navActive='transcribe')
 
 	'''Check if transcript has previously written data'''
 	if request.method == 'GET':
@@ -522,9 +522,9 @@ def transcribe():
 		transcriptForm = TranscriptForm()
 
 	if session.get('USER') is None:
-		return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm)
+		return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, navActive='transcribe')
 	else:
-		return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))
+		return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), navActive='transcribe')
 
 
 @S2T.route('/save', methods=['POST'])
@@ -692,7 +692,7 @@ def view(owner, filename):
 			flash('Unable to read file!','warning')
 			return redirect(url_for('list_transcripts'))
 
-		return render_template('view.html', title='View', transcriptForm=transcriptForm, owner=owner, filename=filename)
+		return render_template('view.html', title='View', transcriptForm=transcriptForm, owner=owner, filename=filename, navActive='transcripts')
 
 	else:
 		return redirect(url_for('login'))
@@ -927,7 +927,7 @@ def edit(owner, old_filename):
 				flash('Unable to read file!','warning')
 				return redirect(url_for('list_transcripts'))
 
-			return render_template('edit.html', title='Edit', transcriptForm=transcriptForm, owner=owner, old_filename=old_filename)
+			return render_template('edit.html', title='Edit', transcriptForm=transcriptForm, owner=owner, old_filename=old_filename, navActive='transcripts')
 
 	else:
 		return redirect(url_for('login'))
@@ -1065,7 +1065,7 @@ def groups():
 				print(e)
 				flash('Unable to create new group!','danger')
 
-		return render_template('groups.html', title='Groups', groupform=groupform, names=names, isOwner=isOwner, grpsTable=grpsTable, grpsOwn=grpsOwn, grpsLead=grpsLead, grpsMem=grpsMem)
+		return render_template('groups.html', title='Groups', groupform=groupform, names=names, isOwner=isOwner, grpsTable=grpsTable, grpsOwn=grpsOwn, grpsLead=grpsLead, grpsMem=grpsMem, navActive='groups')
 
 	else:
 		return redirect(url_for('login'))
@@ -1231,7 +1231,7 @@ def share(owner, filename):
 		except IntegrityError as e:
 			print(e)
 
-		return render_template('share_transcript.html', title='Sharing transcript', owner=owner, filename=filename, shared_names=shared_names, shared_usernames=shared_usernames)
+		return render_template('share_transcript.html', title='Sharing transcript', owner=owner, filename=filename, shared_names=shared_names, shared_usernames=shared_usernames, navActive='transcripts')
 
 	else:
 		return redirect(url_for('login'))
@@ -1439,17 +1439,6 @@ def share_groups():
 								new_gsd = Group_share_details(gst.share_id, mpk, corrPerm)
 								db.session.add(new_gsd)
 								db.session.commit()
-						
-					'''
-					gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gid).first()
-					if gst:
-						gst.permission = permissions[idx]
-					else:
-						gst = Group_shared_transcripts(filename, owner, gid, permissions[idx], 'N')
-						
-					db.session.add(gst)
-					db.session.commit()
-					'''
 
 			return jsonify("Transcript successfully shared")
 
@@ -1536,9 +1525,9 @@ def members(group_id):
 
 						allGrpMem.append({'username':gr.username, 'name':name, 'role':gr.role})
 
-					return render_template('members.html', title='Members', allGrpMem=allGrpMem, grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role)
+					return render_template('members.html', title='Members', allGrpMem=allGrpMem, grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role, navActive='groups')
 				else:
-					return render_template('members.html', title='Members', grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role)
+					return render_template('members.html', title='Members', grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role, navActive='groups')
 
 			else:
 				flash('You are a member of this group!','secondary')
@@ -1819,7 +1808,7 @@ def list_transcripts():
 			print(e)
 			return redirect(url_for('profile'))
 
-		return render_template('transcripts.html', title='Transcripts', myTranscripts=myTranscripts, sharedTrans=sharedTrans)
+		return render_template('transcripts.html', title='Transcripts', myTranscripts=myTranscripts, sharedTrans=sharedTrans, navActive='transcripts')
 
 	else:
 		return redirect(url_for('login'))

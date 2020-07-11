@@ -21,36 +21,54 @@
 		 	showAlert();
 
 
-		function showAlert() {
-		    $("#pagealert").fadeTo(2000, 500).slideUp(500, function() {
-			      $("#pagealert").slideUp(500);
+			function showAlert() {
+				$("#pagealert").fadeTo(2000, 500).slideUp(500, function() {
+					$("#pagealert").slideUp(500);
 			    });
 			};
+			
+			$("#button").click(function () {
+				if ($(this).val() == "Yes") {
+					$("#infodiv").show();
+					$(this).val("No");
+				} else {
+					$("#infodiv").hide();
+					$(this).val("Yes");
+				}
+			});
+
+			/*$('.navbar-nav .nav-link').click(function(event){
+				$('.navbar-nav .nav-link').parent().removeClass('navitemactive');
+				$('.navbar-nav .nav-link').parent().addClass('nav-item');
+				$(this).parent().removeClass('nav-item');
+				$(this).parent().addClass('navitemactive');
+
+
+			});*/
+			
+			
+			var navActive = '{{ navActive }}';
+			
+			function checkNav() {
+			
+				
+				if (navActive == 'home') {
+					$('#nav-home').addClass('navitemactive');
+					$('#nav-home').addClass('nav-item');
+				} else if (navActive == 'transcribe') {
+					$('#nav-transcribe').addClass('navitemactive');
+				} else if (navActive == 'groups') {
+					$('#nav-groups').addClass('navitemactive');
+				} else if (navActive == 'transcripts') {
+					$('#nav-transcripts').addClass('navitemactive');
+				}
+				
+			}
+			checkNav();
+			
 		 });
 
 
-
-		$(function () {
-        $("#button").click(function () {
-            if ($(this).val() == "Yes") {
-                $("#infodiv").show();
-                $(this).val("No");
-            } else {
-                $("#infodiv").hide();
-                $(this).val("Yes");
-            }
-        });
-
-        $('.navbar-nav .nav-link').click(function(event){
-        	 $('.navbar-nav .nav-link').parent().removeClass('navitemactive');
-        	 $('.navbar-nav .nav-link').parent().addClass('nav-item');
-        	 $(this).parent().removeClass('nav-item');
-    		$(this).parent().addClass('navitemactive');
-
-
-        });
-
-    	});
 		</script>
 
 		{% if title %}
@@ -61,7 +79,7 @@
 	</head>
 
 	<body>
-
+		
 	  	<nav class="navbar navbar-expand-md navbar-custom">
 
 			<a class="navbar-brand" href="/"><img src="{{ url_for('logo') }}" width="30px" height="30px"> Speech2Text</a>
@@ -71,12 +89,12 @@
 
 		  <div class="collapse navbar-collapse" id="navbarContent">
 		  	<ul class="navtab navbar-nav mr-auto">
-		        <li class="nav-item navitemactive"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
-		        <li class="nav-item"><a class="nav-link" href="{{ url_for('transcribe') }}">Transcribe</a></li>
+		        <li class="nav-item" id="nav-home"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+		        <li class="nav-item" id="nav-transcribe"><a class="nav-link" href="{{ url_for('transcribe') }}">Transcribe</a></li>
 
 			{% if session['USER'] %}
-				<li class="nav-item"><a class="nav-link" href="{{ url_for('groups') }}">Groups</a></li>
-				<li class="nav-item"><a class="nav-link" href="{{ url_for('list_transcripts') }}">Transcripts</a></li>
+				<li class="nav-item" id="nav-groups"><a class="nav-link" href="{{ url_for('groups') }}">Groups</a></li>
+				<li class="nav-item" id="nav-transcripts"><a class="nav-link" href="{{ url_for('list_transcripts') }}">Transcripts</a></li>
 			{% endif %}
 
 		    </ul>
