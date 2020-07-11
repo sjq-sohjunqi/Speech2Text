@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextField, SelectField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextField, SelectField, HiddenField
 from wtforms.validators import DataRequired, Regexp, Length, Email, EqualTo, InputRequired
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.widgets import TextArea
@@ -52,6 +52,7 @@ class TranscriptForm(FlaskForm):
 	transcript = TextField('transcript', widget=TextArea())
 	name = StringField('Save Transcript As', validators=[InputRequired(), Regexp('^((?![\"\*\:\<\>\?\/\\\|]).)*$', message='A valid filename cannot have " * : < > ? / \ or |')])
 	annotation = TextField('annotation', widget=TextArea())
+	audio_file = HiddenField('audio_file')
 	save = SubmitField('Save Transcript')
 	
 class GroupForm(FlaskForm):

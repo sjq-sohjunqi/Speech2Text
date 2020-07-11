@@ -1,0 +1,25 @@
+#audio_playback {
+	position: absolute;
+	right: 12px;
+	top: -8px;
+}
+
+#audio_player {
+	opacity: 0.3;
+}
+
+#audio_player:hover {
+	opacity: 1;
+}
+
+#audio_playback_edit {
+	position: absolute;
+	right: 25px;
+	top: 28px;
+}
+
+#audio_playback_view {
+	position: absolute;
+	right: 25px;
+	top: 28px;
+}

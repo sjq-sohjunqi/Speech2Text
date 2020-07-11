@@ -3,6 +3,7 @@ from flask import render_template, flash, redirect, url_for, session, request, s
 from S2T import S2T, db, bcrypt, mail
 from S2T.forms import LoginForm, SignUpForm, ChangePassForm, ChangeNameForm, TranscribeForm, TranscriptForm, GroupForm, UploadImageForm, ChangeBioForm, ChangeWorksAtForm
 from werkzeug.utils import secure_filename
+from shutil import copyfile
 
 from S2T.models import User, Transcripts, Groups, Group_roles, Shared_transcripts, Group_shared_transcripts, Group_share_details
 from sqlalchemy.exc import IntegrityError
@@ -421,69 +422,109 @@ def convert(filepath, filename, language):
         return '%unrecognised%'
 
 
+@S2T.route('/temp_audio/<string:filename>', methods=['GET'])
+def temp_audio(filename):
+	filepath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'])
+	return send_from_directory(directory=filepath, filename=filename)
+	
+@S2T.route('/remove_temp_audio', methods=['POST'])
+def remove_temp_audio():
+	
+	filename = request.form.get('filename')
+	filepath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], filename)
+	if filename:
+		try:
+			if os.path.exists(filepath):
+				'''Remove file from temp folder'''
+				os.remove(filepath)
+				return "Success"
+		except Exception as e:
+			print(e)
+			return "Failure"
+	else:
+		return "Success"
+
+@S2T.route('/get_audio/<string:owner>/<string:filename>', methods=['GET'])
+def get_audio(owner, filename):
+	
+	'''Check if logged in'''
+	if not session.get('USER') is None:
+		user = session.get('USER')
+		
+		try:
+			'''Check user permissions to access audio'''
+			uPerm = getUPerm(filename, owner, user)
+			if uPerm == 'RO' or uPerm == 'RW':
+				'''Get audio file'''
+				filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner, filename)
+				return send_from_directory(directory=filepath, filename='audio_file')
+		except Exception as e:
+			print(e)
+			return None
+			
+	return None
+	
+
 @S2T.route('/transcribe', methods=['GET', 'POST'])
 def transcribe():
 
-    transcribeForm = TranscribeForm()
-    if transcribeForm.validate_on_submit():
-        '''Check if post request has file'''
-        file = transcribeForm.upload.data
-        if file.filename == '':
-            flash('Please select a file','secondary')
-            return redirect(request.url)
+	transcribeForm = TranscribeForm()
+	if transcribeForm.validate_on_submit():
+		'''Check if post request has file'''
+		file = transcribeForm.upload.data
+		if file.filename == '':
+			flash('Please select a file','secondary')
+			return redirect(request.url)
+		
+		rStr = randomString()
+		
+		filename = secure_filename(rStr)
+		filepath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], filename)
 
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(
-            S2T.root_path, S2T.config['TEMP_FOLDER'], filename)
+		try:
+			file.save(filepath)
+		except:
+			flash('Unable to upload file','warning')
+			return redirect(request.url)
 
-        try:
-            file.save(filepath)
-        except:
-            flash('Unable to upload file','warning')
-            return redirect(request.url)
+		transcription = convert(filepath, filename, transcribeForm.language.data)
+		if transcription == '%unrecognised%':
+			transcriptForm = TranscriptForm()
+			flash('Unable to transcript audio!','warning')
+		else:
+			transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription[0]}))
+			flash('Audio Transcribed!','success')
 
-        transcription = convert(filepath, filename, transcribeForm.language.data)
-        if transcription == '%unrecognised%':
-            transcriptForm = TranscriptForm()
-            flash('Unable to transcript audio!','warning')
-        else:
-            transcriptForm = TranscriptForm(
-                formdata=MultiDict({'transcript': transcription[0]}))
-            flash('Audio Transcribed!','success')
+		if session.get('USER') is None:
+			return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_file=filename)
+		else:
+			return render_template('transcribe.html', title='Transcribe',transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_file=filename)
 
-            '''Remove file from temp folder'''
-            os.remove(filepath)
+	'''Check if transcript has previously written data'''
+	if request.method == 'GET':
 
-        if session.get('USER') is None:
-            return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2])
-        else:
-            return render_template('transcribe.html', title='Transcribe',transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2])
+		transcriptFormName = session.get('transcriptFormName', None)
+		transcriptFormNameErr = session.get('transcriptFormNameErr', None)
+		transcriptFormTrans = session.get('transcriptFormTrans', None)
+		transcriptFormAnn = session.get('transcriptFormAnn', None)
 
-    '''Check if transcript has previously written data'''
-    if request.method == 'GET':
+		if (transcriptFormTrans is not None) or (transcriptFormNameErr is not None) or (transcriptFormName is not None):
+			transcriptForm = TranscriptForm(formdata=MultiDict({'name': transcriptFormName, 'transcript': transcriptFormTrans, 'annotation': transcriptFormAnn}))
+			transcriptForm.name.errors = transcriptFormNameErr
 
-        transcriptFormName = session.get('transcriptFormName', None)
-        transcriptFormNameErr = session.get('transcriptFormNameErr', None)
-        transcriptFormTrans = session.get('transcriptFormTrans', None)
-        transcriptFormAnn = session.get('transcriptFormAnn', None)
+			session.pop('transcriptFormName')
+			session.pop('transcriptFormNameErr')
+			session.pop('transcriptFormTrans')
+			session.pop('transcriptFormAnn')
+		else:
+			transcriptForm = TranscriptForm()
+	else:
+		transcriptForm = TranscriptForm()
 
-        if (transcriptFormTrans is not None) or (transcriptFormNameErr is not None) or (transcriptFormName is not None):
-            transcriptForm = TranscriptForm(formdata=MultiDict({'name': transcriptFormName, 'transcript': transcriptFormTrans, 'annotation': transcriptFormAnn}))
-            transcriptForm.name.errors = transcriptFormNameErr
-
-            session.pop('transcriptFormName')
-            session.pop('transcriptFormNameErr')
-            session.pop('transcriptFormTrans')
-            session.pop('transcriptFormAnn')
-        else:
-            transcriptForm = TranscriptForm()
-    else:
-        transcriptForm = TranscriptForm()
-
-    if session.get('USER') is None:
-        return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm)
-    else:
-        return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))
+	if session.get('USER') is None:
+		return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm)
+	else:
+		return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'))
 
 
 @S2T.route('/save', methods=['POST'])
@@ -494,6 +535,7 @@ def save():
 		'''Save transcript in session for redirect'''
 		transcriptText = transcriptForm.transcript.data
 		annotationText = transcriptForm.annotation.data
+		audio_file = transcriptForm.audio_file.data
 		
 		try:
 			'''Check if there is a duplicate entry'''
@@ -519,6 +561,13 @@ def save():
 				save_text = open(filepath, 'w', encoding='utf-8')
 				save_text.write(transcriptText)
 				save_text.close()
+				
+				'''Copy and save audio file'''
+				tmppath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], audio_file)
+				filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'], 'audio_file')
+				
+				if os.path.exists(tmppath):
+					copyfile(tmppath, filepath)
 				
 				'''Check if there is any annotations'''
 				anyAnnotation = 'N'
@@ -643,7 +692,7 @@ def view(owner, filename):
 			flash('Unable to read file!','warning')
 			return redirect(url_for('list_transcripts'))
 
-		return render_template('view.html', title='View', transcriptForm=transcriptForm, filename=filename)
+		return render_template('view.html', title='View', transcriptForm=transcriptForm, owner=owner, filename=filename)
 
 	else:
 		return redirect(url_for('login'))
@@ -808,7 +857,6 @@ def edit(owner, old_filename):
 			
 			'''Override current file with new contents'''
 			try:
-				#os.remove(os.path.join(filepath, old_filename))
 
 				save_text = open(os.path.join(filepath, transcriptForm.data['name']), 'w', encoding="utf-8")
 				save_text.write(transcriptForm.data['transcript'])

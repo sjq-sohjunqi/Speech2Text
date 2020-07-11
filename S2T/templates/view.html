@@ -2,6 +2,8 @@
 
 {% block content %}
 
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='playback.css') }}">
+
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
@@ -22,6 +24,12 @@
     <div class="col col-md-12">
 	<br/>
 	<h1>Now Viewing: {{ filename }}</h1>
+
+	<div id="audio_playback_view">
+		<audio id="audio_player" controls>
+			<source src="{{ url_for('get_audio', owner=owner, filename=filename) }}" type="audio/wav">
+		</audio>
+	</div>
 
 	<form action = "" method = "post" enctype="multipart/form-data" novalidate>
 		{{ transcriptForm.hidden_tag() }}

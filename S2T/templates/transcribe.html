@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+	
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='playback.css') }}">
+	
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 	
@@ -131,6 +133,13 @@
 			
 		});
 		
+		$(window).on('unload', function() {
+			var fd = new FormData();
+			fd.append('filename', '{{audio_file}}');
+
+			navigator.sendBeacon('/remove_temp_audio', fd);
+		});
+		
 	});
 	</script>
 	
@@ -171,6 +180,14 @@
 	<div id="transcript_2" style="display: none"> {{ transcript_2 }} </div>
 	<div id="transcript_3" style="display: none"> {{ transcript_3 }} </div>
 	
+	{% if audio_file is defined %}
+		<div id="audio_playback">
+			<audio id="audio_player" controls>
+				<source src="{{ url_for('temp_audio', filename=audio_file) }}" type="audio/wav">
+			</audio>
+		</div>
+	{% endif %}
+	
 	<div id="trans_tabs">
 		<div id="transcript_1_tab" style="z-index:83">Result</div>
 		<div id="transcript_2_tab" style="z-index:82">Alternative 1</div>
@@ -180,6 +197,7 @@
 	<img id="loader" height="25px" width="25px" style="position: absolute;top:35px;left:30px;display: none;border-radius:20px;" src="{{ url_for('load_icon') }}"/>
 	
 	<form action = "{{ url_for('save') }}" method = "post" enctype="multipart/form-data" novalidate>
+		{{ transcriptForm.audio_file(value=audio_file) }}
 		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
 		<div>
 		{% if user is defined %}<div id="annotateCorner" class="annotateCorner"></div>{%endif%}
