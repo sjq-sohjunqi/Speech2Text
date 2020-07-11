@@ -21,12 +21,13 @@
 		 	showAlert();
 
 
-		 	function showAlert() {
-			    $("#pagealert").fadeTo(2000, 500).slideUp(500, function() {
+		function showAlert() {
+		    $("#pagealert").fadeTo(2000, 500).slideUp(500, function() {
 			      $("#pagealert").slideUp(500);
 			    });
 			};
 		 });
+
 
 
 		$(function () {
@@ -39,6 +40,16 @@
                 $(this).val("Yes");
             }
         });
+
+        $('.navbar-nav .nav-link').click(function(event){
+        	 $('.navbar-nav .nav-link').parent().removeClass('navitemactive');
+        	 $('.navbar-nav .nav-link').parent().addClass('nav-item');
+        	 $(this).parent().removeClass('nav-item');
+    		$(this).parent().addClass('navitemactive');
+
+
+        });
+
     	});
 		</script>
 
@@ -59,8 +70,8 @@
 		  </button>
 
 		  <div class="collapse navbar-collapse" id="navbarContent">
-		  	<ul class="navbar-nav mr-auto">
-		        <li class="nav-item active"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+		  	<ul class="navtab navbar-nav mr-auto">
+		        <li class="nav-item navitemactive"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
 		        <li class="nav-item"><a class="nav-link" href="{{ url_for('transcribe') }}">Transcribe</a></li>
 
 			{% if session['USER'] %}
@@ -93,7 +104,7 @@
 		<main role="main" class="container-fluid">
 	    <table style="width:100%">
 	    	<tr class="section">
-	    		<td class="sidebar" style="width:250px;">
+	    		<td class="sidebar" style="width:200px;">
 	      		{% block subtab %}{% endblock %}
 				</td>
 	   			<td class="centercontent" id="content" style="">
@@ -111,7 +122,7 @@
 	            {% endif %}
 	          {% endwith %}
 	          {% block content %}{% endblock %}
-	          <input id="button" type="button" value="Yes" onclick="ShowHideDiv(this)" />
+	          <input id="button" type="button" value="Yes"  />
 	        </div>
 	    	<td class="sidebar" id="infodiv" >
 
