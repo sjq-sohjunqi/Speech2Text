@@ -26,7 +26,7 @@
 					$("#pagealert").slideUp(500);
 			    });
 			};
-			
+
 			$("#button").click(function () {
 				if ($(this).val() == "Yes") {
 					$("#infodiv").show();
@@ -45,16 +45,16 @@
 
 
 			});*/
-			
-			
+
+
 			var navActive = '{{ navActive }}';
-			
+
 			function checkNav() {
-			
-				
+
+
 				if (navActive == 'home') {
 					$('#nav-home').addClass('navitemactive');
-					$('#nav-home').addClass('nav-item');
+					$('#nav-home').css("color", "red");
 				} else if (navActive == 'transcribe') {
 					$('#nav-transcribe').addClass('navitemactive');
 				} else if (navActive == 'groups') {
@@ -62,10 +62,10 @@
 				} else if (navActive == 'transcripts') {
 					$('#nav-transcripts').addClass('navitemactive');
 				}
-				
+
 			}
 			checkNav();
-			
+
 		 });
 
 
@@ -79,7 +79,7 @@
 	</head>
 
 	<body>
-		
+
 	  	<nav class="navbar navbar-expand-md navbar-custom">
 
 			<a class="navbar-brand" href="/"><img src="{{ url_for('logo') }}" width="30px" height="30px"> Speech2Text</a>
