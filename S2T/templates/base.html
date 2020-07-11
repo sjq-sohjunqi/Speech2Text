@@ -29,6 +29,17 @@
 		 });
 
 
+		$(function () {
+        $("#button").click(function () {
+            if ($(this).val() == "Yes") {
+                $("#infodiv").show();
+                $(this).val("No");
+            } else {
+                $("#infodiv").hide();
+                $(this).val("Yes");
+            }
+        });
+    	});
 		</script>
 
 		{% if title %}
@@ -80,10 +91,12 @@
 
 
 		<main role="main" class="container-fluid">
-	      <div class="row">
-	      	<div class="col-md-1" style="border:1px solid red;">
-	      	</div>
-	        <div class="col-md-10" >
+	    <table style="width:100%">
+	    	<tr class="section">
+	    		<td class="sidebar" style="width:250px;">
+	      		{% block subtab %}{% endblock %}
+				</td>
+	   			<td class="centercontent" id="content" style="">
 	        	<div class="content-section container-fluid">
 	          {% with messages = get_flashed_messages(with_categories=true) %}
 	            {% if messages %}
@@ -98,11 +111,16 @@
 	            {% endif %}
 	          {% endwith %}
 	          {% block content %}{% endblock %}
+	          <input id="button" type="button" value="Yes" onclick="ShowHideDiv(this)" />
 	        </div>
-	    	</div>
-	    	<div class="col-md-1" style="border:1px solid red;">
-	      	</div>
-	      </div>
+	    	<td class="sidebar" id="infodiv" >
+
+
+	    	<td>
+
+	    	</td>
+
+
 	    </main>
 
 

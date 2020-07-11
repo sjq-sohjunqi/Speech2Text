@@ -218,12 +218,11 @@
 }
 
 #navbarContent{
-    padding-left: 17px;
+    padding-left: 5.4%;
 }
 
 .content-section{
     border:1px solid blue;
-    margin-left:  12px;
 }
 
 #loginButton{
@@ -232,8 +231,70 @@
 }
 
 
+#infodiv {
+  background-color: lightblue;
+  width:16%;
+  padding: 0 0 0 0;
+  margin:0 0 0 0;
+  display: none;
+}
+
+.centercontent{
+    border:1px solid blue;
+}
+/* sub tab styling */
+.currenttab{
+    height: 40px;
+    font-size: large;
+  color:#000000;
+  background-color: #d3d3d3;
+  line-height: 38px;
+  border-radius: 20px;
+}
+
+.tabcontent {
+  display:none;
+}
+
+#tab1 {
+  display:block;
+}
+
+.sidebar{
+    border:1px solid red;
+}
 
 
+ul.tabs {
+    margin-top:0;
+    padding:0;
+    margin-top: 40px;
+    list-style-type: none;
+    text-align:left;
+
+    color: #AAABB8;
+
+}
+
+li
+{
+padding:0;
+margin:0;
+padding-right: 0.4em;
+margin-top: -8px;
+}
+
+.tabstyle{
+    color: #AAABB8;
+    height: 40px;
+    font-size: large;
+    line-height: 37px;
+}
+
+.tabstyle:hover{
+color: hotpink;
+}
+/* */
 .color1{
     color: #25274d;
 }
