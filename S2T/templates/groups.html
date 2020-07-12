@@ -105,6 +105,27 @@ $(document).ready(function(){
 			</tr>
 		{% endfor %}
 	</table>
+
+    <div class="flex-grid">
+    {% for grp in grpsTable %}
+      <div class="fgcol">
+        <ul>
+            <li><a href="{{ url_for('members', group_id=grp.group_id) }}">{{ grp.group_name }}</a></li>
+                <li>{{ names.get(grp.username) }}</li>
+                <li>{{ grpsOwn.get(grp.group_id) }}</li>
+                <li>{{ grpsLead.get(grp.group_id) }}</li>
+                <li>{{ grpsMem.get(grp.group_id) }}</li>
+                {% if isOwner[grp.group_id] %}
+                    <li><a href="{{ url_for('delete_group', group_id=grp.group_id)}}" class="btn btn-danger" role="button">Delete</a></li>
+                {% else %}
+                    <li></li>
+                {% endif %}
+        </ul>
+        </div>
+    {% endfor %}
     </div>
+
+    </div>
+
 
 {% endblock %}

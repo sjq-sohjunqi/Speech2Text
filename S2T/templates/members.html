@@ -1,5 +1,42 @@
 {% extends "base.html" %}
+{% block subtab %}
+<script type="text/javascript">
+$(document).ready(function(){
 
+  $('.tabs a').click(function(event) {
+    event.preventDefault();
+
+    // Toggle active class on tab buttons
+    $(this).children().removeClass("tabstyle");
+    $(this).children().addClass("currenttab");
+    $(this).parent().siblings().children().children().removeClass("currenttab");
+    $(this).parent().siblings().children().children().addClass("tabstyle");
+
+    // display only active tab content
+    var activeTab = $(this).attr("href");
+    $('.tabcontent').not(activeTab).css("display","none");
+    $(activeTab).fadeIn();
+
+  });
+
+});
+</script>
+<label class="grouplabel"> {{ grpObj.group_name }}</label>
+ <ul class="tabs container-fluid">
+        <li>
+            <a href="#tab1"><label class="currenttab container-fluid">Current members</label></a>
+        </li>
+        <li >
+            <a href="#tab2"><label class="tabstyle container-fluid">Add new members</label></a>
+        </li>
+        <li>
+            <a href="#tab3"><label class="tabstyle container-fluid">Edit permission</label></a>
+        </li>
+        <li>
+            <a href="#tab4"><label class="tabstyle container-fluid">Tab D</label></a>
+        </li>
+</ul>
+{% endblock %}
 {% block content %}
 
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -92,7 +129,7 @@
 				}
 
 				add_members.push(username);
-				
+
 				var user_profile = "{{url_for('public_profile', username='UNAME')}}".replace("UNAME", username);
 
 				var markup = "<tr class='userRows'><td><input type='checkbox' name='record'></input></td><td class='uname'><a href='" + user_profile + "'>" + username + "</td><td>" + name + "</td><td><select><option value='member'>Member</option><option value='leader'>Leader</option><option value='owner'>Owner</option></select></td></tr>";
@@ -180,10 +217,7 @@
 
 	});
 	</script>
-	<br>
-	<div class="content-section">
-	<div class="row">
-	<div class="container-fluid">
+	<div id="tab1" class="tabcontent">
 	<h1>Group: {{ grpObj.group_name }}</h1>
 	<h2>Current Members:</h2>
 	<table class="table">
@@ -201,9 +235,8 @@
 		</tr>
 	</table>
 	</div>
-	</div>
-	<br><br><br>
-	<hr/>
+
+	<div id="tab2" class="tabcontent">
 	{% if role == 'owner' or role == 'leader' %}
 		<div class="row">
 		<form id="addUserForm" class="container-fluid" action="" method="post" novalidate>
@@ -230,8 +263,9 @@
 			</div>
 		</form>
 		</div>
-		<br><br><br>
-		<hr/>
+		</div>
+
+		<div id="tab3" class="tabcontent">
 		<div class="row">
 			<form id="editMemForm" class="container-fluid" action="" method="post" novalidate>
 				<h2>Change Current Members:</h2>
@@ -264,17 +298,17 @@
 												<option value="leader">Leader</option>
 												<option value="member" >Member</option>
 											{% endif %}
-											
+
 											{% if 'leader' == gm.role %}
 												<option value="owner">Owner</option>
 												<option value="leader" selected="selected">Leader</option>
 												<option value="member" >Member</option>
 											{% endif %}
-											
+
 											{% if 'member' == gm.role %}
 												<option value="owner">Owner</option>
 												<option value="leader">Leader</option>
-												<option value="member" selected="selected">Member</option>					
+												<option value="member" selected="selected">Member</option>
 											{% endif %}
 										</select>
 									{% endif %}
@@ -289,8 +323,9 @@
 				</form>
 		</div>
 	{% endif %}
-	
 	</div>
+
+
 
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	<link rel="stylesheet" href="/resources/demos/style.css">
