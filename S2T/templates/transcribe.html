@@ -135,12 +135,27 @@
 		
 		$(window).on('unload', function() {
 			var fd = new FormData();
-			fd.append('filename', '{{audio_file}}');
+			fd.append('filename', '{{audio_filename}}');
 
 			navigator.sendBeacon('/remove_temp_audio', fd);
 		});
 		
 	});
+	
+	function validateTranscript(){
+		var name = $('#transcriptName').val();
+		if (name == '') {
+			// No name entered
+			$('#transcriptError').html('Transcript requires a name');
+			return false;
+		} else if (name.length > 255) {
+			// Name is too long
+			$('#transcriptError').html('Name can only be 1-255 characters long');
+			return false;
+		} else {
+			return true;
+		}
+	}
 	</script>
 	
 	
@@ -180,10 +195,10 @@
 	<div id="transcript_2" style="display: none"> {{ transcript_2 }} </div>
 	<div id="transcript_3" style="display: none"> {{ transcript_3 }} </div>
 	
-	{% if audio_file is defined %}
+	{% if audio_filename is defined %}
 		<div id="audio_playback">
 			<audio id="audio_player" controls>
-				<source src="{{ url_for('temp_audio', filename=audio_file) }}" type="audio/wav">
+				<source src="{{ url_for('temp_audio', filename=audio_filename) }}" type="audio/wav">
 			</audio>
 		</div>
 	{% endif %}
@@ -196,8 +211,8 @@
 	
 	<img id="loader" height="25px" width="25px" style="position: absolute;top:35px;left:30px;display: none;border-radius:20px;" src="{{ url_for('load_icon') }}"/>
 	
-	<form action = "{{ url_for('save') }}" method = "post" enctype="multipart/form-data" novalidate>
-		{{ transcriptForm.audio_file(value=audio_file) }}
+	<form action="{{ url_for('save') }}" method = "post" enctype="multipart/form-data" onsubmit="return validateTranscript()" novalidate>
+		{{ transcriptForm.audio_file(value=audio_filename) }}
 		{{ transcriptForm.hidden_tag() }} <!Protects against CSRF>
 		<div>
 		{% if user is defined %}<div id="annotateCorner" class="annotateCorner"></div>{%endif%}
@@ -230,12 +245,13 @@
 		
 		{% if user is defined %}
 			<p>
-				<label>{{ transcriptForm.name.label }}: </label> {{ transcriptForm.name(style="border-radius: 10px;") }} {{ transcriptForm.save(class="btn btn-primary") }}
+				<label>{{ transcriptForm.name.label }}: </label> {{ transcriptForm.name(id="transcriptName", style="border-radius: 10px;") }} {{ transcriptForm.save(class="btn btn-primary") }}
 				<br>
-				{% for error in transcriptForm.name.errors %}
-					<label style="color: red;">[{{ error }}]</label><br>
-				{% endfor %}
-
+				<label id="transcriptError" style="color: red;">
+					{% for error in transcriptForm.name.errors %}
+						[{{ error }}]<br>
+					{% endfor %}
+				</label>
 				
 			</p>
 		{%endif%}

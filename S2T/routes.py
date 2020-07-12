@@ -432,7 +432,23 @@ def remove_temp_audio():
 	
 	filename = request.form.get('filename')
 	filepath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], filename)
-	if filename:
+	if filename and filename != '':
+		try:
+			if os.path.exists(filepath):
+				'''Remove file from temp folder'''
+				os.remove(filepath)
+				return "Success"
+		except Exception as e:
+			print(e)
+			return "Failure"
+	else:
+		return "Success"
+
+
+def remove_temp_audio(filename):
+	
+	filepath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], filename)
+	if filename and filename != '':
 		try:
 			if os.path.exists(filepath):
 				'''Remove file from temp folder'''
@@ -496,9 +512,9 @@ def transcribe():
 			flash('Audio Transcribed!','success')
 
 		if session.get('USER') is None:
-			return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_file=filename, navActive='transcribe')
+			return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_filename=filename, navActive='transcribe')
 		else:
-			return render_template('transcribe.html', title='Transcribe',transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_file=filename, navActive='transcribe')
+			return render_template('transcribe.html', title='Transcribe',transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_filename=filename, navActive='transcribe')
 
 	'''Check if transcript has previously written data'''
 	if request.method == 'GET':
@@ -507,24 +523,32 @@ def transcribe():
 		transcriptFormNameErr = session.get('transcriptFormNameErr', None)
 		transcriptFormTrans = session.get('transcriptFormTrans', None)
 		transcriptFormAnn = session.get('transcriptFormAnn', None)
-
+		audio_file = session.get('audioFile', None)
+		
 		if (transcriptFormTrans is not None) or (transcriptFormNameErr is not None) or (transcriptFormName is not None):
 			transcriptForm = TranscriptForm(formdata=MultiDict({'name': transcriptFormName, 'transcript': transcriptFormTrans, 'annotation': transcriptFormAnn}))
 			transcriptForm.name.errors = transcriptFormNameErr
-
+			
 			session.pop('transcriptFormName')
 			session.pop('transcriptFormNameErr')
 			session.pop('transcriptFormTrans')
 			session.pop('transcriptFormAnn')
+			session.pop('audioFile')
 		else:
 			transcriptForm = TranscriptForm()
 	else:
 		transcriptForm = TranscriptForm()
-
-	if session.get('USER') is None:
-		return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, navActive='transcribe')
+	
+	if audio_file is not None and audio_file != '':
+		if session.get('USER') is None:
+			return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, audio_filename=audio_file, navActive='transcribe')
+		else:
+			return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), audio_filename=audio_file, navActive='transcribe')
 	else:
-		return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), navActive='transcribe')
+		if session.get('USER') is None:
+			return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, navActive='transcribe')
+		else:
+			return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), navActive='transcribe')
 
 
 @S2T.route('/save', methods=['POST'])
@@ -542,7 +566,20 @@ def save():
 			transObj = Transcripts.query.filter_by(name=transcriptForm.data['name'], username=session.get('USER')).first()
 			if transObj:
 				flash('There is already a transcript with the same name!','warning')
-
+				
+				'''Generate new name for audio file'''
+				newName = randomString()
+				
+				oldpath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], audio_file)
+				newpath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], newName)
+						
+				if os.path.isfile(oldpath):
+					print('copying')
+					copyfile(oldpath, newpath)
+				
+				'''Pass new name'''
+				session['audioFile'] = newName
+				
 				session['transcriptFormName'] = transcriptForm.name.data
 				session['transcriptFormNameErr'] = transcriptForm.name.errors
 				session['transcriptFormTrans'] = transcriptForm.transcript.data
@@ -566,8 +603,10 @@ def save():
 				tmppath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], audio_file)
 				filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'], 'audio_file')
 				
-				if os.path.exists(tmppath):
+				if os.path.isfile(tmppath):
 					copyfile(tmppath, filepath)
+				
+				remove_temp_audio(audio_file)
 				
 				'''Check if there is any annotations'''
 				anyAnnotation = 'N'
@@ -598,10 +637,11 @@ def save():
 			session['transcriptFormNameErr'] = transcriptForm.name.errors
 			session['transcriptFormTrans'] = transcriptForm.transcript.data
 			session['transcriptFormAnn'] = transcriptForm.annotation.data
+			session['audioFile'] = transcriptForm.audio_file.data
 
 			return redirect(url_for('transcribe'))
-
-
+		
+	
 	session['transcriptFormName'] = transcriptForm.name.data
 	session['transcriptFormNameErr'] = transcriptForm.name.errors
 	session['transcriptFormTrans'] = transcriptForm.transcript.data
@@ -714,7 +754,7 @@ def download(owner, filename):
 			if shared:
 				transObj = Transcripts.query.filter_by(name=filename, username=owner).first()
 				if transObj:
-					filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner)
+					filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner, filename)
 					return send_from_directory(directory=filepath, filename=filename)
 				else:
 					flash('File could not be found on server!','danger')
@@ -783,7 +823,15 @@ def delete(owner, filename):
 					db.session.commit()
 
 					'''Remove file from filesystem'''
-					os.remove(os.path.join(filedir, filename))
+					if os.path.exists(os.path.join(filedir, filename)):
+						os.remove(os.path.join(filedir, filename))
+					
+					if os.path.exists(os.path.join(filedir, 'audio_file')):
+						os.remove(os.path.join(filedir, 'audio_file'))
+						
+					if os.path.exists(os.path.join(filedir, 'annotation')):
+						os.remove(os.path.join(filedir, 'annotation'))
+					
 					os.rmdir(filedir)
 					flash('File successfully deleted!','success')
 
