@@ -1578,7 +1578,7 @@ def members(group_id):
 					return render_template('members.html', title='Members', grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role, navActive='groups')
 
 			else:
-				flash('You are a member of this group!','secondary')
+				flash('You are not a member of this group!','danger')
 				return redirect(url_for('groups'))
 
 		except Exception as e:
