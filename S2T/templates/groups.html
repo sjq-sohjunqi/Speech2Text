@@ -331,7 +331,7 @@ $(document).ready(function(){
 
 		{% for grp in grpsTable %}
 			<tr>
-				<td><a href="{{ url_for('members', group_id=grp.group_id) }}">{{ grp.group_name }}</a></td>
+				<td><a href="{{ url_for('members', group_id=grp.group_id, tabs=1) }}">{{ grp.group_name }}</a></td>
 				<td>{{ names.get(grp.username) }}</td>
 				<td>{{ grpsOwn.get(grp.group_id) }}</td>
 				<td>{{ grpsLead.get(grp.group_id) }}</td>
@@ -349,7 +349,7 @@ $(document).ready(function(){
     {% for grp in grpsTable %}
       <div class="fgcol task">
         <ul class="task__content">
-            <li><a href="{{ url_for('members', group_id=grp.group_id) }}">{{ grp.group_name }}</a></li>
+            <li><a href="{{ url_for('members', group_id=grp.group_id, tabs=1) }}">{{ grp.group_name }}</a></li>
                 <li>{{ names.get(grp.username) }}</li>
                 <li>{{ grpsOwn.get(grp.group_id) }}</li>
                 <li>{{ grpsLead.get(grp.group_id) }}</li>

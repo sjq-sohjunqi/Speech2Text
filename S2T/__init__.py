@@ -32,6 +32,9 @@ S2T.config['PROFILE_FOLDER'] = 'profiles'
 ''''Icons folder'''
 S2T.config['ICONS_FOLDER'] = 'icons'
 
+''''Help Images folder'''
+S2T.config['HELP_FOLDER'] = 'help_img'
+
 '''Mail configurations'''
 S2T.config['MAIL_SERVER']='smtp.gmail.com'
 S2T.config['MAIL_PORT'] = 465

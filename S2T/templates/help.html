@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block subtab %}
+<script type="text/javascript">
+$(document).ready(function(){
+
+  $('.tabs a').click(function(event) {
+    event.preventDefault();
+
+    // Toggle active class on tab buttons
+    $(this).children().removeClass("tabstyle");
+    $(this).children().addClass("currenttab");
+    $(this).parent().siblings().children().children().removeClass("currenttab");
+    $(this).parent().siblings().children().children().addClass("tabstyle");
+
+    // display only active tab content
+    var activeTab = $(this).attr("href");
+    $('.tabcontent').not(activeTab).css("display","none");
+    $(activeTab).fadeIn();
+
+  });
+
+});
+</script>
+ <ul class="tabs container-fluid">
+        <li>
+            <a href="#tab1"><label class="currenttab container-fluid">What is Speech2Text?</label></a>
+        </li>
+        <li >
+            <a href="#tab2"><label class="tabstyle container-fluid">How to use?</label></a>
+        </li>
+        <li>
+            <a href="#tab3"><label class="tabstyle container-fluid">Credits</label></a>
+        </li>
+        <li>
+            <a href="#tab4"><label class="tabstyle container-fluid">Tab D</label></a>
+        </li>
+</ul>
+
+{% endblock %}
+{% block content %}
+	
+	<style>
+	.number_list{
+		font-weight: bold;
+		font-size: 30px;
+		margin-right: 10px;
+	}
+	</style>
+
+	<div id="tab1" class="tabcontent">
+		<h1>What is Speech2Text?</h1>
+		<p>Speech2Text is a transcription service that allows users to transcribe audio recordings of their meetings into text format. The system is designed to make the process of logging project meetings a simple task.</p>
+		
+		<p>Speech2Text also allows users to manage and share these transcripts with other members of their team.</p>
+		
+		<p style="font-weight: bold;">Document your project meetings today with Speech2Text!</p>
+	</div>
+	
+	<div id="tab2" class="tabcontent">
+		<h1>How to use?</h1>
+		<p>Speech2Text can be used with or without a user login.</p>
+		
+		<h2>Transcribing without user login</h2>
+		
+		<p><span class='number_list'>1</span> Go to the transcribe page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="transcribe_icon.jpg") }}'> icon on the navigation bar above.</p>
+		
+		<p><span class='number_list'>2</span> Upload a copy of your audio recording using <br/><img style='margin-left: 20px;' height='45px' width='600px' src='{{ url_for("help_img", image="select_an_audio.jpg")}}'></p>
+		
+		<p><span class='number_list'>3</span> Select the audio language using the dropdown menu <img height='80px' width='230px' src='{{ url_for("help_img", image="select_audio_lang.jpg")}}'></p>
+		
+		<p><span class='number_list'>4</span> Click on <img height='45px' width='80px' src='{{ url_for("help_img", image="transcribe_btn.jpg")}}'> to start the transcription process.</p>
+		
+		<p><span class='number_list'>5</span> Once transcription is complete, you may select from the 3 available results using the tabs<br/><img height='45px' width='80px' src='{{ url_for("help_img", image="transcribe_btn.jpg")}}'></p>
+		
+	</div>
+
+	<div id="tab3" class="tabcontent">
+		<h1>Credits</h1>
+		
+	</div>
+
+	
+{% endblock %}
