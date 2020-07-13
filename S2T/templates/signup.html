@@ -67,9 +67,16 @@
 				var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 				var emailText = $('#username').val();
 				if (mailformat.test(emailText)) {
-					$('#username').removeClass('is-invalid');
-					$('#usernameErr').html('');
-					vEmail = true;
+					if (emailText.length > 255) {
+						$('#username').addClass('is-invalid');
+						$('#usernameErr').html('Email address is too long');
+						vEmail = false;
+					} else {
+						$('#username').removeClass('is-invalid');
+						$('#usernameErr').html('');
+						vEmail = true;
+					}
+					
 				} else {
 					$('#username').addClass('is-invalid');
 					$('#usernameErr').html('Please enter a valid email address');
@@ -83,9 +90,15 @@
 					$('#nameErr').html('Name cannot be empty');
 					vName = false;
 				} else {
-					$('#name').removeClass('is-invalid');
-					$('#nameErr').html('');
-					vName = true;
+					if (nameText.length > 255) {
+						$('#name').addClass('is-invalid');
+						$('#nameErr').html('Name is too long');
+						vName = false;
+					} else {
+						$('#name').removeClass('is-invalid');
+						$('#nameErr').html('');
+						vName = true;
+					}
 				}
 				
 				// Validate Password

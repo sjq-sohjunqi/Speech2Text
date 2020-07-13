@@ -18,7 +18,7 @@
 		}
 		
 		function saveBio() {
-			document.getElementById("bio_functions").innerHTML = '<img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeBio()"/>';
+			//document.getElementById("bio_functions").innerHTML = '<img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeBio()"/>';
 			
 			$("#bio-btn").trigger("click");
 		}
@@ -34,7 +34,7 @@
 		}
 		
 		function saveWA() {
-			document.getElementById("wa_functions").innerHTML = '<img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeWA()"/>';
+			//document.getElementById("wa_functions").innerHTML = '<img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeWA()"/>';
 			
 			$("#works-as-btn").trigger("click");
 		}
@@ -50,9 +50,57 @@
 		}
 		
 		function saveName() {
-			document.getElementById("name_functions").innerHTML = '<img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeName()"/>';
+			//document.getElementById("name_functions").innerHTML = '<img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeName()"/>';
 			
 			$("#name-btn").trigger("click");
+		}
+		
+		function validateName() {
+			var nameText = $('#name-box').val();
+			if (nameText == '') {
+				$('#name-box').addClass('is-invalid');
+				$('#nameErr').html('Name cannot be empty');
+				return false;
+			} else {
+				if (nameText.length > 255) {
+					$('#name-box').addClass('is-invalid');
+					$('#nameErr').html('Name is too long');
+					return false;
+				} else {
+					$('#name-box').removeClass('is-invalid');
+					$('#nameErr').html('');
+					return true;
+				}
+
+			}
+		}
+		
+		function validateWorksAt() {
+			var worksAsText = $('#wa-box').val();
+			if (worksAsText.length > 255) {
+				$('#wa-box').addClass('is-invalid');
+				$('#waErr').html('Works As is too long');
+				return false;
+			} else {
+				$('#wa-box').removeClass('is-invalid');
+				$('#waErr').html('');
+				return true;
+			}
+			
+		}
+		
+		function validateBio() {
+			var bioText = $('#bio-box').val();
+			if (bioText.length > 255) {
+				$('#bio-box').addClass('is-invalid');
+				$('#bioErr').html('Biography is too long');
+				return false;
+			} else {
+				$('#bio-box').removeClass('is-invalid');
+				$('#bioErr').html('');
+				return true;
+			}
+			
 		}
 		
 		$(document).ready(function() {
@@ -88,16 +136,16 @@
 	<div class="image-upload">
 		<img id="img" src="{{ picture }}" />
 		<br/>
-		<form action="" method="post" novalidate>
+		<form action="" method="post" onsubmit="return validateName()" novalidate>
 		{% if nameform.newname.errors %}
                 {{ nameform.newname(class="form-control form-control-lg is-invalid") }}
-                <div class="invalid-feedback">
+                <div id="nameErr" class="invalid-feedback">
                     {% for error in nameform.newname.errors %}
                         <span>{{ error }}</span>
                     {% endfor %}
                 </div><img id="save_icon" class="profile_icons" src="{{ save_icon }}" onclick="saveName()"/>
         {% else %}
-			<span id="profile_name">{{ session['NAME'] }}</span>  {{ nameform.newname(id="name-box", class="form-control form-control-lg", style="display:none") }}<span id="name_functions"><img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeName()"/></span>
+			<span id="profile_name">{{ session['NAME'] }}</span>  {{ nameform.newname(id="name-box", class="form-control form-control-lg", style="display:none") }}<div id="nameErr" class="invalid-feedback"></div><span id="name_functions"><img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeName()"/></span>
         {% endif %}
 		{{ nameform.hidden_tag() }} <!Protects against CSRF>
 		{{ nameform.chg_name(id="name-btn", style="display:none;") }}
@@ -135,10 +183,10 @@
 	<br/>
 	
 	<div id="profile-text-div">
-		<form action="" method="post" novalidate>
+		<form action="" method="post" onsubmit="return validateWorksAt()" novalidate>
 			<span class="profile_headers" id="works_as_header">Works At:  <span id="works_at_area">{%if works_at%}{{works_at}}{%endif%}</span><span id="wa_functions">  <img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeWA()"/></span></span>
 			{{changeworksatform.works_at(id="wa-box", class="form-control form-control-lg", style="display:none;")}}
-			
+			<div id="waErr" class="invalid-feedback"></div>
 			{{ changeworksatform.chg_wa(id="works-as-btn", style="display:none") }}
 			{{ changeworksatform.hidden_tag() }} <!Protects against CSRF>
 		</form>
@@ -146,12 +194,12 @@
 		<hr/>
 		<span class="profile_headers">Biography</span>  <span id="bio_functions"><img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeBio()"/></span>
 		
-		<form action="" method="post" novalidate>
+		<form action="" method="post" onsubmit="return validateBio()" novalidate>
 			{{ changebioform.hidden_tag() }} <!Protects against CSRF>
 			<div id="bio_area">{%if bio%}{{bio}}{%endif%}</div>
 			
 			{{ changebioform.bio(id="bio-box", class="container-fluid", style="border-radius: 25px; display:none;") }}
-			
+			<div id="bioErr" class="invalid-feedback"></div>
 			{{ changebioform.chg_bio(id="bio-btn", style="display:none") }}
 		</form>
 	</div>
