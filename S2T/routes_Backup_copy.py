@@ -532,13 +532,13 @@ def transcribe():
 			return render_template('transcribe.html', title='Transcribe',transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_filename=filename, navActive='transcribe')
 
 	'''Check if transcript has previously written data'''
+	audio_file = session.get('audioFile', None)
 	if request.method == 'GET':
 
 		transcriptFormName = session.get('transcriptFormName', None)
 		transcriptFormNameErr = session.get('transcriptFormNameErr', None)
 		transcriptFormTrans = session.get('transcriptFormTrans', None)
 		transcriptFormAnn = session.get('transcriptFormAnn', None)
-		audio_file = session.get('audioFile', None)
 		
 		if (transcriptFormTrans is not None) or (transcriptFormNameErr is not None) or (transcriptFormName is not None):
 			transcriptForm = TranscriptForm(formdata=MultiDict({'name': transcriptFormName, 'transcript': transcriptFormTrans, 'annotation': transcriptFormAnn}))

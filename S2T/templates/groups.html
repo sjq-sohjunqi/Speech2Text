@@ -3,6 +3,12 @@
 {% block subtab %}
 <script type="text/javascript">
 $(document).ready(function(){
+
+	function setMemUrl() {
+	
+	}
+
+
 //for subtabs
   $('.tabs a').click(function(event) {
     event.preventDefault();
@@ -140,13 +146,24 @@ $(document).ready(function(){
       taskItemInContext = clickInsideElement( e, taskItemClassName );
 
       if ( taskItemInContext ) {
-        e.preventDefault();
-        groupnumber = e.target.id;
-        toggleMenuOn();
-        positionMenu(e);
+			e.preventDefault();
+			groupnumber = e.target.id;
+			
+			// Create link for members
+			var viewUrl = "{{ url_for('members', group_id='5', tabs='1') }}".replace("5", groupnumber);
+			var addUrl = "{{ url_for('members', group_id='5', tabs='2') }}".replace("5", groupnumber);
+			var editUrl = "{{ url_for('members', group_id='5', tabs='3') }}".replace("5", groupnumber);
+			
+			// Append to menu
+			$('#context_view_link').attr('href', viewUrl);
+			$('#context_add_link').attr('href', addUrl);
+			$('#context_edit_link').attr('href', editUrl);
+			
+			toggleMenuOn();
+			positionMenu(e);
       } else {
-        taskItemInContext = null;
-        toggleMenuOff();
+			taskItemInContext = null;
+			toggleMenuOff();
       }
     });
   }
@@ -245,7 +262,8 @@ $(document).ready(function(){
    * @param {HTMLElement} link The link that was clicked
    */
   function menuItemListener( link ) {
-    console.log( "Task ID - " + taskItemInContext.getAttribute("data-id") + ", Task action - " + link.getAttribute("data-action"));
+	window.location.href = link;
+	//console.log( "Task ID - " + taskItemInContext.getAttribute("data-id") + ", Task action - " + link.getAttribute("data-action"));
     toggleMenuOff();
   }
 
@@ -408,13 +426,13 @@ $(document).ready(function(){
  <nav id="context-menu" class="context-menu">
     <ul class="context-menu__items">
       <li class="context-menu__item">
-        <a href="#" class="context-menu__link" data-action="View"> View Current Members </a>
+        <a id="context_view_link" href="" class="context-menu__link" data-action="View"> View Current Members </a>
       </li>
       <li class="context-menu__item">
-        <a href="#" class="context-menu__link" data-action="Edit"> Add New Members</a>
+        <a id="context_add_link" href="" class="context-menu__link" data-action="Edit"> Add New Members</a>
       </li>
       <li class="context-menu__item">
-        <a href="#" class="context-menu__link" data-action="Delete"> Edit permission</a>
+        <a id="context_edit_link" href="" class="context-menu__link" data-action="Delete"> Edit permission</a>
       </li>
     </ul>
   </nav>
