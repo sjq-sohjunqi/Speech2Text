@@ -406,7 +406,7 @@ color:#000000;
 }
 
 /* tasks */
-
+/*
 .tasks {
   list-style: none;
   margin: 0;
@@ -423,7 +423,7 @@ color:#000000;
 .task:last-child {
   border-bottom: none;
 }
-
+*/
 /* context menu */
 
 .context-menu {

@@ -5,7 +5,7 @@
 $(document).ready(function(){
 
 	function setMemUrl() {
-	
+
 	}
 
 
@@ -27,7 +27,8 @@ $(document).ready(function(){
   });
 
 
-
+//end of subtabs
+//for context menu
 
   (function(){
 
@@ -148,17 +149,17 @@ $(document).ready(function(){
       if ( taskItemInContext ) {
 			e.preventDefault();
 			groupnumber = e.target.id;
-			
+
 			// Create link for members
 			var viewUrl = "{{ url_for('members', group_id='5', tabs='1') }}".replace("5", groupnumber);
 			var addUrl = "{{ url_for('members', group_id='5', tabs='2') }}".replace("5", groupnumber);
 			var editUrl = "{{ url_for('members', group_id='5', tabs='3') }}".replace("5", groupnumber);
-			
+
 			// Append to menu
 			$('#context_view_link').attr('href', viewUrl);
 			$('#context_add_link').attr('href', addUrl);
 			$('#context_edit_link').attr('href', editUrl);
-			
+
 			toggleMenuOn();
 			positionMenu(e);
       } else {
@@ -273,13 +274,14 @@ $(document).ready(function(){
   init();
 
 })();
-});
-//end of subtabs
-//for context menu
-
-
 
 //end of context menu
+});
+
+
+
+
+
 
 
 
@@ -340,7 +342,7 @@ $(document).ready(function(){
 
     <div id="tab2" class="tabcontent">
 	<h2>Groups:</h2>
-	<table class="table container-fluid">
+	<table class="table container-fluid tasks">
 		<thead class="thead-dark">
 			<tr>
 				<th>Name</th>
@@ -353,16 +355,16 @@ $(document).ready(function(){
 		</thead>
 
 		{% for grp in grpsTable %}
-			<tr>
-				<td><a href="{{ url_for('members', group_id=grp.group_id, tabs=1) }}">{{ grp.group_name }}</a></td>
-				<td>{{ names.get(grp.username) }}</td>
-				<td>{{ grpsOwn.get(grp.group_id) }}</td>
-				<td>{{ grpsLead.get(grp.group_id) }}</td>
-				<td>{{ grpsMem.get(grp.group_id) }}</td>
+			<tr class="task" id="{{ grp.group_id }}">
+				<td id="{{ grp.group_id }}"><a href="{{ url_for('members', group_id=grp.group_id, tabs=1) }}">{{ grp.group_name }}</a></td>
+				<td id="{{ grp.group_id }}">{{ names.get(grp.username) }}</td>
+				<td id="{{ grp.group_id }}">{{ grpsOwn.get(grp.group_id) }}</td>
+				<td id="{{ grp.group_id }}">{{ grpsLead.get(grp.group_id) }}</td>
+				<td id="{{ grp.group_id }}">{{ grpsMem.get(grp.group_id) }}</td>
 				{% if isOwner[grp.group_id] %}
-					<td><a href="{{ url_for('delete_group', group_id=grp.group_id)}}" class="btn btn-danger" role="button">Delete</a></td>
+					<td id="{{ grp.group_id }}"><a href="{{ url_for('delete_group', group_id=grp.group_id)}}" class="btn btn-danger" role="button">Delete</a></td>
 				{% else %}
-					<td></td>
+					<td id="{{ grp.group_id }}"></td>
 				{% endif %}
 			</tr>
 		{% endfor %}

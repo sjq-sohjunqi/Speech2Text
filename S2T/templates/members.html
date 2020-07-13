@@ -19,21 +19,40 @@ $(document).ready(function(){
 
   });
 
+  if("{{tabs}}" == "1"){
+  	$('#tab1').fadeIn();
+
+  }else if("{{tabs}}" == "2"){
+  	$('.tabcontent').not('tab1').css("display","none");
+  	$('#tab2').fadeIn();
+  	$('#sidetab1').removeClass("currenttab");
+  	$('#sidetab1').addClass("tabstyle");
+  	$('#sidetab2').removeClass("tabstyle");
+  	$('#sidetab2').addClass("currenttab");
+  }else if("{{tabs}}" == "3"){
+  	$('.tabcontent').not('tab1').css("display","none");
+  	$('#tab3').fadeIn();
+  	$('#sidetab1').removeClass("currenttab");
+  	$('#sidetab1').addClass("tabstyle");
+  	$('#sidetab3').removeClass("tabstyle");
+  	$('#sidetab3').addClass("currenttab");
+  }
+
 });
 </script>
 <label class="grouplabel"> {{ grpObj.group_name }}</label>
  <ul class="tabs container-fluid">
         <li>
-            <a href="#tab1"><label class="currenttab container-fluid">Current members</label></a>
+            <a href="#tab1"><label id="sidetab1" class="currenttab container-fluid">Current members</label></a>
         </li>
         <li >
-            <a href="#tab2"><label class="tabstyle container-fluid">Add new members</label></a>
+            <a href="#tab2"><label id="sidetab2" class="tabstyle container-fluid">Add new members</label></a>
         </li>
         <li>
-            <a href="#tab3"><label class="tabstyle container-fluid">Edit permission</label></a>
+            <a href="#tab3"><label id="sidetab3" class="tabstyle container-fluid">Edit permission</label></a>
         </li>
         <li>
-            <a href="#tab4"><label class="tabstyle container-fluid">Tab D</label></a>
+            <a href="#tab4"><label id="sidetab4" class="tabstyle container-fluid">Tab D</label></a>
         </li>
 </ul>
 {% endblock %}

@@ -1,16 +1,54 @@
 {% extends "base.html" %}
+{% block subtab %}
+<script type="text/javascript">
+$(document).ready(function(){
 
+//for subtabs
+  $('.tabs a').click(function(event) {
+    event.preventDefault();
+
+    // Toggle active class on tab buttons
+    $(this).children().removeClass("tabstyle");
+    $(this).children().addClass("currenttab");
+    $(this).parent().siblings().children().children().removeClass("currenttab");
+    $(this).parent().siblings().children().children().addClass("tabstyle");
+
+    // display only active tab content
+    var activeTab = $(this).attr("href");
+    $('.tabcontent').not(activeTab).css("display","none");
+    $(activeTab).fadeIn();
+
+  });
+});
+//end of subtabs
+//for context menu
+</script>
+ <ul class="tabs container-fluid">
+        <li>
+            <a href="#tab1"><label class="currenttab container-fluid">Create a New Group</label></a>
+        </li>
+        <li >
+            <a href="#tab2"><label class="tabstyle container-fluid">Groups</label></a>
+        </li>
+        <li>
+            <a href="#tab3"><label class="tabstyle container-fluid">Tab C</label></a>
+        </li>
+        <li>
+            <a href="#tab4"><label class="tabstyle container-fluid">Tab D</label></a>
+        </li>
+</ul>
+{% endblock %}
 {% block content %}
 
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 	<script type="text/javascript">
-	
+
 	function changeDisabled(id) {
 			var memRowId = "#group_mems_" + id;
 			var grpRowId = "#" + id;
-			
+
 			// Get option selected by user
 			var opt = $("#groupBody").find(grpRowId).find(".gperm").find("option:selected").val();
 			if (opt == "NS") {
@@ -18,33 +56,33 @@
 				$("#groupBody").find(memRowId).find(".mem_perm").each(function(){
 					$(this).prop('disabled', true);
 				});
-				
+
 				// Disable allow share dropdown
 				$("#groupBody").find(grpRowId).find(".a_share").each(function(){
 					$(this).prop('disabled', true);
 				});
-				
+
 			} else {
-				
+
 				// Enable all member rows
 				$("#groupBody").find(memRowId).find(".mem_perm").each(function(){
 					$(this).prop('disabled', false);
-					
+
 					// Change all member rows to selected value
 					$(this).val(opt);
-					
+
 				});
-				
+
 				// Enable allow share dropdown
 				$("#groupBody").find(grpRowId).find(".a_share").each(function(){
 					$(this).prop('disabled', false);
 				});
-				
+
 			}
-			
-			
+
+
 	};
-	
+
 	$(document).ready(function() {
 
 		var all_user_list = [];
@@ -62,16 +100,16 @@
 			});
 		};
 		load_all_users_list();
-		
+
 		var suList = [];
 		function load_all_shared_users_list(){
-			
+
 			$.post('/get_shared_users',{'owner':'{{owner}}', 'filename':'{{filename}}'},function(data, status){
 				for (var i = 0; i < data.length; i++ ) {
 					suList.push(data[i].username);
 				}
 			});
-			
+
 		};
 		load_all_shared_users_list();
 
@@ -98,7 +136,7 @@
 					break;
 				}
 			}
-			
+
 			var alrSh = false;
 			for (var i = 0; i < suList.length; i++) {
 				if (username == suList[i]) {
@@ -124,9 +162,9 @@
 				}
 
 				share_users.push(username);
-				
+
 				var user_profile = "{{url_for('public_profile', username='UNAME')}}".replace("UNAME", username);
-				
+
 				var markup = "<tr class='userRows'><td><input type='checkbox' name='record'></input></td><td class='uname'><a href='" + user_profile + "'>" + username + "</a></td><td>" + name + "</td><td><select><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td></tr>";
 				$("#userBody").append(markup);
 			}
@@ -164,11 +202,11 @@
                 }
             });
         });
-		
+
 		var editUsers = [];
 		function search_users(){
 			url = '{{ url_for("search_users", owner=owner , filename=filename) }}';
-			
+
 			$.getJSON(url, function(data, status, xhr){
 				if (data == "Unable to list users") {
 					alert(data);
@@ -176,7 +214,7 @@
 					// Populate table with new entries
 					for (var i = 0; i < data.length; i++ ) {
 						var markup = "<tr class='editURows'>";
-						
+
 						if (data[i].user_perm == "RO") {
 							markup += "<td><select class='uperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
 						} else if (data[i].user_perm == "RW") {
@@ -184,32 +222,32 @@
 						} else {
 							markup += "<td><select class='uperm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
 						}
-						
+
 						editUsers.push(data[i].username);
-						
+
 						var user_profile = "{{url_for('public_profile', username='UNAME')}}".replace("UNAME", data[i].username);
-						
+
 						markup += "<td class='username'><a href='" + user_profile + "'>" +
 						data[i].username + "</td><td class='name'>" +
 						data[i].name + "</td></tr>";
-						
+
 						$("#editUserBody").append(markup);
-						
+
 					}
 				}
-				
+
 			});
-			
+
 		}
 		search_users();
-		
+
 		$('#edit-user-btn').click(function(){
-			
+
 			var permissions = [];
 			$("#editUserBody").find('.editURows').each(function(){
 				permissions.push($(this).find("option:selected").val());
 			});
-			
+
 			$.post('/edit_user_share', {'editUsers':editUsers, 'owner':'{{owner}}', 'filename':'{{filename}}', 'permissions':permissions}, function(data,status){
 				if (data == 'Transcript successfully shared') {
 
@@ -220,19 +258,19 @@
 					location.reload(true);
 				}
 			});
-			
+
 		});
-		
+
 		function updateGroupBody(grpID, prevRow, data, grp_perm){
-			
+
 			// Populate table with members
 			var newRow = "<tr id='group_mems_" + grpID + "'><td colspan='6'><table>"
 			+ "<thead><th>Username</th><th>Name</th><th>Role</th><th>Permissions</th></thead>"
 			+ "<tbody>";
-			
+
 			for (var i = 0; i < data.length; i++) {
 				newRow += "<tr class='gmu'><td class='gmu_name' name='" + data[i].username + "'>" + data[i].username + "</td><td>" + data[i].name + "</td><td>" + data[i].role + "</td>";
-				
+
 				// Check for special permissions
 				if (data[i].perm == "RO") {
 					newRow += "<td><select class='mem_perm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
@@ -250,22 +288,22 @@
 						newRow += "<td><select disabled=true class='mem_perm'><option value='NS' selected='selected'>Not Shared</option><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
 					}
 				}
-				
-				
+
+
 				newRow += "</tr>";
-				
+
 			}
-			
+
 			newRow += "</tbody></table></td></tr>";
 			var markup = prevRow + newRow;
-			
+
 			$("#groupBody").append(markup);
 		}
-		
+
 		var gid = [];
 		function post_group_mems(group_id, prevRow, grp_perm, updateFunc) {
 			$.post('{{ url_for("get_group_mems") }}', {'group_id': group_id, 'owner':'{{owner}}', 'filename':'{{filename}}'}, function(){
-					
+
 			}).done(function(data){
 				if (data == "Unable to list members"){
 					alert(data);
@@ -274,24 +312,24 @@
 					updateFunc(group_id, prevRow, data, grp_perm);
 				}
 			});
-			
+
 		}
-		
+
 		function search_groups(){
 			url = '{{ url_for("search_groups", owner=owner , filename=filename) }}';
-			
+
 			$.getJSON(url, function(){
-				
+
 			}).done(function(data) {
 				if (data == "Unable to list groups") {
 					alert(data);
 				} else {
-					
+
 					// Populate table with new entries
 					for (var n = 0; n < data.length; n++ ) {
-						
+
 						var row = "<tr class='groupRows' id='" + data[n].group_id +"'>";
-						
+
 						var shared = true;
 						if (data[n].group_perm == "RO") {
 							row += "<td><select onChange='changeDisabled(" + data[n].group_id + ")' class='gperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
@@ -303,14 +341,14 @@
 						}
 
 						//gid.push(data[n].group_id);
-						
+
 						row += "<td class='gname'>" +
 						data[n].group_name + "</td><td class='cname'>" +
 						data[n].username + "</td><td class='owners'>"+
 						data[n].owners + "</td><td class='leaders'>"+
 						data[n].leaders + "</td><td class='members'>" +
 						data[n].members+ "</td>";
-						
+
 						if (shared) {
 							if (data[n].allow_share == "N") {
 								row += "<td><select class='a_share'><option value='N' selected='selected'>No</option><option value='Y'>Yes</option></select></td>";
@@ -320,62 +358,62 @@
 						} else {
 							row += "<td><select disabled=true class='a_share'><option value='N'>No</option><option value='Y'>Yes</option></select></td>";
 						}
-						
+
 						row += "</tr>";
-						
+
 						// Callback function to update HTML
 						post_group_mems(data[n].group_id, row, data[n].group_perm, updateGroupBody);
-						
-						
+
+
 					}
-					
+
 				}
-			
+
 			});
-			
+
 
 		};
 		search_groups();
-		
+
 		$('#share-group-btn').click(function(){
-			
+
 			var member_dets = [];
 			var permissions = [];
 			var allow_share = [];
-			
+
 			$("#groupBody").find('.groupRows').each(function(){
 				var grpPerm = $(this).find(".gperm").find("option:selected").val();
 				permissions.push(grpPerm);
-				
+
 				var aShare = $(this).find(".a_share").find("option:selected").val();
 				allow_share.push(aShare);
-				
+
 				var grpId = $(this).attr("id");
 				gid.push(grpId);
-				
+
 				// Check each individual
 				if (grpPerm != 'NS') {
-					
+
 					var eleId = "#group_mems_" + grpId;
 					$(this).parent().find(eleId).find('.gmu').each(function(){
-						
+
 						// Get each username
 						memUser = $(this).find('.gmu_name').attr("name");
-						
+
 						// Get each permission
 						memPerm = $(this).find("option:selected").val();
-						
+
 						// If different than group perm, need to update
 						if (memPerm != grpPerm) {
 							var mem = {"gid":grpId,"username":memUser,"permission":memPerm};
 							member_dets.push(JSON.stringify(mem));
 						}
-						
+
 					});
-					
+
 				}
 			});
-			
+
 			$.post('/share_groups',{'gid':gid, 'owner':'{{owner}}', 'filename':'{{filename}}', 'permissions':permissions, 'member_dets':member_dets, 'allow_share':allow_share},function(data,status){
 				if (data == 'Transcript successfully shared') {
 
@@ -394,14 +432,9 @@
 	});
 	</script>
 	<br>
-	<div class="content-section">
-	<div class="row">
-	<div class="container-fluid">
+	<div id="tab1" class="tabcontent">
+
 	<h1>Sharing transcript: {{ filename }}</h1>
-	</div>
-	</div>
-	<br>
-	<div class="row">
 	<form id="addUserForm" class="container-fluid" action="" method="post" novalidate>
 		<div class="form-group ui-widget">
 		Add User: <input id="username" name="username"></input> <input type="button" class="btn btn-primary" id="select-user" value="Select User">
@@ -426,13 +459,10 @@
 		</div>
 	</form>
 	</div>
-	<br><br><br><hr/>
-	
-	
+	<div id="tab2" class="tabcontent">
+
+
 	<h2>Currently shared with:</h2>
-	
-	
-	<div class="row">
 	<form id="EditUserForm" class="container-fluid" action="" method="post" novalidate>
 
 		<p>
@@ -442,7 +472,7 @@
 						<th>Sharing Permissions</th>
 						<th>Username</th>
 						<th>Name</th>
-						
+
 					</tr>
 				</thead>
 				<tbody id="editUserBody">
@@ -454,8 +484,8 @@
 
 	</form>
 	</div>
-	
-	<div class="row">
+
+	<div id="tab3" class="tabcontent">
 	<form id="addGroupForm" class="container-fluid" action="" method="post" novalidate>
 
 		<p>
