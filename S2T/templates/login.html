@@ -1,7 +1,53 @@
 {% extends "base.html" %}
 
 {% block content %}
-        <form action="" method="post" novalidate>
+
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+	<script type="text/javascript">
+		function validateEmail() {
+			var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+			var inputText = $('#username').val();
+			if (mailformat.test(inputText)) {
+				$('#username').removeClass('is-invalid');
+				$('#usernameErr').html('');
+				return true;
+			} else {
+				$('#username').addClass('is-invalid');
+				$('#usernameErr').html('Please enter a valid email address');
+				return false;
+			}
+		};
+		
+		function validatePass(){
+			var inputText = $('#password').val();
+			if (inputText == '') {
+				$('#password').addClass('is-invalid');
+				$('#passwordErr').html('Password field cannot be empty');
+				return false;
+			} else {
+				$('#password').removeClass('is-invalid');
+				$('#passwordErr').html('');
+				return true;
+			}
+		}
+		
+		function validateLogin() {
+			var vEmail = validateEmail();
+			var vPass = validatePass();
+			
+			if (vEmail && vPass) {
+				return true;
+			} else {
+				return false;
+			}
+			
+		}
+		
+	</script>
+
+        <form action="" method="post" enctype="multipart/form-data" onsubmit="return validateLogin()" novalidate>
         <div class="row">
         <div class='col-md-5'>
 			{{ form.hidden_tag() }} <!Protects against CSRF>
@@ -10,27 +56,29 @@
                 <div class="form-group">
                     {{ form.username.label(class="form-control-label") }}
                     {% if form.username.errors %}
-                        {{ form.username(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
+                        {{ form.username(id="username", class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback" id="usernameErr">
                             {% for error in form.username.errors %}
-                                <span>{{ error }}</span>
+                                {{ error }}
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.username(class="form-control form-control-lg") }}
+                        {{ form.username(id="username", class="form-control form-control-lg") }}
+						<div class="invalid-feedback" id="usernameErr"></div>
                     {% endif %}
                 </div>
                 <div class="form-group">
                     {{ form.password.label(class="form-control-label") }}
                     {% if form.password.errors %}
-                        {{ form.password(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
+                        {{ form.password(id="password", class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback" id="passwordErr">
                             {% for error in form.password.errors %}
-                                <span>{{ error }}</span>
+                                {{ error }}
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.password(class="form-control form-control-lg") }}
+                        {{ form.password(id="password", class="form-control form-control-lg") }}
+						<div class="invalid-feedback" id="passwordErr"></div>
                     {% endif %}
                 </div>
                 <br>
@@ -42,7 +90,7 @@
             </div>
         </div>
         </div>
-
+	</form>
 
 
 
