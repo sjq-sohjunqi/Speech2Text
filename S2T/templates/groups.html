@@ -21,6 +21,8 @@ $(document).ready(function(){
   });
 
 
+
+
   (function(){
 
   "use strict";
@@ -53,6 +55,8 @@ $(document).ready(function(){
         }
       }
     }
+
+
 
     return false;
   }
@@ -117,7 +121,7 @@ $(document).ready(function(){
 
   var windowWidth;
   var windowHeight;
-
+  var groupnumber;
   /**
    * Initialise our application's code.
    */
@@ -137,6 +141,7 @@ $(document).ready(function(){
 
       if ( taskItemInContext ) {
         e.preventDefault();
+        groupnumber = e.target.id;
         toggleMenuOn();
         positionMenu(e);
       } else {
@@ -347,17 +352,17 @@ $(document).ready(function(){
 
     <div class="flex-grid tasks">
     {% for grp in grpsTable %}
-      <div class="fgcol task">
-        <ul class="task__content">
-            <li><a href="{{ url_for('members', group_id=grp.group_id, tabs=1) }}">{{ grp.group_name }}</a></li>
-                <li>{{ names.get(grp.username) }}</li>
-                <li>{{ grpsOwn.get(grp.group_id) }}</li>
-                <li>{{ grpsLead.get(grp.group_id) }}</li>
-                <li>{{ grpsMem.get(grp.group_id) }}</li>
+      <div class="fgcol task" id="{{ grp.group_id }}">
+        <ul class="task__content" id="{{ grp.group_id }}">
+            <li id="{{ grp.group_id }}"><a id="{{ grp.group_id }}" href="{{ url_for('members', group_id=grp.group_id, tabs=1) }}">{{ grp.group_name }}</a></li>
+                <li id="{{ grp.group_id }}">{{ names.get(grp.username) }}</li>
+                <li id="{{ grp.group_id }}">{{ grpsOwn.get(grp.group_id) }}</li>
+                <li id="{{ grp.group_id }}">{{ grpsLead.get(grp.group_id) }}</li>
+                <li id="{{ grp.group_id }}">{{ grpsMem.get(grp.group_id) }}</li>
                 {% if isOwner[grp.group_id] %}
-                    <li><a href="{{ url_for('delete_group', group_id=grp.group_id)}}" class="btn btn-danger" role="button">Delete</a></li>
+                    <li id="{{ grp.group_id }}"><a id="{{ grp.group_id }}" href="{{ url_for('delete_group', group_id=grp.group_id)}}" class="btn btn-danger" role="button">Delete</a></li>
                 {% else %}
-                    <li></li>
+                    <li id="{{ grp.group_id }}"></li>
                 {% endif %}
         </ul>
         </div>
