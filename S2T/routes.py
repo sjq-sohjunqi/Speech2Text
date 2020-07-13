@@ -1588,7 +1588,7 @@ def members(group_id, tabs):
 
 						allGrpMem.append({'username':gr.username, 'name':name, 'role':gr.role})
 
-					return render_template('members.html', title='Members', allGrpMem=allGrpMem, grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role, tabs=tabs navActive='groups')
+					return render_template('members.html', title='Members', allGrpMem=allGrpMem, grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role, tabs=tabs, navActive='groups')
 				else:
 					return render_template('members.html', title='Members', grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role, tabs=tabs, navActive='groups')
 
