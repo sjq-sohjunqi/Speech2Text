@@ -52,7 +52,7 @@ def randomString(stringLength=10):
 @S2T.route('/verify/<string:vStr>', methods=['GET'])
 def verify(vStr):
 	try:
-		
+
 		userObj = User.query.filter_by(validate_str=vStr).first()
 		if userObj:
 			'''User found; validate user and allow logins'''
@@ -60,19 +60,19 @@ def verify(vStr):
 			userObj.validated = 'Y'
 			db.session.add(userObj)
 			db.session.commit()
-			
+
 			flash('User verification complete! Please sign in to start using Speech2Text!', 'success')
-			
+
 		else:
 			'''No user found'''
 			flash('Invalid verification Link', 'warning')
-			
+
 		return redirect(url_for('index'))
-		
+
 	except IntegrityError as e:
 		flash('An error has occurred', 'warning')
 		return redirect(url_for('index'))
-		
+
 
 @S2T.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -81,26 +81,26 @@ def signup():
 		try:
 			'''Check if username is taken'''
 			userObj = User.query.filter_by(username=form.username.data).first()
-			
+
 			if userObj is None:
-				
+
 				vStr = randomString()
-				
+
 				'''Create verification link'''
 				vLink = url_for('verify', vStr=vStr, _external=True)
-				
+
 				new_user = User(form.data['username'], form.data['password'], form.data['name'], vStr)
 				db.session.add(new_user)
 				db.session.commit()
 
 				try:
 					msg = Message('Verification Link for Speech2text', sender='speechtextapplication@gmail.com', recipients=[form.username.data])
-					msg.body = "Please click on the following link to verify your Speech2Text account: " + vLink 
+					msg.body = "Please click on the following link to verify your Speech2Text account: " + vLink
 					mail.send(msg)
-					
+
 					flash('A verification link has been sent to your email address. Please verify before signing in', 'success')
 					return redirect(url_for('index'))
-					
+
 				except Exception as e:
 					flash('An error has occured. Please try again.', 'warning')
 					print(e)
@@ -108,12 +108,12 @@ def signup():
 			else:
 				flash('The email {} has already been taken'.format(form.username.data),'warning')
 				return render_template('signup.html', title='Sign Up', form=form)
-			
+
 		except IntegrityError as e:
 				flash('An error has occured. Please try again.', 'warning')
 				print(e)
 				return render_template('signup.html', title='Sign Up', form=form)
-				
+
 	return render_template('signup.html', title='Sign Up', form=form)
 
 
@@ -135,11 +135,11 @@ def login():
 			authenticated_user = bcrypt.check_password_hash(userObj.password, form.data['password'])
 			if authenticated_user:
 				if userObj.validated == 'Y':
-				
+
 					session['USER'] = userObj.username
 					session['NAME'] = userObj.name
 					return redirect(url_for('index'))
-					
+
 				else:
 					flash('Please verify your email address before signing in', 'warning')
 
@@ -157,20 +157,20 @@ def pictures(username):
 			if not user.image is None:
 				filepath = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'], user.username)
 				return send_from_directory(filepath, user.image)
-		
+
 		filepath = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'])
 		return send_from_directory(filepath, 'default.jpg')
 	except IntegrityError as e:
 		print(e)
-		
+
 		filepath = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'])
 		return send_from_directory(filepath, 'default.jpg')
-	
+
 @S2T.route('/edit_icon', methods=['GET'])
 def edit_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
 	return send_from_directory(filepath, 'edit_icon.png')
-	
+
 @S2T.route('/save_icon', methods=['GET'])
 def save_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
@@ -189,27 +189,27 @@ def load_icon():
 @S2T.route('/public_profile/<string:username>', methods=['GET'])
 def public_profile(username):
 	if not session.get('USER') is None:
-		
+
 		try:
 			userObj = User.query.filter_by(username=username).first()
 			if userObj:
-				
+
 				name = userObj.name
 				bio = userObj.bio
 				works_at = userObj.works_at
 				picture = url_for('pictures', username=username)
-				
+
 				return render_template('public_profile.html', name=name, bio=bio, works_at=works_at, title=name + '\'s Page', picture=picture)
-			
+
 			else:
 				flash("Unabel to view user's profile", "warning")
 				return redirect(url_for('index'))
-			
+
 		except IntegrityError as e:
 			print(e)
 			flash("Unabel to view user's profile", "warning")
 			return redirect(url_for('index'))
-		
+
 	else:
 		return redirect(url_for('login'))
 
@@ -219,96 +219,96 @@ def profile():
 	nameform = ChangeNameForm()
 	changebioform = ChangeBioForm()
 	changeworksatform = ChangeWorksAtForm()
-	
+
 	uploadImageForm = UploadImageForm()
 	picture = url_for('pictures', username='default')
-	
+
 	if not session.get('USER') is None:
 		user = session.get('USER')
 		name = session.get('NAME')
 		picture = url_for('pictures', username=user)
 		bio = None
 		works_at = None
-		
+
 		save_icon = url_for("save_icon")
 		edit_icon = url_for("edit_icon")
-		
-		
+
+
 		'''Get user object'''
 		userObj = User.query.filter_by(username=user).first()
 		if userObj:
-			
+
 			'''Get user's bio and works_at'''
 			bio = userObj.bio
-			works_at = userObj.works_at 
-			
+			works_at = userObj.works_at
+
 			if 'chg_bio' in request.form and changebioform.validate_on_submit():
 				'''Get updated bio'''
 				new_bio = changebioform.bio.data
 				userObj.bio = new_bio
-				
+
 				db.session.add(userObj)
 				db.session.commit()
-				
+
 				flash("Biography updated", "success")
 				return redirect(url_for("profile"))
-				
+
 			if 'chg_wa' in request.form and changeworksatform.validate_on_submit():
 				'''Get updated works_at'''
 				new_wa = changeworksatform.works_at.data
 				userObj.works_at = new_wa
-				
+
 				db.session.add(userObj)
 				db.session.commit()
-				
+
 				flash("Works At updated", "success")
 				return redirect(url_for("profile"))
-			
+
 			if 'chg_img' in request.form and uploadImageForm.validate_on_submit():
 				'''Get file uploaded'''
 				file = uploadImageForm.img.data
 				if file.filename == '':
 					flash('Error when changing profile picture','warning')
 					return redirect(url_for("profile"))
-				
+
 				filename = secure_filename(file.filename)
 				filepath = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'], user, filename)
 				filedir = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'], user)
-				
+
 				try:
 					'''Remove previous file'''
 					oldImgName = userObj.image
-					
+
 					if not oldImgName is None:
 						oldfilepath = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'], user, oldImgName)
 						os.remove(oldfilepath)
-						
-					
+
+
 					if not os.path.exists(filedir):
 						os.mkdir(filedir)
-					
+
 					file.save(filepath)
-					
+
 					try:
 						'''Update database for image uploaded'''
 						userObj.image = file.filename
 						db.session.add(userObj)
 						db.session.commit()
-						
+
 						flash("Profile picture updated", "success")
-						
+
 						return redirect(url_for("profile"))
-						
+
 					except IntegrityError as e:
 						print(e)
 						flash('A database error has occurred', "warning")
-					
+
 				except:
 					flash('Unable to upload image','warning')
-				
+
 
 				return redirect(url_for("profile"))
-			
+
 			if "chg_passwd" in request.form and passform.validate_on_submit():
 
 				authenticated_user = bcrypt.check_password_hash(userObj.password, passform.data['oldpass'])
@@ -330,7 +330,7 @@ def profile():
 				return redirect(url_for('profile'))
 
 			if 'chg_name' in request.form and nameform.validate_on_submit():
-			
+
 				userObj.name = nameform.data['newname']
 				try:
 					'''Change name'''
@@ -343,9 +343,9 @@ def profile():
 					flash(e)
 
 				return redirect(url_for('profile'))
-		
+
 			return render_template('profile.html', name=name, bio=bio, works_at=works_at, title=name + '\'s Page', picture=picture, passform=passform, nameform=nameform, uploadImageForm=uploadImageForm, changeworksatform=changeworksatform, changebioform=changebioform, save_icon=save_icon, edit_icon=edit_icon)
-			
+
 		else:
 			flash('An error has occurred; please sign in again','secondary')
 			session.pop('USER', None)
@@ -387,7 +387,7 @@ def convert(filepath, filename, language):
 
         gcs_uri = 'gs://s2t-audio-bucket/' + filename
         transcript = []
-		
+
         '''Initialise transcript'''
         transcript_1 = ''
         transcript_2 = ''
@@ -407,7 +407,7 @@ def convert(filepath, filename, language):
             transcript_1 += result.alternatives[0].transcript
             transcript_2 += result.alternatives[1].transcript
             transcript_3 += result.alternatives[2].transcript
-		
+
         transcript.append(transcript_1)
         transcript.append(transcript_2)
         transcript.append(transcript_3)
@@ -426,10 +426,10 @@ def convert(filepath, filename, language):
 def temp_audio(filename):
 	filepath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'])
 	return send_from_directory(directory=filepath, filename=filename)
-	
+
 @S2T.route('/remove_temp_audio', methods=['POST'])
 def remove_temp_audio():
-	
+
 	filename = request.form.get('filename')
 	filepath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], filename)
 	if filename and filename != '':
@@ -446,7 +446,7 @@ def remove_temp_audio():
 
 
 def remove_temp_audio(filename):
-	
+
 	filepath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], filename)
 	if filename and filename != '':
 		try:
@@ -462,11 +462,11 @@ def remove_temp_audio(filename):
 
 @S2T.route('/get_audio/<string:owner>/<string:filename>', methods=['GET'])
 def get_audio(owner, filename):
-	
+
 	'''Check if logged in'''
 	if not session.get('USER') is None:
 		user = session.get('USER')
-		
+
 		try:
 			'''Check user permissions to access audio'''
 			uPerm = getUPerm(filename, owner, user)
@@ -477,9 +477,9 @@ def get_audio(owner, filename):
 		except Exception as e:
 			print(e)
 			return None
-			
+
 	return None
-	
+
 
 @S2T.route('/transcribe', methods=['GET', 'POST'])
 def transcribe():
@@ -491,9 +491,9 @@ def transcribe():
 		if file.filename == '':
 			flash('Please select a file','secondary')
 			return redirect(request.url)
-		
+
 		rStr = randomString()
-		
+
 		filename = secure_filename(rStr)
 		filepath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], filename)
 
@@ -524,11 +524,11 @@ def transcribe():
 		transcriptFormTrans = session.get('transcriptFormTrans', None)
 		transcriptFormAnn = session.get('transcriptFormAnn', None)
 		audio_file = session.get('audioFile', None)
-		
+
 		if (transcriptFormTrans is not None) or (transcriptFormNameErr is not None) or (transcriptFormName is not None):
 			transcriptForm = TranscriptForm(formdata=MultiDict({'name': transcriptFormName, 'transcript': transcriptFormTrans, 'annotation': transcriptFormAnn}))
 			transcriptForm.name.errors = transcriptFormNameErr
-			
+
 			session.pop('transcriptFormName')
 			session.pop('transcriptFormNameErr')
 			session.pop('transcriptFormTrans')
@@ -538,7 +538,7 @@ def transcribe():
 			transcriptForm = TranscriptForm()
 	else:
 		transcriptForm = TranscriptForm()
-	
+
 	if audio_file is not None and audio_file != '':
 		if session.get('USER') is None:
 			return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, audio_filename=audio_file, navActive='transcribe')
@@ -560,26 +560,26 @@ def save():
 		transcriptText = transcriptForm.transcript.data
 		annotationText = transcriptForm.annotation.data
 		audio_file = transcriptForm.audio_file.data
-		
+
 		try:
 			'''Check if there is a duplicate entry'''
 			transObj = Transcripts.query.filter_by(name=transcriptForm.data['name'], username=session.get('USER')).first()
 			if transObj:
 				flash('There is already a transcript with the same name!','warning')
-				
+
 				'''Generate new name for audio file'''
 				newName = randomString()
-				
+
 				oldpath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], audio_file)
 				newpath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], newName)
-						
+
 				if os.path.isfile(oldpath):
 					print('copying')
 					copyfile(oldpath, newpath)
-				
+
 				'''Pass new name'''
 				session['audioFile'] = newName
-				
+
 				session['transcriptFormName'] = transcriptForm.name.data
 				session['transcriptFormNameErr'] = transcriptForm.name.errors
 				session['transcriptFormTrans'] = transcriptForm.transcript.data
@@ -598,22 +598,22 @@ def save():
 				save_text = open(filepath, 'w', encoding='utf-8')
 				save_text.write(transcriptText)
 				save_text.close()
-				
+
 				'''Copy and save audio file'''
 				tmppath = os.path.join(S2T.root_path, S2T.config['TEMP_FOLDER'], audio_file)
 				filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'], 'audio_file')
-				
+
 				if os.path.isfile(tmppath):
 					copyfile(tmppath, filepath)
-				
+
 				remove_temp_audio(audio_file)
-				
+
 				'''Check if there is any annotations'''
 				anyAnnotation = 'N'
 				if annotationText != '':
 					print(annotationText)
 					anyAnnotation = 'Y'
-					
+
 					'''Create new annotation text file'''
 					filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'], 'annotation')
 					save_text = open(filepath, 'w', encoding='utf-8')
@@ -626,7 +626,7 @@ def save():
 				db.session.commit()
 
 				flash('File saved successfully!','success')
-				
+
 				return redirect(url_for('index'))
 
 		except Exception as e:
@@ -640,8 +640,8 @@ def save():
 			session['audioFile'] = transcriptForm.audio_file.data
 
 			return redirect(url_for('transcribe'))
-		
-	
+
+
 	session['transcriptFormName'] = transcriptForm.name.data
 	session['transcriptFormNameErr'] = transcriptForm.name.errors
 	session['transcriptFormTrans'] = transcriptForm.transcript.data
@@ -687,8 +687,8 @@ def getUPerm(filename, owner, user):
 	except IntegrityError as e:
 		print(e)
 		return perm
-	
-	
+
+
 
 @S2T.route('/view/<string:owner>/<string:filename>', methods=['GET'])
 def view(owner, filename):
@@ -701,9 +701,9 @@ def view(owner, filename):
 		filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner, filename)
 
 		shared = False
-		
+
 		uPerm = getUPerm(filename, owner, user)
-		
+
 		if (uPerm == 'RO') or (uPerm == 'RW'):
 			shared = True
 
@@ -716,16 +716,16 @@ def view(owner, filename):
 		try:
 			transcription = ""
 			annotation = ""
-			
+
 			trans = Transcripts.query.filter_by(name=filename, username=owner).first()
-			
+
 			with open(os.path.join(filepath, filename), 'r') as f:
 				transcription = f.read()
-				
+
 			if trans.annotation == 'Y':
 					with open(os.path.join(filepath, 'annotation'), 'r') as f:
 						annotation = f.read()
-				
+
 			transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription, 'name': filename, 'annotation': annotation}))
 		except IntegrityError as e:
 			print(e)
@@ -746,11 +746,11 @@ def download(owner, filename):
 
 		try:
 			shared = False
-			
+
 			uPerm = getUPerm(filename, owner, user)
 			if (uPerm == 'RO') or (uPerm == 'RW'):
 				shared = True
-			
+
 			if shared:
 				transObj = Transcripts.query.filter_by(name=filename, username=owner).first()
 				if transObj:
@@ -786,13 +786,13 @@ def delete(owner, filename):
 
 
 			if shared:
-				
+
 				'''Check if transcript is locked'''
 				trans = Transcripts.query.filter_by(name=filename, username=owner).first()
 				if trans.locked == 'Y':
 					flash('Transcript is locked! Someone else is currently editing the document!', 'warning')
 					return redirect(url_for('list_transcripts'))
-				
+
 				'''Remove all share records of transcript'''
 				uShare = Shared_transcripts.query.filter_by(name=filename, owner=owner).all()
 				for u in uShare:
@@ -806,10 +806,10 @@ def delete(owner, filename):
 					for gsd in gsdShare:
 						db.session.delete(gsd)
 						db.session.commit()
-					
+
 					db.session.delete(g)
 					db.session.commit()
-				
+
 
 				transObj = Transcripts.query.filter_by(name=filename, username=owner).first()
 				if transObj:
@@ -817,7 +817,7 @@ def delete(owner, filename):
 
 					if transObj.annotation == 'Y':
 						os.remove(os.path.join(filedir, 'annotation'))
-					
+
 					'''Remove file from database'''
 					db.session.delete(transObj)
 					db.session.commit()
@@ -825,13 +825,13 @@ def delete(owner, filename):
 					'''Remove file from filesystem'''
 					if os.path.exists(os.path.join(filedir, filename)):
 						os.remove(os.path.join(filedir, filename))
-					
+
 					if os.path.exists(os.path.join(filedir, 'audio_file')):
 						os.remove(os.path.join(filedir, 'audio_file'))
-						
+
 					if os.path.exists(os.path.join(filedir, 'annotation')):
 						os.remove(os.path.join(filedir, 'annotation'))
-					
+
 					os.rmdir(filedir)
 					flash('File successfully deleted!','success')
 
@@ -853,27 +853,27 @@ def delete(owner, filename):
 
 @S2T.route('/unlock', methods=['POST'])
 def unlock():
-	
+
 	'''Check if logged in'''
 	if not session.get('USER') is None:
 		'''Transcript information'''
 		filename = request.form.get('filename')
 		owner = request.form.get('owner')
-		
+
 		try:
 			'''Unlock transcript'''
 			trans = Transcripts.query.filter_by(name=filename, username=owner).first()
 			if trans:
 				trans.locked = 'N'
-			
+
 				db.session.add(trans)
 				db.session.commit()
-				
+
 				return "Success"
-				
+
 		except IntegrityError as e:
 			print(e)
-	
+
 	return "Failure"
 
 @S2T.route('/edit/<string:owner>/<string:old_filename>', methods=['GET', 'POST'])
@@ -889,7 +889,7 @@ def edit(owner, old_filename):
 
 		'''Check if '''
 		shared = False
-							
+
 		uPerm = getUPerm(old_filename, owner, user)
 		if uPerm == 'RW':
 			shared = True
@@ -897,43 +897,43 @@ def edit(owner, old_filename):
 		if shared == False:
 			flash('Transcript is not shared with you!','warning')
 			return redirect(url_for('list_transcripts'))
-		
+
 		'''Check if transcript is locked'''
 		trans = Transcripts.query.filter_by(name=old_filename, username=owner).first()
-		
+
 		if transcriptForm.validate_on_submit():
-			
+
 			'''Override current file with new contents'''
 			try:
 
 				save_text = open(os.path.join(filepath, transcriptForm.data['name']), 'w', encoding="utf-8")
 				save_text.write(transcriptForm.data['transcript'])
 				save_text.close()
-				
+
 				'''Update annotations (if any)'''
 				anyAnnotation = 'N'
 				filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'], 'annotation')
-				
+
 				annotationText = transcriptForm.data['annotation']
 				if annotationText != '':
 					anyAnnotation = 'Y'
-					
+
 					'''Edit annotation text file'''
 					save_text = open(filepath, 'w', encoding="utf-8")
 					save_text.write(annotationText)
 					save_text.close()
-					
+
 					trans.annotation = 'Y'
-					
+
 				else:
 					'''Remove annotation file'''
 					os.remove(filepath)
 					trans.annotation = 'N'
-				
+
 				trans.locked = 'N'
 				db.session.add(trans)
 				db.session.commit()
-				
+
 				flash('File Edited!','success')
 				return redirect(url_for('list_transcripts'))
 
@@ -943,33 +943,33 @@ def edit(owner, old_filename):
 				return redirect(url_for('list_transcripts'))
 		else:
 			print(transcriptForm.errors)
-		
-		
+
+
 		if trans.locked == 'Y':
 			flash('Transcript is locked! Someone else is currently editing the document!', 'warning')
 			return redirect(url_for('list_transcripts'))
 		else:
-		
+
 			'''Populate transcript text area with contents'''
 			try:
-				
+
 				transcription = ""
 				annotation = ""
-				
+
 				with open(os.path.join(filepath, old_filename), 'r', encoding="utf-8") as f:
 					transcription = f.read()
-					
-					
+
+
 				if trans.annotation == 'Y':
 					with open(os.path.join(filepath, 'annotation'), 'r', encoding="utf-8") as f:
 						annotation = f.read()
-				
+
 				transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription, 'name': old_filename, 'annotation': annotation}))
-				
+
 				trans.locked = 'Y'
 				db.session.add(trans)
 				db.session.commit()
-					
+
 			except IntegrityError as e:
 				print(e)
 				flash('Unable to read file!','warning')
@@ -1197,7 +1197,7 @@ def search_groups(owner, filename):
 	if not session.get('USER') is None:
 		try:
 			res = Group_roles.query.filter_by(username=session.get('USER')).all()
-			
+
 			for r in res:
 				grpOwn = getGrpOwn(r.group_id)
 				grpLead = getGrpLead(r.group_id)
@@ -1211,7 +1211,7 @@ def search_groups(owner, filename):
 				if grpShareObj:
 					grpPerm = grpShareObj.permission
 					allowShare = grpShareObj.allow_share
-				
+
 				list_grps.append({'group_perm':grpPerm, 'allow_share':allowShare, 'group_id':r.group_id, 'group_name':grpObj.group_name, 'username':grpObj.username, 'owners':grpOwn, 'leaders':grpLead, 'members':grpMem})
 
 		except IntegrityError as e:
@@ -1224,23 +1224,23 @@ def search_groups(owner, filename):
 @S2T.route('/get_group_mems', methods=['POST'])
 def get_group_mems():
 	group_id = request.form.get('group_id')
-	
+
 	'''Transcript information'''
 	filename = request.form.get('filename')
 	owner = request.form.get('owner')
-	
+
 	list_mems = []
-	
+
 	if not session.get('USER') is None:
 		try:
 			grObj = Group_roles.query.filter_by(group_id=group_id).all()
 			for gr in grObj:
 				'''Get name of user'''
 				userObj = User.query.filter_by(username=gr.username).first()
-				
+
 				'''Get current special permission (if any)'''
 				perm = 'GP'
-				
+
 				'''Get transcript ID (if shared)'''
 				gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gr.group_id).first()
 				if gst:
@@ -1249,14 +1249,14 @@ def get_group_mems():
 					if gsd:
 						'''User has special permissions'''
 						perm = gsd.permission
-				
-				
+
+
 				list_mems.append({'username':gr.username, 'name': userObj.name, 'role':gr.role, 'perm':perm})
-				
+
 		except IntegrityError as e:
 			print(e)
 			return jsonify('Unable to list members')
-		
+
 	return jsonify(list_mems)
 
 @S2T.route('/share/<string:owner>/<string:filename>', methods=['GET', 'POST'])
@@ -1369,18 +1369,18 @@ def share_groups():
 		group_ids = request.form.getlist('gid[]')
 		permissions = request.form.getlist('permissions[]')
 		allow_share = request.form.getlist('allow_share[]')
-		
+
 		member_dets = request.form.getlist('member_dets[]')
 		members = {}
 		'''Organise member permission details into specific groups'''
 		for mdJSON in member_dets:
 			'''Parse JSON'''
 			md = json.loads(mdJSON)
-			
+
 			md_gid = md.get('gid')
 			md_user = md.get('username')
 			md_perm = md.get('permission')
-			
+
 			if members.get(md_gid) is None:
 				newDict = {}
 				'''print(type(newDict))'''
@@ -1388,51 +1388,51 @@ def share_groups():
 				members[md_gid] = newDict
 			else:
 				members[md_gid][md_user] = md_perm
-		
-		
+
+
 		'''Add groups in shared_transcripts table'''
 		try:
 			for idx, gid in enumerate(group_ids):
 
 				'''Check if gid is not shared (may need to delete from db)'''
 				if permissions[idx] == 'NS':
-					
+
 					'''Check if there is a record in db'''
 					gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gid).first()
 					if gst:
-						
+
 						'''Remove any special permissions given in the db'''
 						gsd = Group_share_details.query.filter_by(gst_id=gst.share_id).delete()
-						
+
 						db.session.delete(gst)
 						db.session.commit()
-					
+
 				else:
 					'''Need to modify or add record'''
-					
+
 					'''Check if there is a record in db'''
 					gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gid).first()
-					
+
 					if gst:
 						'''Record exists'''
 						'''Edit permission'''
 						gst.permission = permissions[idx]
-						
+
 						'''Edit allow_share'''
 						gst.allow_share = allow_share[idx]
-						
+
 						db.session.add(gst)
 						db.session.commit()
-						
+
 						'''Check all special permissions for users'''
 						gsdObj = Group_share_details.query.filter_by(gst_id=gst.share_id).all()
-						
+
 						'''Extract dict of members and permissions'''
 						memPerm = members.get(gid)
-						
+
 						for gsd in gsdObj:
 							'''Traverse dict to look for respective username (if dict is not empty)'''
-							
+
 							if memPerm is None:
 								'''No special permissions; remove all related entries'''
 								db.session.delete(gsd)
@@ -1448,41 +1448,41 @@ def share_groups():
 									gsd.permission = memPerm.get(gsd.username)
 									db.session.add(gsd)
 									db.session.commit()
-									
+
 									'''Remove user from dictionary'''
 									memPerm.pop(gsd.username)
-									
-						
+
+
 						'''For any usernames left in dictionary, need to add them into the db'''
 						if not memPerm is None:
 							memPermKeys = memPerm.keys()
 							for mpk in memPermKeys:
 								'''Get corresponding permission'''
 								corrPerm = memPerm.get(mpk)
-								
+
 								'''Add new record into db'''
 								new_gsd = Group_share_details(gst.share_id, mpk, corrPerm)
 								db.session.add(new_gsd)
 								db.session.commit()
-								
+
 					else:
 						'''Create new record first'''
 						new_gst = Group_shared_transcripts(filename, owner, gid, permissions[idx], allow_share[idx])
 						db.session.add(new_gst)
 						db.session.commit()
-						
+
 						gst = Group_shared_transcripts.query.filter_by(name=filename, owner=owner, group_id=gid).first()
-						
+
 						'''Update special member permissions (if any)'''
 						memPerm = members.get(gid)
-						
+
 						if not memPerm is None:
-						
+
 							memPermKeys = memPerm.keys()
 							for mpk in memPermKeys:
 								'''Get corresponding permission'''
 								corrPerm = memPerm.get(mpk)
-								
+
 								'''Add new record into db'''
 								new_gsd = Group_share_details(gst.share_id, mpk, corrPerm)
 								db.session.add(new_gsd)
@@ -1655,9 +1655,9 @@ def list_transcripts():
 
 		user = session.get('USER')
 		myTranscripts = []
-		
+
 		sharedTrans = []
-		
+
 		try:
 			'''Get user's transcripts'''
 			transObj = Transcripts.query.filter_by(username=user).all()
@@ -1669,22 +1669,22 @@ def list_transcripts():
 
 			stuObj = Shared_transcripts.query.filter_by(username=user).all()
 			for stu in stuObj:
-				
+
 				swArr = []
 				swArr.append("You")
-				
+
 				sharedTrans.append({'name':stu.name, 'owner':stu.owner, 'sharedWith':swArr, 'permission':stu.permission, 'allow_share':'N', 'dup':'false'})
-			
-			
+
+
 
 			'''Get groups the user is in'''
 			grpObj = Group_roles.query.filter_by(username=user).all()
-			
+
 			'''List to store groups with NS permission applied to user'''
 			NSList = {}
-			
+
 			for grp in grpObj:
-				
+
 				'''Get transcripts shared with group (make sure no duplicate transcripts)'''
 				stgObj = Group_shared_transcripts.query.filter_by(group_id=grp.group_id).all()
 				for stg in stgObj:
@@ -1695,8 +1695,8 @@ def list_transcripts():
 						if t.name == stg.name and t.username == stg.owner:
 							owner = True
 							break
-					
-					
+
+
 					if (owner == False):
 						'''Check if there is already another share with another group that user is in'''
 						oShare = False
@@ -1704,154 +1704,154 @@ def list_transcripts():
 							if st.get('name') == stg.name and st.get('owner') == stg.owner:
 								'''There is another share'''
 								oShare = True
-								
+
 								'''Check whether group allows sharing by owners/leaders'''
 								if (stg.allow_share == 'Y') and (st.get('allow_share') != 'Y'):
 									'''Check if user's role is leader/owner'''
 									checkRole = Group_roles.query.filter_by(group_id=grp.group_id, username=user).first()
-									
+
 									if (checkRole.role == 'leader') or (checkRole.role == 'owner'):
 										'''Override current perm'''
 										st['allow_share'] = 'Y'
-								
-								
-								
+
+
+
 								'''Update shared with and permissions'''
 								if st.get('dup') == 'false':
-								
+
 									if st.get('permission') == "RO":
 										newText = st['sharedWith'].pop() + " (Read Only)"
 										st['sharedWith'].append(newText)
 									elif st.get('permission') == "RW":
 										newText = st['sharedWith'].pop() + " (Read & Write)"
-										st['sharedWith'].append(newText)							
-									
+										st['sharedWith'].append(newText)
+
 									st['dup'] = 'true'
-									
-								
-								
+
+
+
 								'''Query for group name'''
 								g = Groups.query.filter_by(group_id=grp.group_id).first()
-								
+
 								'''Need to check special permissions (if any)'''
 								gsd = Group_share_details.query.filter_by(gst_id=stg.share_id, username=user).first()
-								
+
 								if gsd:
 									'''If special permissions are higher than current, use special'''
 									if (gsd.permission == "RW"):
 										st['sharedWith'].append(g.group_name + " (Read & Write)")
 										st['permission'] = "RW"
-										
+
 									elif (gsd.permission == "RO"):
 										'''No need to change permissions, either current is alrdy RW or RO'''
 										st['sharedWith'].append(g.group_name + " (Read Only)")
-									
+
 									else:
 										'''Not shared but overrided by other group share'''
 										st['sharedWith'].append(g.group_name + " (Excluded Sharing)")
-										
-										
+
+
 								else:
 									'''No special permissions for user; use group permissions if higher'''
 									if (stg.permission == "RW"):
 										st['sharedWith'].append(g.group_name + " (Read & Write)")
 										st['permission'] = "RW"
-										
+
 									elif (stg.permission == "RO"):
 										st['sharedWith'].append(g.group_name + " (Read Only)")
 									else:
 										st['sharedWith'].append(g.group_name + " (Excluded Sharing)")
-									
-								
+
+
 								'''Break out of loop checking'''
 								break
-								
+
 						if oShare == False:
 							'''No other shares'''
 							'''Create new entry in sharedTrans'''
-							
+
 							'''Check whether group allows sharing by owners/leaders'''
 							allowShare = 'N'
 							if stg.allow_share == 'Y':
 								'''Check if user's role is leader/owner'''
 								checkRole = Group_roles.query.filter_by(group_id=grp.group_id, username=user).first()
-								
+
 								if (checkRole.role == 'leader') or (checkRole.role == 'owner'):
 									'''Override current perm'''
 									allowShare = 'Y'
-							
-							
+
+
 							'''Need to check special permissions'''
 							gsd = Group_share_details.query.filter_by(gst_id=stg.share_id, username=user).first()
-							
+
 							'''Query for group name'''
 							g = Groups.query.filter_by(group_id=grp.group_id).first()
-							
-							
+
+
 							swText = ""
 							swArr = []
-							
+
 							'''Check NSList for previous group not shared'''
 							NSLI = stg.name + stg.owner
 							NS_Append = False
-							
+
 							if not NSList.get(NSLI) is None:
 								NS_Append = True
 								'''Update swText with previous group's name'''
 								swText += NSList.get(NSLI) + " (Excluded Sharing)"
 								swArr.append(swText)
-							
+
 							swText = g.group_name
-							
+
 							if gsd:
 								print(gsd.permission)
 								'''If special permissions are higher than group, use special'''
 								if (gsd.permission == "RW"):
 									if NS_Append:
 										swText += ' (Read & Write)'
-									
+
 									swArr.append(swText)
-										
+
 									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':gsd.permission, 'allow_share':allowShare, 'dup':'false'})
-									
+
 								elif (gsd.permission == "RO"):
 									if NS_Append:
 										swText += ' (Read Only)'
-									
+
 									swArr.append(swText)
-										
+
 									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':gsd.permission, 'allow_share':allowShare, 'dup':'false'})
 								else:
 									'''If not shared, don't add to transcripts'''
 									'''Need to update record of not shared with group name'''
 									NSListInd = stg.name + stg.owner
 									NSList[NSListInd] = g.group_name
-								
+
 							else:
 								'''No special permissions for user; use group permissions if higher'''
 								if (stg.permission == "RW"):
 									if NS_Append:
 										swText += ' (Read & Write)'
-									
+
 									swArr.append(swText)
-									
+
 									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':stg.permission, 'allow_share':allowShare, 'dup':'false'})
-									
+
 								elif (stg.permission == "RO"):
-									
+
 									if NS_Append:
 										swText += ' (Read Only)'
-									
+
 									swArr.append(swText)
-									
+
 									sharedTrans.append({'name':stg.name, 'owner':stg.owner, 'sharedWith':swArr, 'permission':stg.permission, 'allow_share':allowShare, 'dup':'false'})
 								else:
 									'''If not shared, don't add to transcripts'''
 									'''Need to update record of not shared with group name'''
 									NSListInd = stg.name + stg.owner
 									NSList[NSListInd] = g.group_name
-									
-						
+
+
 		except IntegrityError as e:
 			print(e)
 			return redirect(url_for('profile'))
