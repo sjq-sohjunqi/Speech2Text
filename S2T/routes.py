@@ -1634,7 +1634,6 @@ def add_members():
 def edit_members():
 	'''Check if logged in'''
 	if not session.get('USER') is None:
-
 		editMembers = request.form.getlist('editMembers[]')
 		roles = request.form.getlist('roles[]')
 		grpId = request.form.get('grpId')
