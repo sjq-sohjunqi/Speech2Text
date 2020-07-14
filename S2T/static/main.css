@@ -353,11 +353,33 @@ color:#000000;
   display: flex;
   flex-wrap:wrap;
 }
-.flex-grid .fgcol {
-  width: 100px;
+
+.fgcol {
+ flex: 0 0 20%;
+  margin:10px;
 }
 .fgcol{
-  border: 1px solid blue;
+  border: 2px solid #AAABB8;
+  border-radius:10px;
+}
+.gridid{
+    text-align:center;
+    font-size:x-large;
+    color: #0065f2;
+    font-weight: bold;
+    border-bottom:2px solid #AAABB8;
+}
+.griddelete{
+    text-align:right;
+    padding-bottom: 0;
+}
+
+.gridheader{
+    font-size:large;
+font-weight: bold;
+}
+.gridcontent{
+
 }
 
 /* */

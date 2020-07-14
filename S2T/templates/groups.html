@@ -302,7 +302,7 @@ $(document).ready(function(){
 </ul>
 {% endblock %}
 {% block content %}
-    <div id="tab1" class="tabcontent">
+    <div id="tab2" class="tabcontent">
 	<h1>Create New Group:</h1>
 
 	<form action="" method="post" enctype="multipart/form-data" novalidate>
@@ -340,7 +340,7 @@ $(document).ready(function(){
 	</form>
     </div>
 
-    <div id="tab2" class="tabcontent">
+    <div id="tab1" class="tabcontent">
 	<h2>Groups:</h2>
 	<table class="table container-fluid tasks">
 		<thead class="thead-dark">
@@ -370,21 +370,26 @@ $(document).ready(function(){
 		{% endfor %}
 	</table>
 
+
     <div class="flex-grid tasks">
     {% for grp in grpsTable %}
       <div class="fgcol task" id="{{ grp.group_id }}">
-        <ul class="task__content" id="{{ grp.group_id }}">
-            <li id="{{ grp.group_id }}"><a id="{{ grp.group_id }}" href="{{ url_for('members', group_id=grp.group_id, tabs=1) }}">{{ grp.group_name }}</a></li>
-                <li id="{{ grp.group_id }}">{{ names.get(grp.username) }}</li>
-                <li id="{{ grp.group_id }}">{{ grpsOwn.get(grp.group_id) }}</li>
-                <li id="{{ grp.group_id }}">{{ grpsLead.get(grp.group_id) }}</li>
-                <li id="{{ grp.group_id }}">{{ grpsMem.get(grp.group_id) }}</li>
+
+            <a id="{{ grp.group_id }}" href="{{ url_for('members', group_id=grp.group_id, tabs=1) }}"><div id="{{ grp.group_id }}" class="gridid container-fluid">{{ grp.group_name }}</div></a>
+            <div id="{{ grp.group_id }}" class="gridheader">Group Creator:</div>
+                <div id="{{ grp.group_id }}" class="gridcontent">{{ names.get(grp.username) }}</div>
+            <div id="{{ grp.group_id }}" class="gridheader">Owner:</div>
+                <div id="{{ grp.group_id }}" class="gridcontent">{{ grpsOwn.get(grp.group_id) }}</div>
+            <div id="{{ grp.group_id }}" class="gridheader">Leaders:</div>
+                <div id="{{ grp.group_id }}" class="gridcontent">{{ grpsLead.get(grp.group_id) }}</div>
+            <div id="{{ grp.group_id }}" class="gridheader">Members:</div>
+                <div id="{{ grp.group_id }}" class="gridcontent">{{ grpsMem.get(grp.group_id) }}</div>
                 {% if isOwner[grp.group_id] %}
-                    <li id="{{ grp.group_id }}"><a id="{{ grp.group_id }}" href="{{ url_for('delete_group', group_id=grp.group_id)}}" class="btn btn-danger" role="button">Delete</a></li>
+                    <div class="griddelete" id="{{ grp.group_id }}"><a id="{{ grp.group_id }}" href="{{ url_for('delete_group', group_id=grp.group_id)}}" class="btn btn-danger" role="button">Delete</a></div>
                 {% else %}
-                    <li id="{{ grp.group_id }}"></li>
+                    <div id="{{ grp.group_id }}"></div>
                 {% endif %}
-        </ul>
+
         </div>
     {% endfor %}
     </div>
