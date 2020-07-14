@@ -26,15 +26,25 @@ $(document).ready(function(){
         <li>
             <a href="#tab1"><label class="currenttab container-fluid">What is Speech2Text?</label></a>
         </li>
-        <li >
-            <a href="#tab2"><label class="tabstyle container-fluid">How to use?</label></a>
+        <li>
+            <a href="#tab2"><label style="line-height: 20px;" class="tabstyle container-fluid">Transcribing without account</label></a>
         </li>
         <li>
-            <a href="#tab3"><label class="tabstyle container-fluid">Credits</label></a>
+            <a href="#tab3"><label style="line-height: 20px;" class="tabstyle container-fluid">Transcribing with account</label></a>
         </li>
-        <li>
-            <a href="#tab4"><label class="tabstyle container-fluid">Tab D</label></a>
+		<li>
+            <a href="#tab4"><label class="tabstyle container-fluid">Your Transcripts</label></a>
         </li>
+		<li>
+            <a href="#tab5"><label class="tabstyle container-fluid">Groups</label></a>
+        </li>
+		<li>
+            <a href="#tab6"><label class="tabstyle container-fluid">Sharing Transcripts</label></a>
+        </li>
+		<li>
+            <a href="#tab7"><label class="tabstyle container-fluid">Shared Transcripts</label></a>
+        </li>
+		
 </ul>
 
 {% endblock %}
@@ -58,10 +68,10 @@ $(document).ready(function(){
 	</div>
 	
 	<div id="tab2" class="tabcontent">
-		<h1>How to use?</h1>
-		<p>Speech2Text can be used with or without a user login.</p>
+		<h1>Transcribing without user login</h1>
+		<p>Speech2Text can be used with or without a user login. The following details the steps for transcribing without a user login.</p>
 		
-		<h2>Transcribing without user login</h2>
+		<hr/>
 		
 		<p><span class='number_list'>1</span> Go to the transcribe page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="transcribe_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
@@ -73,12 +83,107 @@ $(document).ready(function(){
 		
 		<p><span class='number_list'>5</span> Once transcription is complete, you may select from the 3 available results using the tabs <img height='45px' width='200px' src='{{ url_for("help_img", image="transcribe_tabs.jpg")}}'></p>
 		
-		<p><span class='number_list'>6</span> Feel free to make edits to the transcription! You can also listen to the audio playback using <img src=> while doing so.</p>
+		<p><span class='number_list'>6</span> Feel free to make edits to the transcription! You can also listen to the audio playback using <img src='{{ url_for("help_img", image="audio_playback.jpg")}}' height='45px' width='250px'> while doing so.</p>
 		
 	</div>
 
 	<div id="tab3" class="tabcontent">
-		<h1>Credits</h1>
+		<h1>Transcribing with account</h1>
+		<p>After registering and logging into Speech2Text, users will gain access to more functions. This includes the ability to annotate lengthy transcripts with a short description, and saving said transcripts.</p>
+		
+		<hr/>
+		
+		<h2>Registration and login</h2>
+		
+		<p><span class='number_list'>1</span> Go to the sign up page using the <img height='45px' width='60px' src='{{ url_for("help_img", image="register_icon.jpg") }}'> icon on the navigation bar above.</p>
+		
+		<p><span class='number_list'>2</span> Go to your email inbox and click on the verification link sent.</p>
+		
+		<p><span class='number_list'>3</span> Sign in to your account with the <img height='40px' width='50px' src='{{ url_for("help_img", image="login_icon.jpg") }}'> icon on the navigation bar above.</p>
+		
+		<hr/>
+		<h2>Transcribing</h2>
+		
+		<p><span class='number_list'>1</span> Go to the transcribe page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="transcribe_icon.jpg") }}'> icon on the navigation bar above.</p>
+		
+		<p><span class='number_list'>2</span> Upload a copy of your audio recording using <br/><img style='margin-left: 20px;' height='45px' width='600px' src='{{ url_for("help_img", image="select_an_audio.jpg")}}'></p>
+		
+		<p><span class='number_list'>3</span> Select the audio language using the dropdown menu <img height='80px' width='230px' src='{{ url_for("help_img", image="select_audio_lang.jpg")}}'></p>
+		
+		<p><span class='number_list'>4</span> Click on <img height='45px' width='80px' src='{{ url_for("help_img", image="transcribe_btn.jpg")}}'> to start the transcription process.</p>
+		
+		<p><span class='number_list'>5</span> Once transcription is complete, you may select from the 3 available results using the tabs <img height='45px' width='200px' src='{{ url_for("help_img", image="transcribe_tabs.jpg")}}'></p>
+		
+		<p><span class='number_list'>6</span> Feel free to make edits to the transcription! You can also listen to the audio playback using <img src='{{ url_for("help_img", image="audio_playback.jpg")}}' height='45px' width='250px'> while doing so.</p>
+		
+		<p><span class='number_list'>7</span> If you wish to, you may choose to annotate the transcript by hovering and clicking on the red ribbon <img src='{{ url_for("help_img", image="annotation_icon.jpg")}}'  height='45px' width='80px'></p>
+		
+		<p><span class='number_list'>8</span> Give a name to the transcript and save it using <img src='{{ url_for("help_img", image="trans_name.jpg")}}'  height='40px' width='400px'></p>
+		
+	</div>
+	
+	<div id="tab4" class="tabcontent">
+		<h1>View Transcripts</h1>
+		<p style="font-style:italic;">Note: This feature is only available to users who have an account</p>
+		<p>Users are able to view and edit their own transcripts.</p>
+		
+		<hr/>
+		
+		<p><span class='number_list'>1</span> Go to the transcripts page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="transcripts_icon.jpg") }}'> icon on the navigation bar above.</p>
+		
+		<p><span class='number_list'>2</span> Your transcripts will shown within the table. Each of your transcripts will have the following functions beside them: <img height='35px' width='140px' src='{{ url_for("help_img", image="trans_func.jpg")}}'></p>
+		
+	</div>
+	
+	<div id="tab5" class="tabcontent">
+		<h1>Groups</h1>
+		<p style="font-style:italic;">Note: This feature is only available to users who have an account</p>
+		<p>Users can be organised into groups with different roles.<br/>Each user will be given one of three roles:
+		<ul>
+			<li><b>Owner</b>: Able to delete the group, add/remove users, modify user roles and access group transcripts (if given permission)<br/><span style="font-size: 14px;font-style:italic;">*The creator of the group will be given <b>Owner</b> role</span></li>
+			<li><b>Leaders</b>: Add/remove users, modify user roles and access group transcripts (if given permission)</li>
+			<li><b>Members</b>: Access group transcripts (if given permission)</li>
+		</ul>
+		</p>
+		
+		<hr/>
+		<h2>Creating a group</h2>
+		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
+		
+		<p><span class='number_list'>2</span>Under the <img height='35px' width='130px' src='{{ url_for("help_img", image="create_group_tab.jpg") }}'> sidebar tab, create a group using: <br/><img style='margin-left: 15px;' height='45px' width='300px' src='{{ url_for("help_img", image="group_create.jpg")}}'> </p>
+		
+		<hr/>
+		<h2>Deleting a group</h2>
+		
+		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
+		
+		<p><span class='number_list'>2</span>Under the <img height='35px' width='130px' src='{{ url_for("help_img", image="groups_tab.jpg") }}'> sidebar tab, delete a group using: <img height='45px' width='80px' src='{{ url_for("help_img", image="group_delete.jpg")}}'> </p>
+		
+		<hr/>
+		<h2>Adding users into groups</h2>
+		
+		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
+		
+		<p><span class='number_list'>2</span>Under the <img height='35px' width='130px' src='{{ url_for("help_img", image="groups_tab.jpg") }}'> sidebar tab, access group-specific functions by clicking on the <b>link</b> of the group name.</p>
+		
+		<p><span class='number_list'>3</span>Go to the <img height='35px' width='130px' src='{{ url_for("help_img", image="add_mem_tab.jpg") }}'> sidebar tab.</p>
+		
+		<p><span class='number_list'>4</span>Type in the email address used by the user into <img height='45px' width='250px' src='{{ url_for("help_img", image="select_user_box.jpg")}}'> and click <img height='40px' width='100px' src='{{ url_for("help_img", image="select_user_btn.jpg")}}'> </p>
+		
+		<p><span class='number_list'>5</span>When a user is selected, his/her information will be populated in the table below. Select the role of the user using the dropdown menu <img height='150px' width='100px' src='{{ url_for("help_img", image="user_role.jpg")}}'></p>
+		
+		<p><span class='number_list'>6</span>Click on <img height='40px' width='80px' src='{{ url_for("help_img", image="add_user_btn.jpg")}}'> to add the user into the group</p>
+		
+		<hr/>
+		<h2>Changing user roles</h2>
+		
+		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
+		
+		<p><span class='number_list'>2</span>Under the <img height='35px' width='130px' src='{{ url_for("help_img", image="groups_tab.jpg") }}'> sidebar tab, access group-specific functions by clicking on the <b>link</b> of the group name.</p>
+		
+		<p><span class='number_list'>3</span>Go to the <img height='35px' width='130px' src='{{ url_for("help_img", image="change_mem_tab.jpg") }}'> sidebar tab.</p>
+		
+		
 		
 	</div>
 

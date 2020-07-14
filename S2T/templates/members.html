@@ -43,13 +43,13 @@ $(document).ready(function(){
 <label class="grouplabel"> {{ grpObj.group_name }}</label>
  <ul class="tabs container-fluid">
         <li>
-            <a href="#tab1"><label id="sidetab1" class="currenttab container-fluid">Current members</label></a>
+            <a href="#tab1"><label id="sidetab1" class="currenttab container-fluid">Current users</label></a>
         </li>
         <li >
-            <a href="#tab2"><label id="sidetab2" class="tabstyle container-fluid">Add new members</label></a>
+            <a href="#tab2"><label id="sidetab2" class="tabstyle container-fluid">Add new users</label></a>
         </li>
         <li>
-            <a href="#tab3"><label id="sidetab3" class="tabstyle container-fluid">Edit permission</label></a>
+            <a href="#tab3"><label id="sidetab3" class="tabstyle container-fluid">Change users</label></a>
         </li>
         <li>
             <a href="#tab4"><label id="sidetab4" class="tabstyle container-fluid">Tab D</label></a>
@@ -238,7 +238,7 @@ $(document).ready(function(){
 	</script>
 	<div id="tab1" class="tabcontent">
 	<h1>Group: {{ grpObj.group_name }}</h1>
-	<h2>Current Members:</h2>
+	<h2>Current Users:</h2>
 	<table class="table">
 		<thead class="thead-dark">
 		<tr>
@@ -259,7 +259,7 @@ $(document).ready(function(){
 	{% if role == 'owner' or role == 'leader' %}
 		<div class="row">
 		<form id="addUserForm" class="container-fluid" action="" method="post" novalidate>
-			<h2>Add New Members:</h2>
+			<h2>Add New Users:</h2>
 			<div class="form-group ui-widget">
 			Invite Users: <input id="username" name="username"></input> <input type="button" class="btn btn-primary" id="select-user" value="Select User">
 			</div>
@@ -287,7 +287,7 @@ $(document).ready(function(){
 		<div id="tab3" class="tabcontent">
 		<div class="row">
 			<form id="editMemForm" class="container-fluid" action="" method="post" novalidate>
-				<h2>Change Current Members:</h2>
+				<h2>Change Current Users:</h2>
 						<table id="editTable" class="table">
 						<thead class="thead-dark">
 							<tr>
