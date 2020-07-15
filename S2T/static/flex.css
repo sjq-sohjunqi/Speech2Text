@@ -38,7 +38,8 @@
 }
 
 .fgcol{
-  border: 2px solid #AAABB8;
+  /* border: 2px solid #AAABB8; */
+  border: 1px solid #74c2c8;
   border-radius:10px;
   
   text-align: center;
@@ -69,7 +70,9 @@
     font-size:20px;
     /* color: #0065f2; */
     /* font-weight: bold; */
-    border-bottom:2px solid #AAABB8;
+    /* border-bottom:2px solid #AAABB8; */
+	border-bottom:2px solid white;
+	
 	
 	text-decoration: none;
 	
@@ -91,7 +94,7 @@
 }
 
 .gridheader{
-    font-size:large;
+    font-size: 14px;
 	font-weight: bold;
 	color: #74c2c8;
 }
