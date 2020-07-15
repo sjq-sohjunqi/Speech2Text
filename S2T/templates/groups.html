@@ -401,17 +401,31 @@ $("#crossinfo").click(function () {
   <div class="gridviewcontent">
     <div class="flex-grid tasks">
     {% for grp in grpsTable %}
+	<div class="gridcellwrapper">
+	<div class="gridhelper">
       <div class="fgcol task" id="{{ grp.group_id }}">
 
             <a id="{{ grp.group_id }}" href="{{ url_for('members', group_id=grp.group_id, tabs=1) }}"><div id="{{ grp.group_id }}" class="gridid container-fluid">{{ grp.group_name }}</div></a>
-            <div id="{{ grp.group_id }}" class="gridheader">Group Creator:</div>
+            
+			<div class="gridrow">
+			<div id="{{ grp.group_id }}" class="gridheader">Group Creator</div>
                 <div id="{{ grp.group_id }}" class="gridcontent">{{ names.get(grp.username) }}</div>
-            <div id="{{ grp.group_id }}" class="gridheader">Owner:</div>
+			</div>
+			
+			<div class="gridrow">
+            <div id="{{ grp.group_id }}" class="gridheader">Owner</div>
                 <div id="{{ grp.group_id }}" class="gridcontent">{{ grpsOwn.get(grp.group_id) }}</div>
-            <div id="{{ grp.group_id }}" class="gridheader">Leaders:</div>
+			</div>
+			
+			<div class="gridrow">
+            <div id="{{ grp.group_id }}" class="gridheader">Leaders</div>
                 <div id="{{ grp.group_id }}" class="gridcontent">{{ grpsLead.get(grp.group_id) }}</div>
-            <div id="{{ grp.group_id }}" class="gridheader">Members:</div>
+			</div>
+			
+			<div class="gridrow">
+            <div id="{{ grp.group_id }}" class="gridheader">Members</div>
                 <div id="{{ grp.group_id }}" class="gridcontent">{{ grpsMem.get(grp.group_id) }}</div>
+			</div>
                 {% if isOwner[grp.group_id] %}
                     <div class="griddelete" id="{{ grp.group_id }}"><a id="{{ grp.group_id }}" href="{{ url_for('delete_group', group_id=grp.group_id)}}" class="btn btn-danger" role="button">Delete</a></div>
                 {% else %}
@@ -419,6 +433,8 @@ $("#crossinfo").click(function () {
                 {% endif %}
 
         </div>
+	</div>
+	</div>
     {% endfor %}
     </div>
     </div>

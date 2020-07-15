@@ -347,40 +347,7 @@ color:#000000;
     font-size: x-large;
     font-weight: bold;
 }
-/* */
-/* gird view for groups*/
-.flex-grid {
-  display: flex;
-  flex-wrap:wrap;
-}
 
-.fgcol {
- flex: 0 0 20%;
-  margin:10px;
-}
-.fgcol{
-  border: 2px solid #AAABB8;
-  border-radius:10px;
-}
-.gridid{
-    text-align:center;
-    font-size:x-large;
-    color: #0065f2;
-    font-weight: bold;
-    border-bottom:2px solid #AAABB8;
-}
-.griddelete{
-    text-align:right;
-    padding-bottom: 0;
-}
-
-.gridheader{
-    font-size:large;
-font-weight: bold;
-}
-.gridviewcontent{
-display:none;
-}
 
 #listview{
     display:none;
