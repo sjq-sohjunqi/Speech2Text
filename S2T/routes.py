@@ -942,7 +942,9 @@ def edit(owner, old_filename):
 
 				else:
 					'''Remove annotation file'''
-					os.remove(filepath)
+					if os.path.isfile(filepath):
+						os.remove(filepath)
+					
 					trans.annotation = 'N'
 
 				trans.locked = 'N'

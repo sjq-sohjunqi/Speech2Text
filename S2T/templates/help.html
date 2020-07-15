@@ -139,11 +139,11 @@ $(document).ready(function(){
 		<h1>Groups</h1>
 		<p style="font-style:italic;">Note: This feature is only available to users who have an account</p>
 		<p>Users can be organised into groups with different roles.<br/>Each user will be given one of three roles:
-		<ul>
-			<li><b>Owner</b>: Able to delete the group, add/remove users, modify user roles and access group transcripts (if given permission)<br/><span style="font-size: 14px;font-style:italic;">*The creator of the group will be given <b>Owner</b> role</span></li>
-			<li><b>Leaders</b>: Add/remove users, modify user roles and access group transcripts (if given permission)</li>
-			<li><b>Members</b>: Access group transcripts (if given permission)</li>
-		</ul>
+			<ul>
+				<li><b>Owner</b>: Able to delete the group, add/remove users, modify user roles and access group transcripts (if given permission)<br/><span style="font-size: 14px;font-style:italic;">*The creator of the group will be given <b>Owner</b> role</span></li>
+				<li><b>Leaders</b>: Add/remove users, modify user roles and access group transcripts (if given permission)</li>
+				<li><b>Members</b>: Access group transcripts (if given permission)</li>
+			</ul>
 		</p>
 		
 		<hr/>
@@ -185,9 +185,36 @@ $(document).ready(function(){
 		
 		<p><span class='number_list'>4</span>To change the roles of users, select their role from their respective dropdown menus <img height='150px' width='100px' src='{{ url_for("help_img", image="user_role.jpg")}}'></p>
 		
-		<p><span class='number_list'>5</span>To delete the user, check their respective checkboxes and click <img height='40px' width='150px' src='{{ url_for("help_img", image="remove_selected.jpg")}}'></p>
+		<p><span class='number_list'>5</span>To delete the user, check their respective checkboxes and click <img height='30px' width='100px' src='{{ url_for("help_img", image="remove_selected.jpg")}}'></p>
+		
+		<p><span class='number_list'>6</span>To finalise your changes, click <img height='40px' width='100px' src='{{ url_for("help_img", image="save_changes.jpg")}}'></p>
 		
 	</div>
-
+	
+	<div id="tab6" class="tabcontent">
+	<h1>Sharing Transcripts</h1>
+	<p style="font-style:italic;">Note: This feature is only available to users who have an account</p>
+	<p>Transcripts can be shared with users and groups. The following permissions can be given when sharing:
+		<ul>
+			<li><b>Read-Only</b>: Only able to view the transcript and its annotation</li>
+			<li><b>Read & Write</b>: Able to edit and save the transcript and its annotation</li>
+		</ul>
+	</p>
+	
+	<p>*Do take note that if a transcript is shared with a user and a group that user is in, the permission that takes precedence is the one with the <b style="font-style: italic;">most privilege</b>.<br/><br/><b>Privilege from highest to lowest:</b><br/>Read & Write > Read-Only > Not Shared</p>
+	
+	<hr/>
+	
+	<h2>Sharing with users</h2>
+	
+	<p><span class='number_list'>1</span> Go to the transcripts page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="transcripts_icon.jpg") }}'> icon on the navigation bar above.</p>
+	
+	<p><span class='number_list'>2</span> Click on the <img height='35px' width='55px' src='{{ url_for("help_img", image="share_btn.jpg") }}'> button of the transcript you want to share.</p>
+	
+	<p><span class='number_list'>3</span> Click on the <img height='35px' width='55px' src='{{ url_for("help_img", image="share_btn.jpg") }}'> button of the transcript you want to share.</p>
+	
+	<p><span class='number_list'>4</span> </p>
+	
+	</div>
 	
 {% endblock %}
