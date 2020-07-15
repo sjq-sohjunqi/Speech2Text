@@ -378,11 +378,18 @@ color:#000000;
     font-size:large;
 font-weight: bold;
 }
-.gridcontent{
-
+.gridviewcontent{
+display:none;
 }
 
+#listview{
+    display:none;
+}
 /* */
+.groupmemtable{
+    display: none;
+}
+
 .color1{
     color: #25274d;
 }
@@ -405,27 +412,6 @@ font-weight: bold;
 
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,300);
 
-
-/* content */
-
-.content {
-  padding: 48px 0;
-  border-bottom: solid 2px #cfcfcf;
-}
-
-.content__footer {
-  margin-top: 12px;
-  text-align: center;
-}
-
-/* footer */
-
-.primary-footer {
-  padding: 24px 0;
-  color: #898989;
-  font-size: 14px;
-  text-align: center;
-}
 
 /* tasks */
 /*
@@ -486,6 +472,18 @@ font-weight: bold;
 }
 
 .context-menu__link:hover {
+  color: #fff;
+  background-color: #0066aa;
+}
+
+.context-menu__notlink {
+  display: block;
+  padding: 4px 12px;
+  color: #0066aa;
+  text-decoration: none;
+}
+
+.context-menu__notlink:hover {
   color: #fff;
   background-color: #0066aa;
 }

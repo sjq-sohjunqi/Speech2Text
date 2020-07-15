@@ -19,19 +19,25 @@ $(document).ready(function(){
     $(activeTab).fadeIn();
 
   });
-});
+
 //end of subtabs
+//sub rows
+  $('#gname').click(function(event) {
+  	alert("test");
+ });
+
+});
 //for context menu
 </script>
  <ul class="tabs container-fluid">
         <li>
-            <a href="#tab1"><label class="currenttab container-fluid">Create a New Group</label></a>
+            <a href="#tab1"><label class="currenttab container-fluid">Share with User</label></a>
         </li>
         <li >
-            <a href="#tab2"><label class="tabstyle container-fluid">Groups</label></a>
+            <a href="#tab2"><label class="tabstyle container-fluid">Edit User Permission</label></a>
         </li>
         <li>
-            <a href="#tab3"><label class="tabstyle container-fluid">Tab C</label></a>
+            <a href="#tab3"><label class="tabstyle container-fluid">Group Sharing</label></a>
         </li>
         <li>
             <a href="#tab4"><label class="tabstyle container-fluid">Tab D</label></a>
@@ -71,6 +77,7 @@ $(document).ready(function(){
 					// Change all member rows to selected value
 					$(this).val(opt);
 
+
 				});
 
 				// Enable allow share dropdown
@@ -82,8 +89,14 @@ $(document).ready(function(){
 
 
 	};
+	function test(groupid){
+		alert(groupid);
+		$("#group_mems_"+groupid).fadeIn();
+
+	}
 
 	$(document).ready(function() {
+
 
 		var all_user_list = [];
 		var all_name_list = [];
@@ -264,7 +277,7 @@ $(document).ready(function(){
 		function updateGroupBody(grpID, prevRow, data, grp_perm){
 
 			// Populate table with members
-			var newRow = "<tr id='group_mems_" + grpID + "'><td colspan='6'><table>"
+			var newRow = "<tr class='groupmemtable' id='group_mems_" + grpID + "'><td  colspan='7'><table class='container-fluid'>"
 			+ "<thead><th>Username</th><th>Name</th><th>Role</th><th>Permissions</th></thead>"
 			+ "<tbody>";
 
@@ -328,7 +341,7 @@ $(document).ready(function(){
 					// Populate table with new entries
 					for (var n = 0; n < data.length; n++ ) {
 
-						var row = "<tr class='groupRows' id='" + data[n].group_id +"'>";
+						var row = "<tr class='groupRows' onclick='test(" + data[n].group_id +");' id='" + data[n].group_id +"'>";
 
 						var shared = true;
 						if (data[n].group_perm == "RO") {
@@ -490,7 +503,6 @@ $(document).ready(function(){
 
 		<p>
 			<table id="groupTable" class="table">
-			<col><col><col><col><col><col><col>
 				<thead class="thead-dark">
 					<tr>
 						<th>Sharing Permissions</th>

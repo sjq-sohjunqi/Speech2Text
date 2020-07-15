@@ -28,14 +28,14 @@
 			};
 
 			$("#button").click(function () {
-				if ($(this).val() == "Yes") {
-					$("#infodiv").show();
-					$(this).val("No");
-				} else {
-					$("#infodiv").hide();
-					$(this).val("Yes");
-				}
-			});
+        if ($(this).val() == "Yes") {
+          $("#infodiv").show();
+          $(this).val("No");
+        } else {
+          $("#infodiv").hide();
+          $(this).val("Yes");
+        }
+      });
 
 			/*$('.navbar-nav .nav-link').click(function(event){
 				$('.navbar-nav .nav-link').parent().removeClass('navitemactive');
@@ -142,8 +142,8 @@
 	          {% block content %}{% endblock %}
 	          <input id="button" type="button" value="Yes"  />
 	        </div>
-	    	<td class="sidebar" id="infodiv" >
-
+	    	<td class="sidebar" id="infodiv"  style="vertical-align: top;">
+	    		{% block infotab %}{% endblock %}
 
 	    	<td>
 

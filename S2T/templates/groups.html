@@ -7,8 +7,14 @@ $(document).ready(function(){
 	function setMemUrl() {
 
 	}
+//info bar
+$("#info").click(function () {
+          $("#infodiv").fadeIn();
+});
 
-
+$("#crossinfo").click(function () {
+          $("#infodiv").hide();
+});
 //for subtabs
   $('.tabs a').click(function(event) {
     event.preventDefault();
@@ -28,6 +34,25 @@ $(document).ready(function(){
 
 
 //end of subtabs
+//grid view
+   $('#gridview').click(function(event) {
+    event.preventDefault();
+    $('#gridview').css("display","none");
+    $('.listviewcontent').css("display","none");
+    $('.gridviewcontent').fadeIn();
+    $('#listview').fadeIn();
+
+  });
+
+   $('#listview').click(function(event) {
+    event.preventDefault();
+    $('#listview').css("display","none");
+    $('.gridviewcontent').css("display","none");
+    $('.listviewcontent').fadeIn();
+    $('#gridview').fadeIn();
+
+  });
+//
 //for context menu
 
   (function(){
@@ -341,7 +366,9 @@ $(document).ready(function(){
     </div>
 
     <div id="tab1" class="tabcontent">
+  <div class="row"><div id="gridview" style="border: 2px solid #AAABB8;">grid view</div><div id="listview" style="border: 2px solid #AAABB8;">list view</div></div>
 	<h2>Groups:</h2>
+  <div class="listviewcontent">
 	<table class="table container-fluid tasks">
 		<thead class="thead-dark">
 			<tr>
@@ -369,8 +396,9 @@ $(document).ready(function(){
 			</tr>
 		{% endfor %}
 	</table>
+</div>
 
-
+  <div class="gridviewcontent">
     <div class="flex-grid tasks">
     {% for grp in grpsTable %}
       <div class="fgcol task" id="{{ grp.group_id }}">
@@ -393,7 +421,7 @@ $(document).ready(function(){
         </div>
     {% endfor %}
     </div>
-
+    </div>
     </div>
 
     <div id="tab3" class="tabcontent">
@@ -441,7 +469,20 @@ $(document).ready(function(){
       <li class="context-menu__item">
         <a id="context_edit_link" href="" class="context-menu__link" data-action="Delete"> Edit permission</a>
       </li>
+      <hr>
+      <li class="context-menu__item">
+        <div id="info" class="context-menu__notlink"> Info </div>
+      </li>
     </ul>
   </nav>
 
+{% endblock %}
+{% block infotab %}
+<div class="container-fluid">
+<div class="row">
+    <div class="infoheader col">Information: </div>
+   <div id="crossinfo" class="col text-right">cross</div>
+</div>
+</div>
+<p>test</p>
 {% endblock %}
