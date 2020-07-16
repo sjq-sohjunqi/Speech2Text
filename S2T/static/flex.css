@@ -1,3 +1,20 @@
+#context-menu__delete {
+	background-color: white;
+}
+
+#context-menu__delete:hover {
+	background-color: #DC3545;
+} 
+
+#context_delete_link {
+	color: #DC3545;
+}
+
+#context_delete_link:hover {
+	color: white;
+	background-color: #DC3545;
+}
+
 /* gird view for groups*/
 .flex-grid {
   
@@ -9,6 +26,7 @@
   flex-wrap:wrap;
   width: 100%;
   
+  font-family: 'Roboto';
   
 }
 
@@ -39,20 +57,14 @@
 
 .fgcol{
   /* border: 2px solid #AAABB8; */
-  border: 1px solid #74c2c8;
+  /* border: 1px solid white; */
   border-radius:10px;
   
   text-align: center;
-  
-  /* 80% of parent */
   width: 90%;
   
   margin: 0 auto;
   margin-top: 5%;
-  
-  /* transition: box-shadow 0.5s ease; */
-  /* transition: width 10s; */
-  /* transition: margin-top 0.8s ease; */
   
   transition: all 0.5s ease;
   
@@ -73,19 +85,19 @@
     /* border-bottom:2px solid #AAABB8; */
 	border-bottom:2px solid white;
 	
+	font-family: 'Roboto';
 	
 	text-decoration: none;
 	
 	color: white;
-	background-color: #318c93;
+	background-color: rgb(120, 7, 110);
 	
 	transition: all 0.5s;
 }
 
 .gridid:hover {
 	text-decoration: underline;
-	background-color: #74c2c8;
-	color: black;
+	background-color: rgb(200, 45, 190);
 }
 
 .griddelete{
@@ -96,14 +108,18 @@
 .gridheader{
     font-size: 14px;
 	font-weight: bold;
-	color: #74c2c8;
+	color: black;
 }
 
+.gridrow {
+	margin-bottom: 5px;
+}
 
 .gridrow:hover {
 	background-color: whitesmoke;
 }
 
 .gridviewcontent{
-display:none;
+	color: grey;
+	display:none;
 }

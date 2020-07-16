@@ -177,13 +177,53 @@ $("#crossinfo").click(function () {
 
 			// Create link for members
 			var viewUrl = "{{ url_for('members', group_id='5', tabs='1') }}".replace("5", groupnumber);
-			var addUrl = "{{ url_for('members', group_id='5', tabs='2') }}".replace("5", groupnumber);
-			var editUrl = "{{ url_for('members', group_id='5', tabs='3') }}".replace("5", groupnumber);
-
+			
+			
+			// Check for permission to delete
+			var data = '{{isOwner|tojson}}';
+			var isOwner = JSON.parse(data);
+			
+			// Check for permission to edit and change
+			data = '{{isLeader|tojson}}';
+			var isLeader = JSON.parse(data);
+			
+			if (isOwner[groupnumber]) {
+				// Able to delete
+				var deleteUrl = "{{ url_for('delete_group', group_id='5')}}".replace("5", groupnumber);
+				$('#context_delete_link').attr('href', deleteUrl);
+				$('#cmDeleteFunc').css("display", "inline");
+				
+				// Able to add and edit members
+				var addUrl = "{{ url_for('members', group_id='5', tabs='2') }}".replace("5", groupnumber);
+				$('#context_add_link').attr('href', addUrl);
+				$('#cmAddFunc').css("display", "inline");
+				
+				var editUrl = "{{ url_for('members', group_id='5', tabs='3') }}".replace("5", groupnumber);
+				$('#context_edit_link').attr('href', editUrl);
+				$('#cmEditFunc').css("display", "inline");
+				
+			} else {
+				$('#cmDeleteFunc').css("display", "none");
+				
+				// check if leader
+				if (isLeader[groupnumber]) {
+					// Able to add and edit members
+					var addUrl = "{{ url_for('members', group_id='5', tabs='2') }}".replace("5", groupnumber);
+					$('#context_add_link').attr('href', addUrl);
+					$('#cmAddFunc').css("display", "inline");
+					
+					var editUrl = "{{ url_for('members', group_id='5', tabs='3') }}".replace("5", groupnumber);
+					$('#context_edit_link').attr('href', editUrl);
+					$('#cmEditFunc').css("display", "inline");
+				} else {
+					$('#cmAddFunc').css("display", "none");
+					$('#cmEditFunc').css("display", "none");
+				}
+				
+			}
+			
 			// Append to menu
 			$('#context_view_link').attr('href', viewUrl);
-			$('#context_add_link').attr('href', addUrl);
-			$('#context_edit_link').attr('href', editUrl);
 
 			toggleMenuOn();
 			positionMenu(e);
@@ -313,16 +353,10 @@ $("#crossinfo").click(function () {
 </script>
  <ul class="tabs container-fluid">
         <li>
-            <a href="#tab1"><label class="currenttab container-fluid">Create a New Group</label></a>
-        </li>
-        <li >
-            <a href="#tab2"><label class="tabstyle container-fluid">Groups</label></a>
+            <a href="#tab1"><label class="currenttab container-fluid">My Groups</label></a>
         </li>
         <li>
-            <a href="#tab3"><label class="tabstyle container-fluid">Tab C</label></a>
-        </li>
-        <li>
-            <a href="#tab4"><label class="tabstyle container-fluid">Tab D</label></a>
+            <a href="#tab2"><label class="tabstyle container-fluid">Create New Group</label></a>
         </li>
 </ul>
 {% endblock %}
@@ -426,11 +460,11 @@ $("#crossinfo").click(function () {
             <div id="{{ grp.group_id }}" class="gridheader">Members</div>
                 <div id="{{ grp.group_id }}" class="gridcontent">{{ grpsMem.get(grp.group_id) }}</div>
 			</div>
-                {% if isOwner[grp.group_id] %}
+               <!--  {% if isOwner[grp.group_id] %}
                     <div class="griddelete" id="{{ grp.group_id }}"><a id="{{ grp.group_id }}" href="{{ url_for('delete_group', group_id=grp.group_id)}}" class="btn btn-danger" role="button">Delete</a></div>
                 {% else %}
                     <div id="{{ grp.group_id }}"></div>
-                {% endif %}
+                {% endif %} -->
 
         </div>
 	</div>
@@ -479,16 +513,28 @@ $("#crossinfo").click(function () {
       <li class="context-menu__item">
         <a id="context_view_link" href="" class="context-menu__link" data-action="View"> View Current Members </a>
       </li>
+	  
+	  <div id="cmAddFunc" style="display: none;">
       <li class="context-menu__item">
-        <a id="context_add_link" href="" class="context-menu__link" data-action="Edit"> Add New Members</a>
+        <a id="context_add_link" href="" class="context-menu__link" data-action="Edit"> Add New Members </a>
       </li>
+	  </div>
+	  
+	  <div id="cmEditFunc" style="display: none;">
       <li class="context-menu__item">
-        <a id="context_edit_link" href="" class="context-menu__link" data-action="Delete"> Edit permission</a>
+        <a id="context_edit_link" href="" class="context-menu__link" data-action="Delete"> Change Members </a>
       </li>
-      <hr>
-      <li class="context-menu__item">
+	  </div>
+	  
+	  <div id="cmDeleteFunc" style="display: none;">
+		  <hr>
+		  <li id="context-menu__delete" class="context-menu__item">
+			<a id="context_delete_link" href="" class="context-menu__link" data-action="Delete"> Delete Group </a>
+		  </li>
+	  </div>
+      <!-- <li class="context-menu__item">
         <div id="info" class="context-menu__notlink"> Info </div>
-      </li>
+      </li> -->
     </ul>
   </nav>
 

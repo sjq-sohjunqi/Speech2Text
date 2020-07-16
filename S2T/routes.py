@@ -1068,6 +1068,7 @@ def groups():
 
 		'''Check whether user is owner'''
 		isOwner = {}
+		isLeader = {}
 		grpsTable = []
 
 		names = {}
@@ -1087,7 +1088,12 @@ def groups():
 					isOwner[grp.group_id] = True
 				else:
 					isOwner[grp.group_id] = False
-
+				
+				if grp.role == 'leader':
+					isLeader[grp.group_id] = True
+				else:
+					isLeader[grp.group_id] = False
+				
 				grpObj = Groups.query.filter_by(group_id=grp.group_id).first()
 				grpsTable.append(grpObj)
 
@@ -1130,7 +1136,7 @@ def groups():
 				print(e)
 				flash('Unable to create new group!','danger')
 
-		return render_template('groups.html', title='Groups', groupform=groupform, names=names, isOwner=isOwner, grpsTable=grpsTable, grpsOwn=grpsOwn, grpsLead=grpsLead, grpsMem=grpsMem, navActive='groups')
+		return render_template('groups.html', title='Groups', groupform=groupform, names=names, isLeader=isLeader, isOwner=isOwner, grpsTable=grpsTable, grpsOwn=grpsOwn, grpsLead=grpsLead, grpsMem=grpsMem, navActive='groups')
 
 	else:
 		return redirect(url_for('login'))
