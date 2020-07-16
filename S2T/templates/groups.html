@@ -400,7 +400,10 @@ $("#crossinfo").click(function () {
     </div>
 
     <div id="tab1" class="tabcontent">
-  <div class="row"><div id="gridview" style="border: 2px solid #AAABB8;">grid view</div><div id="listview" style="border: 2px solid #AAABB8;">list view</div></div>
+  <div id="group_icon_row" class="row"><!-- <div id="gridview" style="border: 2px solid #AAABB8;">grid view</div><div id="listview" style="border: 2px solid #AAABB8;">list view</div> -->
+	  <div id="gridview"><span class="group_icon_text">Grid View </span><img height="25px" width="25px" src="{{url_for('grid_icon')}}"/></div>
+	  <div id="listview"><span class="group_icon_text">Table View </span><img height="25px" width="25px" src="{{url_for('list_icon')}}"/></div>
+  </div>
 	<h2>Groups:</h2>
   <div class="listviewcontent">
 	<table class="table container-fluid tasks">

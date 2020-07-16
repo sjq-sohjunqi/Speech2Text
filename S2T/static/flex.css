@@ -15,6 +15,22 @@
 	background-color: #DC3545;
 }
 
+#gridview, #listview {
+	opacity: 1;
+	transition: opacity 0.3s ease;
+}
+
+#gridview:hover, #listview:hover {
+	opacity: 0.7;
+	cursor: pointer;
+}
+
+#group_icon_row {
+	position: absolute;
+	margin-top:10px;
+	right: 50px;
+}
+
 /* gird view for groups*/
 .flex-grid {
   

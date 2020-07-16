@@ -201,6 +201,17 @@ def load_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
 	return send_from_directory(filepath, 'loading.gif')
 
+
+@S2T.route('/grid_icon', methods=['GET'])
+def grid_icon():
+	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+	return send_from_directory(filepath, 'grid_icon.png')
+	
+@S2T.route('/list_icon', methods=['GET'])
+def list_icon():
+	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+	return send_from_directory(filepath, 'list_icon.png')
+
 @S2T.route('/public_profile/<string:username>', methods=['GET'])
 def public_profile(username):
 	if not session.get('USER') is None:
