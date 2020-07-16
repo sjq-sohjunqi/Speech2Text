@@ -56,6 +56,15 @@ $(document).ready(function(){
 		font-size: 30px;
 		margin-right: 10px;
 	}
+	
+	.shortcut_link {
+		color: #DC3545;
+	}
+	
+	.shortcut_link:hover {
+		text-decoration: underline;
+		color: #DC3545;
+	}
 	</style>
 
 	<div id="tab1" class="tabcontent">
@@ -147,7 +156,26 @@ $(document).ready(function(){
 		</p>
 		
 		<hr/>
+		<h2>Viewing your groups</h2>
+		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
+		
+		<p><span class='number_list'>2</span>Under the <img height='35px' width='130px' src='{{ url_for("help_img", image="groups_tab.jpg") }}'> sidebar tab, all the groups will be displayed. </p>
+		
+		<p><span class='number_list'>3</span>Toggle between grid view and table view using the icons <img height='35px' width='100px' src='{{ url_for("help_img", image="grid_view.jpg") }}'> and <img height='35px' width='100px' src='{{ url_for("help_img", image="table_view.jpg") }}'> </p>
+		
+		
+		
+		<hr/>
+		<h2 id="func_shortcuts" style="color: #DC3545">Function shortcuts</h2>
+		
+		<p>Function shortcuts are available to provide more convenience for users. To do this, simply <b style="color: #DC3545">right-click</b> on the group that you wish to perform the function on and select the desired function.</p>
+		
+		<p style="font-style: italic">*Certain functions will not be displayed if you are not authorised to perform them</p>
+		
+		<hr/>
+		
 		<h2>Creating a group</h2>
+		
 		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
 		<p><span class='number_list'>2</span>Under the <img height='35px' width='130px' src='{{ url_for("help_img", image="create_group_tab.jpg") }}'> sidebar tab, create a group using: <br/><img style='margin-left: 15px;' height='45px' width='300px' src='{{ url_for("help_img", image="group_create.jpg")}}'> </p>
@@ -155,12 +183,16 @@ $(document).ready(function(){
 		<hr/>
 		<h2>Deleting a group</h2>
 		
+		<p><a class="shortcut_link" href="#func_shortcuts">A shortcut is available for this function</a></p>
+		
 		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
 		<p><span class='number_list'>2</span>Under the <img height='35px' width='130px' src='{{ url_for("help_img", image="groups_tab.jpg") }}'> sidebar tab, delete a group using: <img height='45px' width='80px' src='{{ url_for("help_img", image="group_delete.jpg")}}'> </p>
 		
 		<hr/>
 		<h2>Adding users into groups</h2>
+		
+		<p><a class="shortcut_link" href="#func_shortcuts">A shortcut is available for this function</a></p>
 		
 		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
@@ -176,6 +208,8 @@ $(document).ready(function(){
 		
 		<hr/>
 		<h2>Changing user roles</h2>
+		
+		<p><a class="shortcut_link" href="#func_shortcuts">A shortcut is available for this function</a></p>
 		
 		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
