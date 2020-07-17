@@ -419,7 +419,7 @@ $("#crossinfo").click(function () {
 		</thead>
 
 		{% for grp in grpsTable %}
-			<tr class="task" id="{{ grp.group_id }}">
+			<tr class="task row_content" id="{{ grp.group_id }}">
 				<td id="{{ grp.group_id }}"><a href="{{ url_for('members', group_id=grp.group_id, tabs=1) }}">{{ grp.group_name }}</a></td>
 				<td id="{{ grp.group_id }}">{{ names.get(grp.username) }}</td>
 				<td id="{{ grp.group_id }}">{{ grpsOwn.get(grp.group_id) }}</td>

@@ -370,7 +370,7 @@ $(document).ready(function(){
 			</tr>
 			</thead>
 			{% for tran in myTranscripts %}
-				<tr class="task" data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}">
+				<tr class="task row_content" data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}">
 					<td data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}"><a href="{{ url_for('download', owner=tran.username, filename=tran.name) }}">{{ tran.name }}</a></td>
 					<td data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}"><script>document.write(moment("2012-12-31T23:55:13Z").format('LLLL'));</script>{{ tran.created_time }}</a></td>
 					<td data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}">
@@ -422,7 +422,7 @@ $(document).ready(function(){
 			</tr>
 			</thead>
 			{% for tran in sharedTrans %}
-				<tr class="task" data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}">
+				<tr class="task row_content" data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}">
 					<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}"><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
 					<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}"><a href="{{ url_for('public_profile', username=tran.owner)}}">{{ tran.owner }}</a></td>
 					<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}">

@@ -169,3 +169,11 @@
 .listviewcontent{
 	display:none;
 }
+
+.gridcontent {
+	color: grey;
+}
+
+.row_content:hover {
+	background-color: whitesmoke;
+}
