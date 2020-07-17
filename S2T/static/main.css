@@ -329,6 +329,7 @@ margin-top: -8px;
     height: 40px;
     font-size: medium;
     line-height: 37px;
+    cursor: pointer;
 }
 
 .tabstyle:hover{
