@@ -177,3 +177,14 @@
 .row_content:hover {
 	background-color: whitesmoke;
 }
+
+#help_icon {
+	margin-top: 6px;
+	margin-right: 3px;
+	margin-left: 3px;
+}
+
+#help_icon:hover {
+	opacity: 0.7;
+	cursor: pointer;
+}

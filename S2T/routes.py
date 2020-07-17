@@ -221,6 +221,11 @@ def expand_icon():
 def collapse_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
 	return send_from_directory(filepath, 'collapse_icon.png')
+	
+@S2T.route('/help_icon', methods=['GET'])
+def help_icon():
+	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+	return send_from_directory(filepath, 'help_icon.png')
 
 @S2T.route('/public_profile/<string:username>', methods=['GET'])
 def public_profile(username):
