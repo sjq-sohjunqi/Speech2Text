@@ -349,6 +349,10 @@ color:#000000;
     font-weight: bold;
 }
 
+.memIcon:hover {
+	opacity: 0.7;
+	cursor: pointer;
+}
 
 #listview{
     display:none;
@@ -356,6 +360,27 @@ color:#000000;
 /* */
 .groupmemtable{
     display: none;
+	text-align: center;
+	background-color: #fafafa;
+}
+
+.memHeader {
+	padding-bottom: 10px;
+	font-size: 20px;
+	
+	color: lightslategray;
+}
+
+.groupmemheaders {
+	color: lightslategray;
+}
+
+.groupRows:hover, .editURows:hover, .userRows:hover {
+	background-color: whitesmoke;
+}
+
+#groupBody tr {
+	border-top: 2px solid whitesmoke;
 }
 
 .color1{

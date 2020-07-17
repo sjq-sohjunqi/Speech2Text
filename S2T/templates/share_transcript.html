@@ -53,9 +53,6 @@ $(document).ready(function(){
         <li>
             <a href="#tab3"><label id="sidetab3" class="tabstyle container-fluid">Group Sharing</label></a>
         </li>
-        <li>
-            <a href="#tab4"><label id="sidetab4" class="tabstyle container-fluid">Tab D</label></a>
-        </li>
 </ul>
 
 {% endblock %}
@@ -82,6 +79,9 @@ $(document).ready(function(){
 				$("#groupBody").find(grpRowId).find(".a_share").each(function(){
 					$(this).prop('disabled', true);
 				});
+				
+				// Collapse member rows
+				listgroup(id);
 
 			} else {
 
@@ -104,19 +104,27 @@ $(document).ready(function(){
 
 
 	};
+	
 	function listgroup(groupid){
-if($("#group_mems_"+groupid).css('display') === 'none')
-{
-    //do something
-    $("#group_mems_"+groupid).fadeIn();
-}
-else
-{
-    //something else
-    $("#group_mems_"+groupid).css("display","none");
-}
-
-
+		if($("#group_mems_"+groupid).css('display') === 'none')
+		{
+			// Change icon to collapse
+			var eleId = "#memIcon_" + groupid;
+			$(eleId).attr("src", "{{ url_for('collapse_icon') }}");
+			
+			// Expand
+			$("#group_mems_"+groupid).fadeIn();
+		}
+		else
+		{
+			// Change icon to expand
+			var eleId = "#memIcon_" + groupid;
+			$(eleId).attr("src", "{{ url_for('expand_icon') }}");
+			
+			// Collapse
+			$("#group_mems_"+groupid).fadeOut();
+			//$("#group_mems_"+groupid).css("display","none");
+		}
 
 	}
 
@@ -203,7 +211,7 @@ else
 
 				var user_profile = "{{url_for('public_profile', username='UNAME')}}".replace("UNAME", username);
 
-				var markup = "<tr class='userRows'><td><input type='checkbox' name='record'></input></td><td class='uname'><a href='" + user_profile + "'>" + username + "</a></td><td>" + name + "</td><td><select><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td></tr>";
+				var markup = "<tr class='userRows'><td><input type='checkbox' name='record'></input></td><td title='" + username + "' class='uname'><a href='" + user_profile + "'>" + username + "</a></td><td>" + name + "</td><td><select><option value='RO'>Read Only</option><option value='RW'>Read & Write</option></select></td></tr>";
 				$("#userBody").append(markup);
 			}
 
@@ -233,10 +241,10 @@ else
             $("#userBody").find('input[name="record"]').each(function(){
             	if($(this).is(":checked")){
 
-					var clear_user = $(this).parents("tr").find(".uname").html();
+					var clear_user = $(this).parents("tr").find(".uname").attr("title");
 					share_users = share_users.filter(function(e) { return e !== clear_user })
-					$(this).parents("tr").remove();
-
+					$(this).parent().parent().remove();
+					
                 }
             });
         });
@@ -265,7 +273,7 @@ else
 
 						var user_profile = "{{url_for('public_profile', username='UNAME')}}".replace("UNAME", data[i].username);
 
-						markup += "<td class='username'><a href='" + user_profile + "'>" +
+						markup += "<td class='username' title='" + data[i].username + "'><a href='" + user_profile + "'>" +
 						data[i].username + "</td><td class='name'>" +
 						data[i].name + "</td></tr>";
 
@@ -302,8 +310,8 @@ else
 		function updateGroupBody(grpID, prevRow, data, grp_perm){
 
 			// Populate table with members
-			var newRow = "<tr class='groupmemtable' id='group_mems_" + grpID + "'><td  colspan='7'><table class='container-fluid'>"
-			+ "<thead><th>Username</th><th>Name</th><th>Role</th><th>Permissions</th></thead>"
+			var newRow = "<tr class='groupmemtable' id='group_mems_" + grpID + "'><td colspan='8'><span class='memHeader'>List of users in group</span><table class='container-fluid'>"
+			+ "<thead class='groupmemheaders'><th>Username</th><th>Name</th><th>Role</th><th>Permissions</th></thead>"
 			+ "<tbody>";
 
 			for (var i = 0; i < data.length; i++) {
@@ -366,8 +374,11 @@ else
 					// Populate table with new entries
 					for (var n = 0; n < data.length; n++ ) {
 
-						var row = "<tr class='groupRows' onclick='listgroup(" + data[n].group_id +");' id='" + data[n].group_id +"'>";
-
+						var row = "<tr class='groupRows' id='" + data[n].group_id +"'>";
+						
+						// Add icon for expanding
+						row += "<td class='memIcon' onclick='listgroup(" + data[n].group_id +");'><img id='memIcon_"+data[n].group_id+"' height='13px' width='15px' src='{{ url_for('expand_icon') }}'/></td>";
+						
 						var shared = true;
 						if (data[n].group_perm == "RO") {
 							row += "<td><select onChange='changeDisabled(" + data[n].group_id + ")' class='gperm'><option value='NS'>Not Shared</option><option value='RO' selected='selected'>Read Only</option><option value='RW'>Read & Write</option></select></td>";
@@ -530,6 +541,7 @@ else
 			<table id="groupTable" class="table">
 				<thead class="thead-dark">
 					<tr>
+						<th></th>
 						<th>Sharing Permissions</th>
 						<th>Group Name</th>
 						<th>Group Creator</th>

@@ -211,6 +211,16 @@ def grid_icon():
 def list_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
 	return send_from_directory(filepath, 'list_icon.png')
+	
+@S2T.route('/expand_icon', methods=['GET'])
+def expand_icon():
+	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+	return send_from_directory(filepath, 'expand_icon.png')
+	
+@S2T.route('/collapse_icon', methods=['GET'])
+def collapse_icon():
+	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+	return send_from_directory(filepath, 'collapse_icon.png')
 
 @S2T.route('/public_profile/<string:username>', methods=['GET'])
 def public_profile(username):
