@@ -21,28 +21,43 @@ $(document).ready(function(){
   });
 
 //end of subtabs
-//sub rows
-  $('#gname').click(function(event) {
-  	alert("test");
- });
+	  if("{{tabs}}" == "1"){
+  	$('#tab1').fadeIn();
+
+  }else if("{{tabs}}" == "2"){
+  	$('.tabcontent').not('tab1').css("display","none");
+  	$('#tab2').fadeIn();
+  	$('#sidetab1').removeClass("currenttab");
+  	$('#sidetab1').addClass("tabstyle");
+  	$('#sidetab2').removeClass("tabstyle");
+  	$('#sidetab2').addClass("currenttab");
+  }else if("{{tabs}}" == "3"){
+  	$('.tabcontent').not('tab1').css("display","none");
+  	$('#tab3').fadeIn();
+  	$('#sidetab1').removeClass("currenttab");
+  	$('#sidetab1').addClass("tabstyle");
+  	$('#sidetab3').removeClass("tabstyle");
+  	$('#sidetab3').addClass("currenttab");
+  }
 
 });
 //for context menu
 </script>
- <ul class="tabs container-fluid">
+  <ul class="tabs container-fluid">
         <li>
-            <a href="#tab1"><label class="currenttab container-fluid">Share with User</label></a>
+            <a href="#tab1"><label id="sidetab1" class="currenttab container-fluid">Share with User</label></a>
         </li>
         <li >
-            <a href="#tab2"><label class="tabstyle container-fluid">Edit User Permission</label></a>
+            <a href="#tab2"><label id="sidetab2" class="tabstyle container-fluid">Edit User Permission</label></a>
         </li>
         <li>
-            <a href="#tab3"><label class="tabstyle container-fluid">Group Sharing</label></a>
+            <a href="#tab3"><label id="sidetab3" class="tabstyle container-fluid">Group Sharing</label></a>
         </li>
         <li>
-            <a href="#tab4"><label class="tabstyle container-fluid">Tab D</label></a>
+            <a href="#tab4"><label id="sidetab4" class="tabstyle container-fluid">Tab D</label></a>
         </li>
 </ul>
+
 {% endblock %}
 {% block content %}
 
@@ -89,9 +104,19 @@ $(document).ready(function(){
 
 
 	};
-	function test(groupid){
-		alert(groupid);
-		$("#group_mems_"+groupid).fadeIn();
+	function listgroup(groupid){
+if($("#group_mems_"+groupid).css('display') === 'none')
+{
+    //do something
+    $("#group_mems_"+groupid).fadeIn();
+}
+else
+{
+    //something else
+    $("#group_mems_"+groupid).css("display","none");
+}
+
+
 
 	}
 
@@ -341,7 +366,7 @@ $(document).ready(function(){
 					// Populate table with new entries
 					for (var n = 0; n < data.length; n++ ) {
 
-						var row = "<tr class='groupRows' onclick='test(" + data[n].group_id +");' id='" + data[n].group_id +"'>";
+						var row = "<tr class='groupRows' onclick='listgroup(" + data[n].group_id +");' id='" + data[n].group_id +"'>";
 
 						var shared = true;
 						if (data[n].group_perm == "RO") {

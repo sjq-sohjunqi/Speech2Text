@@ -96,7 +96,7 @@ $(document).ready(function(){
 
 		};
 		load_all_mem_list();
-		
+
 
 		$('#username').autocomplete({
 			source: all_user_list,
@@ -219,11 +219,11 @@ $(document).ready(function(){
 				}
 
 			});
-			
+
 			$.post('/edit_members',{'editMembers':editMembers, 'deleteMembers':deleteMembers, 'grpId':'{{grpObj.group_id}}', 'roles':roles},function(data,status){
 				if (data == 'Members successfully changed') {
 					deleteMembers = []
-					
+
 					alert(data);
 					location.reload(true);
 				} else {

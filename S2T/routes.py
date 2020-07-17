@@ -52,12 +52,12 @@ def help():
 def help_img(image):
 	filedir = os.path.join(S2T.root_path, S2T.config['HELP_FOLDER'])
 	filepath = os.path.join(S2T.root_path, S2T.config['HELP_FOLDER'], image)
-	
+
 	if os.path.isfile(filepath):
 		return send_from_directory(filedir, image)
 	else:
 		return None
-	
+
 
 
 def randomString(stringLength=10):
@@ -206,7 +206,7 @@ def load_icon():
 def grid_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
 	return send_from_directory(filepath, 'grid_icon.png')
-	
+
 @S2T.route('/list_icon', methods=['GET'])
 def list_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
@@ -955,7 +955,7 @@ def edit(owner, old_filename):
 					'''Remove annotation file'''
 					if os.path.isfile(filepath):
 						os.remove(filepath)
-					
+
 					trans.annotation = 'N'
 
 				trans.locked = 'N'
@@ -1099,12 +1099,12 @@ def groups():
 					isOwner[grp.group_id] = True
 				else:
 					isOwner[grp.group_id] = False
-				
+
 				if grp.role == 'leader':
 					isLeader[grp.group_id] = True
 				else:
 					isLeader[grp.group_id] = False
-				
+
 				grpObj = Groups.query.filter_by(group_id=grp.group_id).first()
 				grpsTable.append(grpObj)
 
@@ -1293,8 +1293,8 @@ def get_group_mems():
 
 	return jsonify(list_mems)
 
-@S2T.route('/share/<string:owner>/<string:filename>', methods=['GET', 'POST'])
-def share(owner, filename):
+@S2T.route('/share/<string:owner>/<string:filename>/<int:tabs>', methods=['GET', 'POST'])
+def share(owner, filename, tabs):
 
 	'''Check if logged in'''
 	if not session.get('USER') is None:
@@ -1313,7 +1313,7 @@ def share(owner, filename):
 		except IntegrityError as e:
 			print(e)
 
-		return render_template('share_transcript.html', title='Sharing transcript', owner=owner, filename=filename, shared_names=shared_names, shared_usernames=shared_usernames, navActive='transcripts')
+		return render_template('share_transcript.html', title='Sharing transcript', owner=owner, filename=filename, shared_names=shared_names, shared_usernames=shared_usernames, tabs=tabs, navActive='transcripts')
 
 	else:
 		return redirect(url_for('login'))
