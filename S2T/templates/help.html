@@ -24,7 +24,7 @@ $(document).ready(function(){
 </script>
  <ul class="tabs container-fluid">
         <li>
-            <a href="#tab1"><label class="currenttab container-fluid">What is Speech2Text?</label></a>
+            <a href="#tab1"><label style="line-height: 20px;" class="currenttab container-fluid">What is Speech2Text?</label></a>
         </li>
         <li>
             <a href="#tab2"><label style="line-height: 20px;" class="tabstyle container-fluid">Transcribing without account</label></a>
@@ -65,9 +65,28 @@ $(document).ready(function(){
 		text-decoration: underline;
 		color: #DC3545;
 	}
+	
+	table, th, td {
+		border: 1px solid black;
+	}
+	
+	th, td {
+		padding: 10px;
+	}
+	
+	.table_ele {
+		margin-left: auto;
+		margin-right: auto;
+		text-align: center;
+	}
+	
+	.desc {
+		text-align: center;
+	}
+	
 	</style>
 
-	<div id="tab1" class="tabcontent">
+	<div id="tab1" class="tabcontent desc">
 		<h1>What is Speech2Text?</h1>
 		<p>Speech2Text is a transcription service that allows users to transcribe audio recordings of their meetings into text format. The system is designed to make the process of logging project meetings a simple task.</p>
 		
@@ -77,8 +96,8 @@ $(document).ready(function(){
 	</div>
 	
 	<div id="tab2" class="tabcontent">
-		<h1>Transcribing without user login</h1>
-		<p>Speech2Text can be used with or without a user login. The following details the steps for transcribing without a user login.</p>
+		<h1 class="desc">Transcribing without user login</h1>
+		<p class="desc">Speech2Text can be used with or without a user login. The following details the steps for transcribing without a user login.</p>
 		
 		<hr/>
 		
@@ -97,12 +116,12 @@ $(document).ready(function(){
 	</div>
 
 	<div id="tab3" class="tabcontent">
-		<h1>Transcribing with account</h1>
-		<p>After registering and logging into Speech2Text, users will gain access to more functions. This includes the ability to annotate lengthy transcripts with a short description, and saving said transcripts.</p>
+		<h1 class="desc">Transcribing with account</h1>
+		<p class="desc">After registering and logging into Speech2Text, users will gain access to more functions. This includes the ability to annotate lengthy transcripts with a short description, and saving said transcripts.</p>
 		
 		<hr/>
 		
-		<h2>Registration and login</h2>
+		<h2 class="desc">Registration and login</h2>
 		
 		<p><span class='number_list'>1</span> Go to the sign up page using the <img height='45px' width='60px' src='{{ url_for("help_img", image="register_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
@@ -111,7 +130,7 @@ $(document).ready(function(){
 		<p><span class='number_list'>3</span> Sign in to your account with the <img height='40px' width='50px' src='{{ url_for("help_img", image="login_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
 		<hr/>
-		<h2>Transcribing</h2>
+		<h2 class="desc">Transcribing</h2>
 		
 		<p><span class='number_list'>1</span> Go to the transcribe page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="transcribe_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
@@ -132,9 +151,9 @@ $(document).ready(function(){
 	</div>
 	
 	<div id="tab4" class="tabcontent">
-		<h1>View Transcripts</h1>
-		<p style="font-style:italic;">Note: This feature is only available to users who have an account</p>
-		<p>Users are able to view and edit their own transcripts.</p>
+		<h1 class="desc">Your Transcripts</h1>
+		<p class="desc" style="font-style:italic;">Note: This feature is only available to users who have an account</p>
+		<p class="desc">Users are able to view and edit their own transcripts.</p>
 		
 		<hr/>
 		
@@ -145,18 +164,51 @@ $(document).ready(function(){
 	</div>
 	
 	<div id="tab5" class="tabcontent">
-		<h1>Groups</h1>
-		<p style="font-style:italic;">Note: This feature is only available to users who have an account</p>
-		<p>Users can be organised into groups with different roles.<br/>Each user will be given one of three roles:
-			<ul>
-				<li><b>Owner</b>: Able to delete the group, add/remove users, modify user roles and access group transcripts (if given permission)<br/><span style="font-size: 14px;font-style:italic;">*The creator of the group will be given <b>Owner</b> role</span></li>
-				<li><b>Leaders</b>: Add/remove users, modify user roles and access group transcripts (if given permission)</li>
-				<li><b>Members</b>: Access group transcripts (if given permission)</li>
-			</ul>
+		<div class="desc">
+			<h1>Groups</h1>
+			<p style="font-style:italic;">Note: This feature is only available to users who have an account</p>
+			<p>Users can be organised into groups with different roles.<br/>Each user will be given one of three roles: <b style="font-style: italic">Owner</b>, <b style="font-style: italic">Leaders</b> or <b style="font-style: italic">Members</b>.
+			
+		
+			<table class="table_ele">
+				<tr>
+					<th></th>
+					<th>Owner</th>
+					<th>Leaders</th>
+					<th>Members</th>
+				</tr>
+				<tr>
+					<td><b>Access Group Transcripts</b><br/><span style="font-style: italic">(if given permission)</span></td>
+					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+				</tr>
+				<tr>
+					<td><b>Add/Remove Users</b></td>
+					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td><b>Modify User Roles</b></td>
+					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td><b>Delete Group</b></td>
+					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td></td>
+					<td></td>
+				</tr>
+			</table>
+		</div>
+			
+			
 		</p>
 		
 		<hr/>
-		<h2>Viewing your groups</h2>
+		<h2 class="desc">Viewing your groups</h2>
 		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
 		<p><span class='number_list'>2</span>Under the <img height='35px' width='130px' src='{{ url_for("help_img", image="groups_tab.jpg") }}'> sidebar tab, all the groups will be displayed. </p>
@@ -166,7 +218,7 @@ $(document).ready(function(){
 		
 		
 		<hr/>
-		<h2 id="func_shortcuts" style="color: #DC3545">Function shortcuts</h2>
+		<h2 class="desc" id="func_shortcuts" style="color: #DC3545">Function shortcuts</h2>
 		
 		<p>Function shortcuts are available to provide more convenience for users. To do this, simply <b style="color: #DC3545">right-click</b> on the group that you wish to perform the function on and select the desired function.</p>
 		
@@ -174,14 +226,14 @@ $(document).ready(function(){
 		
 		<hr/>
 		
-		<h2>Creating a group</h2>
+		<h2 class="desc">Creating a group</h2>
 		
 		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
 		<p><span class='number_list'>2</span>Under the <img height='35px' width='130px' src='{{ url_for("help_img", image="create_group_tab.jpg") }}'> sidebar tab, create a group using: <br/><img style='margin-left: 15px;' height='45px' width='300px' src='{{ url_for("help_img", image="group_create.jpg")}}'> </p>
 		
 		<hr/>
-		<h2>Deleting a group</h2>
+		<h2 class="desc">Deleting a group</h2>
 		
 		<p><a class="shortcut_link" href="#func_shortcuts">A shortcut is available for this function</a></p>
 		
@@ -190,7 +242,7 @@ $(document).ready(function(){
 		<p><span class='number_list'>2</span>Under the <img height='35px' width='130px' src='{{ url_for("help_img", image="groups_tab.jpg") }}'> sidebar tab, delete a group using: <img height='45px' width='80px' src='{{ url_for("help_img", image="group_delete.jpg")}}'> </p>
 		
 		<hr/>
-		<h2>Adding users into groups</h2>
+		<h2 class="desc">Adding users into groups</h2>
 		
 		<p><a class="shortcut_link" href="#func_shortcuts">A shortcut is available for this function</a></p>
 		
@@ -207,7 +259,7 @@ $(document).ready(function(){
 		<p><span class='number_list'>6</span>Click on <img height='40px' width='80px' src='{{ url_for("help_img", image="add_user_btn.jpg")}}'> to add the user into the group</p>
 		
 		<hr/>
-		<h2>Changing user roles</h2>
+		<h2 class="desc">Changing user roles</h2>
 		
 		<p><a class="shortcut_link" href="#func_shortcuts">A shortcut is available for this function</a></p>
 		
@@ -226,28 +278,45 @@ $(document).ready(function(){
 	</div>
 	
 	<div id="tab6" class="tabcontent">
-	<h1>Sharing Transcripts</h1>
-	<p style="font-style:italic;">Note: This feature is only available to users who have an account</p>
-	<p>Transcripts can be shared with users and groups. The following permissions can be given when sharing:
-		<ul>
-			<li><b>Read-Only</b>: Only able to view the transcript and its annotation</li>
-			<li><b>Read & Write</b>: Able to edit and save the transcript and its annotation</li>
-		</ul>
+	<h1 class="desc">Sharing Transcripts</h1>
+	<p class="desc" style="font-style:italic;">Note: This feature is only available to users who have an account</p>
+	<p class="desc">Transcripts can be shared with users and groups. The following permissions can be given when sharing:
+		<table style="margin-left: auto; margin-right: auto;border: none;">
+			<td style="border: none;">
+				<ul>
+					<li><b>Read-Only</b>: Only able to view the transcript and its annotation</li>
+					<li><b>Read & Write</b>: Able to edit and save the transcript and its annotation</li>
+				</ul>
+			</td>
+		</table>
 	</p>
 	
-	<p>*Do take note that if a transcript is shared with a user and a group that user is in, the permission that takes precedence is the one with the <b style="font-style: italic;">most privilege</b>.<br/><br/><b>Privilege from highest to lowest:</b><br/>Read & Write > Read-Only > Not Shared</p>
+	<p class="desc">*Do take note that if a transcript is shared with a user and a group that user is in, the permission that takes precedence is the one with the <b style="font-style: italic;">most privilege</b>.<br/><br/><b>Privilege from highest to lowest:</b><br/>Read & Write > Read-Only > Not Shared</p>
 	
 	<hr/>
 	
-	<h2>Sharing with users</h2>
+	<h2 class="desc">Sharing with users</h2>
 	
 	<p><span class='number_list'>1</span> Go to the transcripts page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="transcripts_icon.jpg") }}'> icon on the navigation bar above.</p>
 	
 	<p><span class='number_list'>2</span> Click on the <img height='35px' width='55px' src='{{ url_for("help_img", image="share_btn.jpg") }}'> button of the transcript you want to share.</p>
 	
-	<p><span class='number_list'>3</span> Click on the <img height='35px' width='55px' src='{{ url_for("help_img", image="share_btn.jpg") }}'> button of the transcript you want to share.</p>
+	<p><span class='number_list'>3</span> Under the <img height='35px' width='120px' src='{{ url_for("help_img", image="tran_share_user.jpg") }}'> sidebar tab, type in the email address used by the user into <img height='45px' width='250px' src='{{ url_for("help_img", image="select_user_box.jpg")}}'> and click <img height='40px' width='100px' src='{{ url_for("help_img", image="select_user_btn.jpg")}}'> </p>
 	
-	<p><span class='number_list'>4</span> </p>
+	<p><span class='number_list'>4</span>When a user is selected, his/her information will be populated in the table below. Select the permission of the user using the dropdown menu <img height='80px' width='100px' src='{{ url_for("help_img", image="user_perm.jpg")}}'></p>
+	
+	<p><span class='number_list'>5</span>Click on <img height='40px' width='120px' src='{{ url_for("help_img", image="share_user_btn.jpg")}}'> to share the transcript with selected users</p>
+	
+	<hr/>
+	
+	<h2 class="desc">Sharing with groups</h2>
+	
+	<p><span class='number_list'>1</span> Go to the transcripts page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="transcripts_icon.jpg") }}'> icon on the navigation bar above.</p>
+	
+	<p><span class='number_list'>2</span> Click on the <img height='35px' width='55px' src='{{ url_for("help_img", image="share_btn.jpg") }}'> button of the transcript you want to share.</p>
+	
+	<p><span class='number_list'>3</span> Under the <img height='35px' width='120px' src='{{ url_for("help_img", image="group_share_tab.jpg") }}'> sidebar tab, </p>
+	
 	
 	</div>
 	

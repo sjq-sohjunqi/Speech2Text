@@ -745,11 +745,11 @@ def view(owner, filename):
 
 			trans = Transcripts.query.filter_by(name=filename, username=owner).first()
 
-			with open(os.path.join(filepath, filename), 'r') as f:
+			with open(os.path.join(filepath, filename), 'r', encoding="utf-8") as f:
 				transcription = f.read()
 
 			if trans.annotation == 'Y':
-					with open(os.path.join(filepath, 'annotation'), 'r') as f:
+					with open(os.path.join(filepath, 'annotation'), 'r', encoding="utf-8") as f:
 						annotation = f.read()
 
 			transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription, 'name': filename, 'annotation': annotation}))
@@ -1298,22 +1298,37 @@ def share(owner, filename, tabs):
 
 	'''Check if logged in'''
 	if not session.get('USER') is None:
+		
+		'''Check if transcript exists'''
+		transObj = Transcripts.query.filter_by(username=owner, name=filename).first()
+		if transObj:
+			'''Check if transcript is locked'''
+			if transObj.locked == 'N':
+		
+				'''Get list of users already shared'''
+				shared_usernames = []
+				shared_names = {}
+				try:
+					sharedObj = Shared_transcripts.query.filter_by(owner=owner, name=filename).all()
+					
+					for su in sharedObj:
+						shared_usernames.append(su.username)
 
-		'''Get list of users already shared'''
-		shared_usernames = []
-		shared_names = {}
-		try:
-			sharedObj = Shared_transcripts.query.filter_by(owner=owner, name=filename).all()
-			for su in sharedObj:
-				shared_usernames.append(su.username)
+						userObj = User.query.filter_by(username=su.username).first()
+						shared_names[su.username] = userObj.name
 
-				userObj = User.query.filter_by(username=su.username).first()
-				shared_names[su.username] = userObj.name
+				except IntegrityError as e:
+					print(e)
 
-		except IntegrityError as e:
-			print(e)
-
-		return render_template('share_transcript.html', title='Sharing transcript', owner=owner, filename=filename, shared_names=shared_names, shared_usernames=shared_usernames, tabs=tabs, navActive='transcripts')
+				return render_template('share_transcript.html', title='Sharing transcript', owner=owner, filename=filename, shared_names=shared_names, shared_usernames=shared_usernames, tabs=tabs, navActive='transcripts')
+				
+			else:
+				flash('Transcript is locked! Someone else is currently editing the document!', 'warning')
+				return redirect(url_for('list_transcripts'))
+			
+		else:
+			flash("Transcript does not exist", "danger")
+			return redirect(url_for('list_transcripts'))
 
 	else:
 		return redirect(url_for('login'))

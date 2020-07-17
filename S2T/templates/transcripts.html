@@ -4,9 +4,6 @@
 <script type="text/javascript">
 $(document).ready(function(){
 
-	var username;
-	var filename
-
   $('.tabs a').click(function(event) {
     event.preventDefault();
 
@@ -145,18 +142,61 @@ $(document).ready(function(){
       if ( taskItemInContext ) {
 			e.preventDefault();
 
-			username = e.target.attributes.getNamedItem('data-uname').value;
-			filename = e.target.attributes.getNamedItem('data-fname').value;
+			var username = e.target.attributes.getNamedItem('data-uname').value;
+			var filename = e.target.attributes.getNamedItem('data-fname').value;
+			var perm = e.target.attributes.getNamedItem('data-uperm').value;
+			var allow_share = e.target.attributes.getNamedItem('data-as').value;
+			
+			if (perm == "RW") {
+				
+				// Display Write
+				
+				var writeUrl = "{{ url_for('edit', owner='4', old_filename='.....filename.....') }}".replace("4", username).replace(".....filename.....", filename);
+				var deleteUrl = "{{ url_for('delete', owner='4', filename='.....filename.....') }}".replace("4", username).replace(".....filename.....", filename);
+				
+				$('#context_edit_link').attr('href', writeUrl);
+				$('#context_delete_link').attr('href', deleteUrl);
+				
+				$('#cmEdit').css('display', 'inline');
+				$('#cmDelete').css('display', 'inline');
+				
+				$('#cmView').css('display', 'none');
+				
+				
+				
+			} else {
+				
+				// Display Read
+				
+				var readUrl = "{{ url_for('view', owner='4', filename='.....filename.....') }}".replace("4", username).replace(".....filename.....", filename);
+				
+				$('#context_view_link').attr('href', readUrl);
+				
+				$('#cmEdit').css('display', 'none');
+				$('#cmDelete').css('display', 'none');
+				
+				$('#cmView').css('display', 'inline');
+				
+			}
+			
+			// Display share
+			if (allow_share == 'Y') {
+				// Create link for members
+				var viewUrl = "{{ url_for('share', owner='4', filename='.....filename.....', tabs='1') }}".replace("4", username).replace(".....filename.....", filename);
+				var editUrl = "{{ url_for('share', owner='4', filename='.....filename.....', tabs='2') }}".replace("4", username).replace(".....filename.....", filename);
+				var groupUrl = "{{ url_for('share', owner='4', filename='.....filename.....', tabs='3') }}".replace("4", username).replace(".....filename.....", filename);
 
-			// Create link for members
-			var viewUrl = "{{ url_for('share', owner='4', filename='.....filename.....', tabs='1') }}".replace("4", username).replace(".....filename.....", filename);
-			var editUrl = "{{ url_for('share', owner='4', filename='.....filename.....', tabs='2') }}".replace("4", username).replace(".....filename.....", filename);
-			var groupUrl = "{{ url_for('share', owner='4', filename='.....filename.....', tabs='3') }}".replace("4", username).replace(".....filename.....", filename);
-
-			// Append to menu
-			$('#context_usershare_link').attr('href', viewUrl);
-			$('#context_editshare_link').attr('href', editUrl);
-			$('#context_groupshare_link').attr('href', groupUrl);
+				// Append to menu
+				$('#context_usershare_link').attr('href', viewUrl);
+				$('#context_editshare_link').attr('href', editUrl);
+				$('#context_groupshare_link').attr('href', groupUrl);
+				
+				$('#cmShare').css('display', 'inline');
+			} else {
+				$('#cmShare').css('display', 'none');
+			}
+			
+			
 			toggleMenuOn();
 			positionMenu(e);
       } else {
@@ -287,12 +327,6 @@ $(document).ready(function(){
         <li >
             <a href="#tab2"><label class="tabstyle container-fluid">Shared with you</label></a>
         </li>
-        <li>
-            <a href="#tab3"><label class="tabstyle container-fluid">Tab C</label></a>
-        </li>
-        <li>
-            <a href="#tab4"><label class="tabstyle container-fluid">Tab D</label></a>
-        </li>
 </ul>
 {% endblock %}
 {% block content %}
@@ -307,10 +341,10 @@ $(document).ready(function(){
 		</tr>
 		</thead>
 		{% for tran in myTranscripts %}
-			<tr class="task" data-uname="{{tran.username}}" data-fname="{{tran.name}}">
-				<td data-uname="{{tran.username}}" data-fname="{{tran.name}}"><a href="{{ url_for('download', owner=tran.username, filename=tran.name) }}">{{ tran.name }}</a></td>
-				<td data-uname="{{tran.username}}" data-fname="{{tran.name}}"><script>document.write(moment("2012-12-31T23:55:13Z").format('LLLL'));</script>{{ tran.created_time }}</a></td>
-				<td data-uname="{{tran.username}}" data-fname="{{tran.name}}">
+			<tr class="task" data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}">
+				<td data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}"><a href="{{ url_for('download', owner=tran.username, filename=tran.name) }}">{{ tran.name }}</a></td>
+				<td data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}"><script>document.write(moment("2012-12-31T23:55:13Z").format('LLLL'));</script>{{ tran.created_time }}</a></td>
+				<td data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}">
 				<a href="{{ url_for('share', owner=tran.username, filename=tran.name, tabs=1) }}" class="btn btn-success" role="button">Share</a>
 				<a href="{{ url_for('edit', owner=tran.username, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a>
 				<a href="{{ url_for('delete', owner=tran.username, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a>
@@ -331,17 +365,17 @@ $(document).ready(function(){
 		</tr>
 		</thead>
 		{% for tran in sharedTrans %}
-			<tr>
-				<td><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
-				<td><a href="{{ url_for('public_profile', username=tran.owner)}}">{{ tran.owner }}</a></td>
-				<td>
+			<tr class="task" data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}">
+				<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}"><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
+				<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}"><a href="{{ url_for('public_profile', username=tran.owner)}}">{{ tran.owner }}</a></td>
+				<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}">
 				{% for sw in tran.sharedWith %}
 					{{ sw }} <br/>
 				{% endfor %}
 				</td>
-				<td>
+				<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}">
 				{% if tran.allow_share == 'Y'%}
-					<a href="{{ url_for('share', owner=tran.owner, filename=tran.name) }}" class="btn btn-success" role="button">Share</a>
+					<a href="{{ url_for('share', owner=tran.owner, filename=tran.name, tabs=1) }}" class="btn btn-success" role="button">Share</a>
 				{% endif %}
 				{% if tran.permission == 'RW' %}
 					<a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a>
@@ -356,30 +390,43 @@ $(document).ready(function(){
 	</div>
 	<nav id="context-menu" class="context-menu">
     <ul class="context-menu__items">
-      <li class="context-menu__item">
-        <a id="context_usershare_link" href="" class="context-menu__link" data-action="Usershare"> User Share </a>
-      </li>
+      <div id="cmShare" style="display:none;">
+		  <li class="context-menu__item">
+			<a id="context_usershare_link" href="" class="context-menu__link"> Share with Users </a>
+		  </li>
 
-      <li class="context-menu__item">
-        <a id="context_editshare_link" href="" class="context-menu__link" data-action="Editshare"> Edit Share </a>
-      </li>
+		  <li class="context-menu__item">
+			<a id="context_editshare_link" href="" class="context-menu__link"> Edit Shared Users </a>
+		  </li>
 
-      <li class="context-menu__item">
-        <a id="context_groupshare_link" href="" class="context-menu__link" data-action="Groupshare"> Group Share </a>
-      </li>
-
-		  <hr>
+		  <li class="context-menu__item">
+			<a id="context_groupshare_link" href="" class="context-menu__link"> Shared Groups </a>
+		  </li>
+		
+		<hr>
+		
+	</div>
+		
+	  <div id="cmEdit" style="display:none;">
 		  <li id="context-menu__edit" class="context-menu__item">
-			<a id="context_edit_link" href="" class="context-menu__link" data-action="Edit"> Edit</a>
+			<a id="context_edit_link" href="" class="context-menu__link"> Edit Transcript</a>
 		  </li>
-
-	<hr>
+	  </div>
+	  
+	  
+	  <div id="cmView" style="display:none;">
+		  <li id="context-menu__view" class="context-menu__item">
+			<a id="context_view_link" href="" class="context-menu__link"> View Transcript</a>
+		  </li>
+	  </div>
+	  
+	  <div id="cmDelete" style="display:none'">
+		  <hr>
 		  <li id="context-menu__delete" class="context-menu__item">
-			<a id="context_edit_link" href="" class="context-menu__link" data-action="Delete"> Delete</a>
+			<a id="context_delete_link" href="" class="context-menu__link"> Delete Transcript</a>
 		  </li>
-      <!-- <li class="context-menu__item">
-        <div id="info" class="context-menu__notlink"> Info </div>
-      </li> -->
+	  </div>
+
     </ul>
   </nav>
 {% endblock %}
