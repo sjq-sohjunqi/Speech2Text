@@ -116,6 +116,29 @@
 	background-color: rgb(200, 45, 190);
 }
 
+.gridid_trans{
+    text-align:center;
+    font-size:20px;
+    /* color: #0065f2; */
+    /* font-weight: bold; */
+    /* border-bottom:2px solid #AAABB8; */
+	border-bottom:2px solid white;
+	
+	font-family: 'Roboto';
+	
+	text-decoration: none;
+	
+	color: white;
+	background-color: rgb(42, 168, 126);
+	
+	transition: all 0.5s;
+}
+
+.gridid_trans:hover {
+	text-decoration: underline;
+	background-color: rgb(50, 205, 153);
+}
+
 .griddelete{
     text-align:right;
     padding-bottom: 0;

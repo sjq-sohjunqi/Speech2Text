@@ -4,6 +4,26 @@
 <script type="text/javascript">
 $(document).ready(function(){
 
+//grid view
+   $('#gridview').click(function(event) {
+    event.preventDefault();
+    $('#gridview').css("display","none");
+    $('.listviewcontent').css("display","none");
+    $('.gridviewcontent').fadeIn();
+    $('#listview').fadeIn();
+
+  });
+
+   $('#listview').click(function(event) {
+    event.preventDefault();
+    $('#listview').css("display","none");
+    $('.gridviewcontent').css("display","none");
+    $('.listviewcontent').fadeIn();
+    $('#gridview').fadeIn();
+
+  });
+//
+
   $('.tabs a').click(function(event) {
     event.preventDefault();
 
@@ -330,64 +350,139 @@ $(document).ready(function(){
 </ul>
 {% endblock %}
 {% block content %}
+	<div id="group_icon_row" class="row"><!-- <div id="gridview" style="border: 2px solid #AAABB8;">grid view</div><div id="listview" style="border: 2px solid #AAABB8;">list view</div> -->
+	  <div id="gridview"><span class="group_icon_text">Grid View </span><img height="25px" width="25px" src="{{url_for('grid_icon')}}"/></div>
+	  <div id="listview"><span class="group_icon_text">Table View </span><img height="25px" width="25px" src="{{url_for('list_icon')}}"/></div>
+  </div>
+  
+  
+  
 	<div id="tab1" class="tabcontent">
 	<h2>Your Transcripts:</h2>
-	<table class="table tasks">
-		<thead class="thead-dark">
-		<tr>
-			<th>Name</th>
-			<th>Time Created</th>
-			<th> - <th>
-		</tr>
-		</thead>
-		{% for tran in myTranscripts %}
-			<tr class="task" data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}">
-				<td data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}"><a href="{{ url_for('download', owner=tran.username, filename=tran.name) }}">{{ tran.name }}</a></td>
-				<td data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}"><script>document.write(moment("2012-12-31T23:55:13Z").format('LLLL'));</script>{{ tran.created_time }}</a></td>
-				<td data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}">
-				<a href="{{ url_for('share', owner=tran.username, filename=tran.name, tabs=1) }}" class="btn btn-success" role="button">Share</a>
-				<a href="{{ url_for('edit', owner=tran.username, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a>
-				<a href="{{ url_for('delete', owner=tran.username, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a>
-				</td>
+	
+	<div class="listviewcontent">	
+		<table class="table tasks">
+			<thead class="thead-dark">
+			<tr>
+				<th>Name</th>
+				<th>Time Created</th>
+				<th> - <th>
 			</tr>
-		{% endfor %}
-	</table>
+			</thead>
+			{% for tran in myTranscripts %}
+				<tr class="task" data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}">
+					<td data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}"><a href="{{ url_for('download', owner=tran.username, filename=tran.name) }}">{{ tran.name }}</a></td>
+					<td data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}"><script>document.write(moment("2012-12-31T23:55:13Z").format('LLLL'));</script>{{ tran.created_time }}</a></td>
+					<td data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}">
+					<a href="{{ url_for('share', owner=tran.username, filename=tran.name, tabs=1) }}" class="btn btn-success" role="button">Share</a>
+					<a href="{{ url_for('edit', owner=tran.username, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a>
+					<a href="{{ url_for('delete', owner=tran.username, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a>
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
 	</div>
+	
+	<div class="gridviewcontent">
+		<div class="flex-grid tasks">
+		{% for tran in myTranscripts %}
+		<div class="gridcellwrapper">
+		<div class="gridhelper">
+		  <div class="fgcol task" data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}">
+
+				<a href="{{ url_for('edit', owner=tran.username, old_filename=tran.name) }}"><div data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}" class="gridid_trans container-fluid">{{ tran.name }}</div></a>
+				
+				<div data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}" class="gridrow">
+				<div data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}" class="gridheader">Time Created</div>
+					<div data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}" class="gridcontent"><script>document.write(moment("2012-12-31T23:55:13Z").format('LLLL'));</script>{{ tran.created_time }}</div>
+				</div>
+
+			</div>
+		</div>
+		</div>
+		{% endfor %}
+		</div>
+		
+	</div>
+	
+	
+	</div>
+	
 	<div id="tab2" class="tabcontent">
 	<h2>Shared with you:</h2>
-	<table class="table">
-		<thead class="thead-dark">
-		<tr>
-			<th>Name</th>
-			<th>Created by</th>
-			<th>Shared with</th>
-			<th> - </th>
-		</tr>
-		</thead>
-		{% for tran in sharedTrans %}
-			<tr class="task" data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}">
-				<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}"><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
-				<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}"><a href="{{ url_for('public_profile', username=tran.owner)}}">{{ tran.owner }}</a></td>
-				<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}">
-				{% for sw in tran.sharedWith %}
-					{{ sw }} <br/>
-				{% endfor %}
-				</td>
-				<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}">
-				{% if tran.allow_share == 'Y'%}
-					<a href="{{ url_for('share', owner=tran.owner, filename=tran.name, tabs=1) }}" class="btn btn-success" role="button">Share</a>
-				{% endif %}
-				{% if tran.permission == 'RW' %}
-					<a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a>
-					<a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a>
-				{% else %}
-					<a href="{{ url_for('view', owner=tran.owner, filename=tran.name) }}" class="btn btn-warning" role="button">View</a>
-				{% endif %}
-				</td>
+	
+	<div class="listviewcontent">
+		<table class="table">
+			<thead class="thead-dark">
+			<tr>
+				<th>Name</th>
+				<th>Created by</th>
+				<th>Shared with</th>
+				<th> - </th>
 			</tr>
-		{% endfor %}
-	</table>
+			</thead>
+			{% for tran in sharedTrans %}
+				<tr class="task" data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}">
+					<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}"><a href="{{ url_for('download', owner=tran.owner, filename=tran.name) }}">{{ tran.name }}</a></td>
+					<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}"><a href="{{ url_for('public_profile', username=tran.owner)}}">{{ tran.owner }}</a></td>
+					<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}">
+					{% for sw in tran.sharedWith %}
+						{{ sw }} <br/>
+					{% endfor %}
+					</td>
+					<td data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}">
+					{% if tran.allow_share == 'Y'%}
+						<a href="{{ url_for('share', owner=tran.owner, filename=tran.name, tabs=1) }}" class="btn btn-success" role="button">Share</a>
+					{% endif %}
+					{% if tran.permission == 'RW' %}
+						<a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a>
+						<a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a>
+					{% else %}
+						<a href="{{ url_for('view', owner=tran.owner, filename=tran.name) }}" class="btn btn-warning" role="button">View</a>
+					{% endif %}
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
 	</div>
+	
+	<div class="gridviewcontent">
+		<div class="flex-grid tasks">
+		{% for tran in sharedTrans %}
+		<div class="gridcellwrapper">
+		<div class="gridhelper">
+		  <div class="fgcol task" data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}">
+				
+				{% if tran.permission == 'RW'%}
+					<a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}"><div data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}" class="gridid_trans container-fluid">{{ tran.name }}</div></a>
+				{% else %}
+					<a href="{{ url_for('view', owner=tran.owner, filename=tran.name) }}"><div data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}" class="gridid_trans container-fluid">{{ tran.name }}</div></a>
+				{% endif %}
+				
+				<div data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}" class="gridrow">
+				<div data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}" class="gridheader">Created by</div>
+					<div data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}" class="gridcontent">{{ tran.owner }}</div>
+				</div>
+				
+				<div data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}" class="gridrow">
+				<div data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}" class="gridheader">Shared with</div>
+					<div data-uperm="{{tran.permission}}" data-as="{{tran.allow_share}}" data-uname="{{tran.owner}}" data-fname="{{tran.name}}" class="gridcontent">
+					{% for sw in tran.sharedWith %}
+						{{ sw }} <br/>
+					{% endfor %}</div>
+				</div>
+				
+			</div>
+		</div>
+		</div>
+		{% endfor %}
+		</div>
+			
+	</div>
+	
+	</div>
+	
+	
 	<nav id="context-menu" class="context-menu">
     <ul class="context-menu__items">
       <div id="cmShare" style="display:none;">
