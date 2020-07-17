@@ -340,13 +340,23 @@ color:#000000;
 /* */
 /* members label*/
 
-.grouplabel{
-    padding-left:1px;
-    padding-top:3px;
-    margin:0;
-    text-align: center;
-    font-size: x-large;
+#sideHead {
+	margin-top: 5px;
+	font-style: italic;
+	font-size: 12px;
+	margin-bottom: 0;
+}
+
+#sideName {
+	margin-top: 0;
+	font-size: 25px;
     font-weight: bold;
+	
+}
+
+.grouplabel {
+	margin-top: 10px;
+	margin-left: 10px;
 }
 
 .memIcon:hover {
