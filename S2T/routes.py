@@ -440,10 +440,16 @@ def convert(filepath, filename, language):
         response = operation.result(timeout=10000)
 
         for result in response.results:
-            transcript_1 += result.alternatives[0].transcript
-            transcript_2 += result.alternatives[1].transcript
-            transcript_3 += result.alternatives[2].transcript
-
+            if (len(result.alternatives) == 3):
+                transcript_1 += result.alternatives[0].transcript
+                transcript_2 += result.alternatives[1].transcript
+                transcript_3 += result.alternatives[2].transcript
+            elif (len(result.alternatives) == 2):
+                transcript_1 += result.alternatives[0].transcript
+                transcript_2 += result.alternatives[1].transcript
+            elif (len(result.alternatives) == 1):
+                transcript_1 += result.alternatives[0].transcript
+			
         transcript.append(transcript_1)
         transcript.append(transcript_2)
         transcript.append(transcript_3)
@@ -542,14 +548,18 @@ def transcribe():
 		transcription = convert(filepath, filename, transcribeForm.language.data)
 		if transcription == '%unrecognised%':
 			transcriptForm = TranscriptForm()
-			flash('Unable to transcript audio!','warning')
+			flash('Unable to transcribe audio!','warning')
 		else:
 			transcriptForm = TranscriptForm(formdata=MultiDict({'transcript': transcription[0]}))
 			flash('Audio Transcribed!','success')
 
 		if session.get('USER') is None:
+		
 			return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_filename=filename, navActive='transcribe')
 		else:
+			
+			print("here")
+			
 			return render_template('transcribe.html', title='Transcribe',transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_filename=filename, navActive='transcribe')
 
 	'''Check if transcript has previously written data'''
