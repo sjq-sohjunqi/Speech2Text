@@ -2,6 +2,14 @@
 
 {% block subtab %}
 <script type="text/javascript">
+
+function confirmDelete(link) {
+	var result = confirm("This action cannot be undone! Do you wish to proceed?");
+	if (result) {
+		window.location.href = link;
+	}
+}
+
 $(document).ready(function(){
 
 //grid view
@@ -320,8 +328,13 @@ $(document).ready(function(){
    * @param {HTMLElement} link The link that was clicked
    */
   function menuItemListener( link ) {
-	window.location.href = link;
-	//console.log( "Task ID - " + taskItemInContext.getAttribute("data-id") + ", Task action - " + link.getAttribute("data-action"));
+	
+	if (link.getAttribute("data-action") == "Delete") {
+		confirmDelete(link);
+	} else {
+		window.location.href = link;
+	}
+	
     toggleMenuOff();
   }
 
@@ -376,7 +389,7 @@ $(document).ready(function(){
 					<td data-uperm="RW" data-as="Y" data-uname="{{tran.username}}" data-fname="{{tran.name}}">
 					<a href="{{ url_for('share', owner=tran.username, filename=tran.name, tabs=1) }}" class="btn btn-success" role="button">Share</a>
 					<a href="{{ url_for('edit', owner=tran.username, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a>
-					<a href="{{ url_for('delete', owner=tran.username, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a>
+					<a onclick="confirmDelete('{{ url_for('delete', owner=tran.username, filename=tran.name) }}')" href="#" class="btn btn-danger" role="button">Delete</a>
 					</td>
 				</tr>
 			{% endfor %}
@@ -436,7 +449,7 @@ $(document).ready(function(){
 					{% endif %}
 					{% if tran.permission == 'RW' %}
 						<a href="{{ url_for('edit', owner=tran.owner, old_filename=tran.name) }}" class="btn btn-warning" role="button">Edit</a>
-						<a href="{{ url_for('delete', owner=tran.owner, filename=tran.name) }}" class="btn btn-danger" role="button">Delete</a>
+						<a onclick="confirmDelete('{{ url_for('delete', owner=tran.owner, filename=tran.name) }}')" href="#" class="btn btn-danger" role="button">Delete</a>
 					{% else %}
 						<a href="{{ url_for('view', owner=tran.owner, filename=tran.name) }}" class="btn btn-warning" role="button">View</a>
 					{% endif %}
@@ -518,7 +531,7 @@ $(document).ready(function(){
 	  <div id="cmDelete" style="display:none'">
 		  <hr>
 		  <li id="context-menu__delete" class="context-menu__item">
-			<a id="context_delete_link" href="" class="context-menu__link"> Delete Transcript</a>
+			<a id="context_delete_link" href="" class="context-menu__link" data-action="Delete"> Delete Transcript</a>
 		  </li>
 	  </div>
 

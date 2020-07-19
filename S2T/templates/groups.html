@@ -2,6 +2,14 @@
 
 {% block subtab %}
 <script type="text/javascript">
+
+	function confirmDelete(link) {
+		var result = confirm("This action cannot be undone! Do you wish to proceed?");
+		if (result) {
+			window.location.href = link;
+		}
+	}
+
 $(document).ready(function(){
 
 	function setMemUrl() {
@@ -328,8 +336,13 @@ $("#crossinfo").click(function () {
    * @param {HTMLElement} link The link that was clicked
    */
   function menuItemListener( link ) {
-	window.location.href = link;
-	//console.log( "Task ID - " + taskItemInContext.getAttribute("data-id") + ", Task action - " + link.getAttribute("data-action"));
+	
+	if (link.getAttribute("data-action") == "Delete") {
+		confirmDelete(link);
+	} else {
+		window.location.href = link;
+	}
+	
     toggleMenuOff();
   }
 
@@ -415,7 +428,7 @@ $("#crossinfo").click(function () {
 				<td id="{{ grp.group_id }}">{{ grpsLead.get(grp.group_id) }}</td>
 				<td id="{{ grp.group_id }}">{{ grpsMem.get(grp.group_id) }}</td>
 				{% if isOwner[grp.group_id] %}
-					<td id="{{ grp.group_id }}"><a href="{{ url_for('delete_group', group_id=grp.group_id)}}" class="btn btn-danger" role="button">Delete</a></td>
+					<td id="{{ grp.group_id }}"><a href="#" onclick="confirmDelete('{{ url_for('delete_group', group_id=grp.group_id)}}')" class="btn btn-danger" role="button">Delete</a></td>
 				{% else %}
 					<td id="{{ grp.group_id }}"></td>
 				{% endif %}
@@ -480,7 +493,7 @@ $("#crossinfo").click(function () {
 	  
 	  <div id="cmEditFunc" style="display: none;">
       <li class="context-menu__item">
-        <a id="context_edit_link" href="" class="context-menu__link" data-action="Delete"> Change Members </a>
+        <a id="context_edit_link" href="" class="context-menu__link" data-action="Change"> Change Members </a>
       </li>
 	  </div>
 	  
