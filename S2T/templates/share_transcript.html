@@ -82,7 +82,7 @@ $(document).ready(function(){
 				});
 				
 				// Collapse member rows
-				listgroup(id);
+				listgroup(id, "collapse");
 
 			} else {
 
@@ -106,27 +106,34 @@ $(document).ready(function(){
 
 	};
 	
-	function listgroup(groupid){
-		if($("#group_mems_"+groupid).css('display') === 'none')
-		{
-			// Change icon to collapse
-			var eleId = "#memIcon_" + groupid;
-			$(eleId).attr("src", "{{ url_for('collapse_icon') }}");
-			
-			// Expand
-			$("#group_mems_"+groupid).fadeIn();
-		}
-		else
-		{
+	function listgroup(groupid, func){
+		if (func == "toggle") {
+			if ($("#group_mems_"+groupid).css('display') == 'none') {
+				// Change icon to collapse
+				var eleId = "#memIcon_" + groupid;
+				$(eleId).attr("src", "{{ url_for('collapse_icon') }}");
+				
+				// Expand
+				$("#group_mems_"+groupid).fadeIn();
+			}
+			else {
+				// Change icon to expand
+				var eleId = "#memIcon_" + groupid;
+				$(eleId).attr("src", "{{ url_for('expand_icon') }}");
+				
+				// Collapse
+				$("#group_mems_"+groupid).fadeOut();
+				//$("#group_mems_"+groupid).css("display","none");
+			}
+		} else {
 			// Change icon to expand
 			var eleId = "#memIcon_" + groupid;
 			$(eleId).attr("src", "{{ url_for('expand_icon') }}");
 			
 			// Collapse
 			$("#group_mems_"+groupid).fadeOut();
-			//$("#group_mems_"+groupid).css("display","none");
 		}
-
+		
 	}
 
 	$(document).ready(function() {
@@ -378,7 +385,7 @@ $(document).ready(function(){
 						var row = "<tr class='groupRows' id='" + data[n].group_id +"'>";
 						
 						// Add icon for expanding
-						row += "<td class='memIcon' onclick='listgroup(" + data[n].group_id +");'><img id='memIcon_"+data[n].group_id+"' height='13px' width='15px' src='{{ url_for('expand_icon') }}'/></td>";
+						row += "<td class='memIcon' onclick='listgroup(" + data[n].group_id + ", \"toggle\");'><img id='memIcon_"+data[n].group_id+"' height='13px' width='15px' src='{{ url_for('expand_icon') }}'/></td>";
 						
 						var shared = true;
 						if (data[n].group_perm == "RO") {

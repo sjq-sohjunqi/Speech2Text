@@ -252,7 +252,7 @@ $(document).ready(function(){
 	</script>
 	<div id="tab1" class="tabcontent">
 	<h2>Current Users:</h2>
-	<table class="table">
+	<!-- <table class="table">
 		<thead class="thead-dark">
 		<tr>
 			<th>Owner</th>
@@ -265,7 +265,42 @@ $(document).ready(function(){
 			<td>{{ grpLead }}</td>
 			<td>{{ grpMem }}</td>
 		</tr>
-	</table>
+	</table> -->
+	
+		<table class="table">
+			<thead class="thead-dark">
+				<tr>
+					<th>Username</th>
+					<th>Name</th>
+					<th>Role</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for gm in allGrpMem %}
+					<tr>
+						<td title="{{gm.username}}"><a href="{{ url_for('public_profile', username=gm.username)}}">{{ gm.username }}</a></td>
+						<td>{{ gm.name }}</td>
+						<td>
+						{% if gm.username == grpObj.username %}
+							Group Creator (Owner)
+						{% else %}
+							{% if 'owner' == gm.role %}
+								Owner
+							{% endif %}
+
+							{% if 'leader' == gm.role %}
+								Leader
+							{% endif %}
+
+							{% if 'member' == gm.role %}
+								Member
+							{% endif %}
+						{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+			</table>
 	</div>
 	
 	{% if role == 'owner' or role == 'leader' %}
@@ -295,7 +330,7 @@ $(document).ready(function(){
 			</div>
 		</form>
 		</div>
-		</div>
+	</div>
 
 		<div id="tab3" class="tabcontent">
 		<div class="row">

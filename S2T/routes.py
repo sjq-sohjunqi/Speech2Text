@@ -42,7 +42,7 @@ def pageNotFound(error):
 @S2T.route('/', methods=['GET'])
 @S2T.route('/index', methods=['GET'])
 def index():
-    return render_template('index.html', title='Home', navActive='home')
+    return render_template('index.html', title='Home', navActive='home', sidebar="removed")
 
 @S2T.route('/help', methods=['GET'])
 def help():
@@ -119,17 +119,17 @@ def signup():
 				except Exception as e:
 					flash('An error has occured. Please try again.', 'warning')
 					print(e)
-					return render_template('signup.html', title='Sign Up', form=form)
+					return render_template('signup.html', title='Sign Up', form=form, sidebar="removed")
 			else:
 				flash('The email {} has already been taken'.format(form.username.data),'warning')
-				return render_template('signup.html', title='Sign Up', form=form)
+				return render_template('signup.html', title='Sign Up', form=form, sidebar="removed")
 
 		except IntegrityError as e:
 				flash('An error has occured. Please try again.', 'warning')
 				print(e)
-				return render_template('signup.html', title='Sign Up', form=form)
+				return render_template('signup.html', title='Sign Up', form=form, sidebar="removed")
 
-	return render_template('signup.html', title='Sign Up', form=form)
+	return render_template('signup.html', title='Sign Up', form=form, sidebar="removed")
 
 
 @S2T.route('/logout', methods=['GET'])
@@ -162,7 +162,7 @@ def login():
 				flash('Login unsuccessful for user {}'.format(form.username.data),'danger')
 		else:
 			flash('No such user {}'.format(form.data['username']), 'warning')
-	return render_template('login.html', title='Sign In', form=form)
+	return render_template('login.html', title='Sign In', form=form, sidebar="removed")
 
 @S2T.route('/pictures/<string:username>', methods=['GET'])
 def pictures(username):
@@ -180,6 +180,11 @@ def pictures(username):
 
 		filepath = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'])
 		return send_from_directory(filepath, 'default.jpg')
+
+@S2T.route('/menu_icon', methods=['GET'])
+def menu_icon():
+	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+	return send_from_directory(filepath, 'menu_icon.png')
 
 @S2T.route('/edit_icon', methods=['GET'])
 def edit_icon():
@@ -240,7 +245,7 @@ def public_profile(username):
 				works_at = userObj.works_at
 				picture = url_for('pictures', username=username)
 
-				return render_template('public_profile.html', name=name, bio=bio, works_at=works_at, title=name + '\'s Page', picture=picture)
+				return render_template('public_profile.html', name=name, bio=bio, works_at=works_at, title=name + '\'s Page', picture=picture, sidebar="removed")
 
 			else:
 				flash("Unabel to view user's profile", "warning")
@@ -360,7 +365,8 @@ def profile():
 						'''Change password'''
 						db.session.commit()
 						flash('Password changed successfully!','success')
-						return redirect(url_for('profile'))
+						
+						return render_template('profile.html', name=name, bio=bio, works_at=works_at, title=name + '\'s Page', picture=picture, passform=passform, nameform=nameform, uploadImageForm=uploadImageForm, changeworksatform=changeworksatform, changebioform=changebioform, save_icon=save_icon, edit_icon=edit_icon, tabs=2)
 					except IntegrityError as e:
 						'''Error'''
 						print(e)
@@ -368,7 +374,7 @@ def profile():
 					'''Old password does not match'''
 					flash('Old password does not match','warning')
 
-				return redirect(url_for('profile'))
+				return render_template('profile.html', name=name, bio=bio, works_at=works_at, title=name + '\'s Page', picture=picture, passform=passform, nameform=nameform, uploadImageForm=uploadImageForm, changeworksatform=changeworksatform, changebioform=changebioform, save_icon=save_icon, edit_icon=edit_icon, tabs=2)
 
 			if 'chg_name' in request.form and nameform.validate_on_submit():
 
@@ -385,7 +391,7 @@ def profile():
 
 				return redirect(url_for('profile'))
 
-			return render_template('profile.html', name=name, bio=bio, works_at=works_at, title=name + '\'s Page', picture=picture, passform=passform, nameform=nameform, uploadImageForm=uploadImageForm, changeworksatform=changeworksatform, changebioform=changebioform, save_icon=save_icon, edit_icon=edit_icon)
+			return render_template('profile.html', name=name, bio=bio, works_at=works_at, title=name + '\'s Page', picture=picture, passform=passform, nameform=nameform, uploadImageForm=uploadImageForm, changeworksatform=changeworksatform, changebioform=changebioform, save_icon=save_icon, edit_icon=edit_icon, tabs=1)
 
 		else:
 			flash('An error has occurred; please sign in again','secondary')
@@ -783,7 +789,7 @@ def view(owner, filename):
 			flash('Unable to read file!','warning')
 			return redirect(url_for('list_transcripts'))
 
-		return render_template('view.html', title='View', transcriptForm=transcriptForm, owner=owner, filename=filename, navActive='transcripts')
+		return render_template('view.html', title='View', transcriptForm=transcriptForm, owner=owner, filename=filename, navActive='transcripts', sidebar="removed")
 
 	else:
 		return redirect(url_for('login'))
@@ -1028,7 +1034,7 @@ def edit(owner, old_filename):
 				flash('Unable to read file!','warning')
 				return redirect(url_for('list_transcripts'))
 
-			return render_template('edit.html', title='Edit', transcriptForm=transcriptForm, owner=owner, old_filename=old_filename, navActive='transcripts')
+			return render_template('edit.html', title='Edit', transcriptForm=transcriptForm, owner=owner, old_filename=old_filename, navActive='transcripts', sidebar="removed")
 
 	else:
 		return redirect(url_for('login'))
@@ -1633,23 +1639,23 @@ def members(group_id, tabs):
 			if grObj:
 				role = grObj.role
 
-				grpOwn = getGrpOwn(group_id)
-				grpLead = getGrpLead(group_id)
-				grpMem = getGrpMem(group_id)
+				# grpOwn = getGrpOwn(group_id)
+				# grpLead = getGrpLead(group_id)
+				# grpMem = getGrpMem(group_id)
 
-				if role == 'leader' or role == 'owner':
-					'''Get all grp member names and roles for editing'''
-					grpRoles = Group_roles.query.filter_by(group_id=group_id).all()
-					allGrpMem = []
-					for gr in grpRoles:
-						uName = User.query.filter_by(username=gr.username).first()
-						name = uName.name
+				# if role == 'leader' or role == 'owner':
+				'''Get all grp member names and roles for editing'''
+				grpRoles = Group_roles.query.filter_by(group_id=group_id).all()
+				allGrpMem = []
+				for gr in grpRoles:
+					uName = User.query.filter_by(username=gr.username).first()
+					name = uName.name
 
-						allGrpMem.append({'username':gr.username, 'name':name, 'role':gr.role})
+					allGrpMem.append({'username':gr.username, 'name':name, 'role':gr.role})
 
-					return render_template('members.html', title='Members', allGrpMem=allGrpMem, grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role, tabs=tabs, navActive='groups')
-				else:
-					return render_template('members.html', title='Members', grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role, tabs=tabs, navActive='groups')
+				return render_template('members.html', title='Members', allGrpMem=allGrpMem, grpObj=grpObj, role=role, tabs=tabs, navActive='groups')
+				# else:
+					# return render_template('members.html', title='Members', grpOwn=grpOwn, grpLead=grpLead, grpMem=grpMem, grpObj=grpObj, role=role, tabs=tabs, navActive='groups')
 
 			else:
 				flash('You are not a member of this group!','danger')

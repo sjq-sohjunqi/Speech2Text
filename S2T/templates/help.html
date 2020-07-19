@@ -24,13 +24,13 @@ $(document).ready(function(){
 </script>
  <ul class="tabs container-fluid">
         <li>
-            <a href="#tab1"><label style="line-height: 20px;" class="currenttab container-fluid">What is Speech2Text?</label></a>
+            <a href="#tab1"><label class="currenttab container-fluid">What is Speech2Text?</label></a>
         </li>
         <li>
-            <a href="#tab2"><label style="line-height: 20px;" class="tabstyle container-fluid">Transcribing without account</label></a>
+            <a href="#tab2"><label class="tabstyle container-fluid">Transcribing without account</label></a>
         </li>
         <li>
-            <a href="#tab3"><label style="line-height: 20px;" class="tabstyle container-fluid">Transcribing with account</label></a>
+            <a href="#tab3"><label class="tabstyle container-fluid">Transcribing with account</label></a>
         </li>
 		<li>
             <a href="#tab4"><label class="tabstyle container-fluid">Transcripts</label></a>
@@ -63,11 +63,11 @@ $(document).ready(function(){
 		color: #DC3545;
 	}
 	
-	table, th, td {
+	.table_ele, .table_ele_head, .table_ele_content {
 		border: 1px solid black;
 	}
 	
-	th, td {
+	.table_ele_head, .table_ele_content {
 		padding: 10px;
 	}
 	
@@ -193,34 +193,34 @@ $(document).ready(function(){
 		
 			<table class="table_ele">
 				<tr>
-					<th></th>
-					<th>Owner</th>
-					<th>Leaders</th>
-					<th>Members</th>
+					<th class="table_ele_head"></th>
+					<th class="table_ele_head">Owner</th>
+					<th class="table_ele_head">Leaders</th>
+					<th class="table_ele_head">Members</th>
 				</tr>
 				<tr>
-					<td><b>Access Group Transcripts</b><br/><span style="font-style: italic">(if given permission)</span></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"><b>Access Group Transcripts</b><br/><span style="font-style: italic">(if given permission)</span></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
 				</tr>
 				<tr>
-					<td><b>Add/Remove Users</b></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td></td>
+					<td class="table_ele_content"><b>Add/Remove Users</b></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td> class="table_ele_content"</td>
 				</tr>
 				<tr>
-					<td><b>Modify User Roles</b></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td></td>
+					<td class="table_ele_content"><b>Modify User Roles</b></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"></td>
 				</tr>
 				<tr>
-					<td><b>Delete Group</b></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td></td>
-					<td></td>
+					<td class="table_ele_content"><b>Delete Group</b></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"></td>
+					<td class="table_ele_content"></td>
 				</tr>
 			</table>
 		</div>

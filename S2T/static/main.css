@@ -1,3 +1,13 @@
+#menu_icon:hover {
+	opacity: 0.7;
+}
+
+#no_side_centerised {
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
 #trans_tabs {
 	height: 20px;
 	margin-left: 25px;
@@ -258,14 +268,21 @@
 .navbar-custom{
     /*background-color: #25274d;*/
     border-bottom: 1px solid #AAABB8;
+	
+	min-width: 10px;
+	
 }
 
 #navbarContent{
     padding-left: 3%;
+	
+	
+	min-width: 10px;
+	
 }
 
 .content-section{
-    border:1px solid blue;
+    /* border:1px solid blue; */
 }
 
 #loginButton{
@@ -283,16 +300,26 @@
 }
 
 .centercontent{
-    border:1px solid blue;
+    /* border:1px solid blue; */
 }
 /* sub tab styling */
 .currenttab{
     height: 40px;
-   font-size: medium;
-  color:#0065f2;
-  background-color: #9cc0f7;
-  line-height: 38px;
-  border-radius: 20px;
+	width: 180px;
+	
+	font-size: medium;
+	color:#0065f2;
+	background-color: #9cc0f7;
+  
+	/* line-height: 38px; */
+	line-height: 20px;
+	/*padding-top: 10px; */
+	
+	
+	vertical-align:middle; 
+	display:table-cell;
+	
+	border-radius: 20px;
 }
 
 .tabcontent {
@@ -305,7 +332,7 @@
 
 .sidebar{
     text-align: left;
-    border:1px solid red;
+    /* border:1px solid red; */
 }
 
 
@@ -319,17 +346,31 @@ ul.tabs {
 
 ul.tabs li
 {
-padding:0;
-padding-right: 0.4em;
-margin-top: -8px;
+	padding:0;
+	padding-right: 0.4em;
+	margin-top: -8px;
 }
 
 .tabstyle{
     color: #AAABB8;
-    height: 40px;
+    /* min-height: 40px; */
     font-size: medium;
-    line-height: 37px;
-    cursor: pointer;
+    
+	/* line-height: 37px; */
+    
+	/* line-height: 20px;
+	padding-top: 10px; */
+	
+	
+	height: 40px;
+	width: 180px;
+	
+	
+	/* text-align:center; */
+	vertical-align:middle; 
+	display:table-cell;
+	
+	cursor: pointer;
 }
 
 .tabstyle:hover{

@@ -50,6 +50,7 @@
 
 
 			var navActive = '{{ navActive }}';
+			var sidebar = '{{ sidebar }}';
 
 			function checkNav() {
 
@@ -59,10 +60,20 @@
 					$('#nav-home').css("color", "red");
 				} else if (navActive == 'transcribe') {
 					$('#nav-transcribe').addClass('navitemactive');
+					
+					// Disable sidebar
+					$(".sidebar").css("display", "none");
+					
+					
 				} else if (navActive == 'groups') {
 					$('#nav-groups').addClass('navitemactive');
 				} else if (navActive == 'transcripts') {
 					$('#nav-transcripts').addClass('navitemactive');
+				}
+				
+				if (sidebar == 'removed') {
+					// Disable sidebar
+					$(".sidebar").css("display", "none");
 				}
 
 			}
@@ -86,7 +97,7 @@
 
 			<a class="navbar-brand" href="/"><img src="{{ url_for('logo') }}" width="30px" height="30px"> Speech2Text</a>
 		  	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-		    <span class="navbar-toggler-icon"></span>
+		    <span class="navbar-toggler-icon"><img id="menu_icon" src="{{url_for('menu_icon')}}" width="20px" height="20px"/></span>
 		  </button>
 
 		  <div class="collapse navbar-collapse" id="navbarContent">
