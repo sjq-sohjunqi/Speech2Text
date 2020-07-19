@@ -47,53 +47,58 @@
 		
 	</script>
 
+	
+	<div id="no_side_centerised">
+		
+		<br/>
+		
         <form action="" method="post" enctype="multipart/form-data" onsubmit="return validateLogin()" novalidate>
-        <div class="row">
-        <div class='col-md-5'>
-			{{ form.hidden_tag() }} <!Protects against CSRF>
-			 <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Log In</legend>
-                <div class="form-group">
-                    {{ form.username.label(class="form-control-label") }}
-                    {% if form.username.errors %}
-                        {{ form.username(id="username", class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback" id="usernameErr">
-                            {% for error in form.username.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.username(id="username", class="form-control form-control-lg") }}
-						<div class="invalid-feedback" id="usernameErr"></div>
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.password.label(class="form-control-label") }}
-                    {% if form.password.errors %}
-                        {{ form.password(id="password", class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback" id="passwordErr">
-                            {% for error in form.password.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.password(id="password", class="form-control form-control-lg") }}
-						<div class="invalid-feedback" id="passwordErr"></div>
-                    {% endif %}
-                </div>
-                <br>
-            </fieldset>
-            <div class="form-group">
-                <div class="text-right">
-                {{ form.submit(class="btn btn-outline-info") }}
-                </div>
-            </div>
-        </div>
-        </div>
-	</form>
+			<div class="row">
+			<div class='col-md-12'>
+				{{ form.hidden_tag() }} <!Protects against CSRF>
+				 <fieldset class="form-group">
+					<legend class="border-bottom mb-4">Log In</legend>
+					<div class="form-group">
+						{{ form.username.label(class="form-control-label") }}
+						{% if form.username.errors %}
+							{{ form.username(id="username", class="form-control form-control-lg is-invalid") }}
+							<div class="invalid-feedback" id="usernameErr">
+								{% for error in form.username.errors %}
+									{{ error }}
+								{% endfor %}
+							</div>
+						{% else %}
+							{{ form.username(id="username", class="form-control form-control-lg") }}
+							<div class="invalid-feedback" id="usernameErr"></div>
+						{% endif %}
+					</div>
+					<div class="form-group">
+						{{ form.password.label(class="form-control-label") }}
+						{% if form.password.errors %}
+							{{ form.password(id="password", class="form-control form-control-lg is-invalid") }}
+							<div class="invalid-feedback" id="passwordErr">
+								{% for error in form.password.errors %}
+									{{ error }}
+								{% endfor %}
+							</div>
+						{% else %}
+							{{ form.password(id="password", class="form-control form-control-lg") }}
+							<div class="invalid-feedback" id="passwordErr"></div>
+						{% endif %}
+					</div>
+					<br>
+				</fieldset>
+				<div class="form-group">
+					<div class="text-right">
+					{{ form.submit(class="btn btn-outline-info") }}
+					</div>
+				</div>
+			</div>
+			</div>
+		</form>
 
 
-
+	</div>
 
 {% endblock %}
 

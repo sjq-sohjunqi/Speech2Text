@@ -43,12 +43,13 @@ $(document).ready(function(){
 });
 //for context menu
 </script>
+<label class="grouplabel"><span id="sideHead">Sharing transcript</span><br/><span id="sideName">{{ filename }}</span></label>
   <ul class="tabs container-fluid">
         <li>
-            <a href="#tab1"><label id="sidetab1" class="currenttab container-fluid">Share with User</label></a>
+            <a href="#tab1"><label id="sidetab1" class="currenttab container-fluid">Share with Users</label></a>
         </li>
         <li >
-            <a href="#tab2"><label id="sidetab2" class="tabstyle container-fluid">Edit User Permission</label></a>
+            <a href="#tab2"><label id="sidetab2" class="tabstyle container-fluid">Edit Shared Users</label></a>
         </li>
         <li>
             <a href="#tab3"><label id="sidetab3" class="tabstyle container-fluid">Group Sharing</label></a>
@@ -81,7 +82,7 @@ $(document).ready(function(){
 				});
 				
 				// Collapse member rows
-				listgroup(id);
+				listgroup(id, "collapse");
 
 			} else {
 
@@ -105,27 +106,34 @@ $(document).ready(function(){
 
 	};
 	
-	function listgroup(groupid){
-		if($("#group_mems_"+groupid).css('display') === 'none')
-		{
-			// Change icon to collapse
-			var eleId = "#memIcon_" + groupid;
-			$(eleId).attr("src", "{{ url_for('collapse_icon') }}");
-			
-			// Expand
-			$("#group_mems_"+groupid).fadeIn();
-		}
-		else
-		{
+	function listgroup(groupid, func){
+		if (func == "toggle") {
+			if ($("#group_mems_"+groupid).css('display') == 'none') {
+				// Change icon to collapse
+				var eleId = "#memIcon_" + groupid;
+				$(eleId).attr("src", "{{ url_for('collapse_icon') }}");
+				
+				// Expand
+				$("#group_mems_"+groupid).fadeIn();
+			}
+			else {
+				// Change icon to expand
+				var eleId = "#memIcon_" + groupid;
+				$(eleId).attr("src", "{{ url_for('expand_icon') }}");
+				
+				// Collapse
+				$("#group_mems_"+groupid).fadeOut();
+				//$("#group_mems_"+groupid).css("display","none");
+			}
+		} else {
 			// Change icon to expand
 			var eleId = "#memIcon_" + groupid;
 			$(eleId).attr("src", "{{ url_for('expand_icon') }}");
 			
 			// Collapse
 			$("#group_mems_"+groupid).fadeOut();
-			//$("#group_mems_"+groupid).css("display","none");
 		}
-
+		
 	}
 
 	$(document).ready(function() {
@@ -377,7 +385,7 @@ $(document).ready(function(){
 						var row = "<tr class='groupRows' id='" + data[n].group_id +"'>";
 						
 						// Add icon for expanding
-						row += "<td class='memIcon' onclick='listgroup(" + data[n].group_id +");'><img id='memIcon_"+data[n].group_id+"' height='13px' width='15px' src='{{ url_for('expand_icon') }}'/></td>";
+						row += "<td class='memIcon' onclick='listgroup(" + data[n].group_id + ", \"toggle\");'><img id='memIcon_"+data[n].group_id+"' height='13px' width='15px' src='{{ url_for('expand_icon') }}'/></td>";
 						
 						var shared = true;
 						if (data[n].group_perm == "RO") {
@@ -482,8 +490,7 @@ $(document).ready(function(){
 	</script>
 	<br>
 	<div id="tab1" class="tabcontent">
-
-	<h1>Sharing transcript: {{ filename }}</h1>
+	<h2>Share with Users:</h2>
 	<form id="addUserForm" class="container-fluid" action="" method="post" novalidate>
 		<div class="form-group ui-widget">
 		Add User: <input id="username" name="username"></input> <input type="button" class="btn btn-primary" id="select-user" value="Select User">
@@ -511,7 +518,7 @@ $(document).ready(function(){
 	<div id="tab2" class="tabcontent">
 
 
-	<h2>Currently shared with:</h2>
+	<h2>Edit Shared Users:</h2>
 	<form id="EditUserForm" class="container-fluid" action="" method="post" novalidate>
 
 		<p>
@@ -535,6 +542,7 @@ $(document).ready(function(){
 	</div>
 
 	<div id="tab3" class="tabcontent">
+	<h2>Group Sharing:</h2>
 	<form id="addGroupForm" class="container-fluid" action="" method="post" novalidate>
 
 		<p>

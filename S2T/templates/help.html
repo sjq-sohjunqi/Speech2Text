@@ -24,25 +24,22 @@ $(document).ready(function(){
 </script>
  <ul class="tabs container-fluid">
         <li>
-            <a href="#tab1"><label style="line-height: 20px;" class="currenttab container-fluid">What is Speech2Text?</label></a>
+            <a href="#tab1"><label class="currenttab container-fluid">What is Speech2Text?</label></a>
         </li>
         <li>
-            <a href="#tab2"><label style="line-height: 20px;" class="tabstyle container-fluid">Transcribing without account</label></a>
+            <a href="#tab2"><label class="tabstyle container-fluid">Transcribing without account</label></a>
         </li>
         <li>
-            <a href="#tab3"><label style="line-height: 20px;" class="tabstyle container-fluid">Transcribing with account</label></a>
+            <a href="#tab3"><label class="tabstyle container-fluid">Transcribing with account</label></a>
         </li>
 		<li>
-            <a href="#tab4"><label class="tabstyle container-fluid">Your Transcripts</label></a>
+            <a href="#tab4"><label class="tabstyle container-fluid">Transcripts</label></a>
         </li>
 		<li>
             <a href="#tab5"><label class="tabstyle container-fluid">Groups</label></a>
         </li>
 		<li>
             <a href="#tab6"><label class="tabstyle container-fluid">Sharing Transcripts</label></a>
-        </li>
-		<li>
-            <a href="#tab7"><label class="tabstyle container-fluid">Shared Transcripts</label></a>
         </li>
 		
 </ul>
@@ -66,11 +63,11 @@ $(document).ready(function(){
 		color: #DC3545;
 	}
 	
-	table, th, td {
+	.table_ele, .table_ele_head, .table_ele_content {
 		border: 1px solid black;
 	}
 	
-	th, td {
+	.table_ele_head, .table_ele_content {
 		padding: 10px;
 	}
 	
@@ -151,15 +148,39 @@ $(document).ready(function(){
 	</div>
 	
 	<div id="tab4" class="tabcontent">
-		<h1 class="desc">Your Transcripts</h1>
+		<h1 class="desc">Transcripts</h1>
 		<p class="desc" style="font-style:italic;">Note: This feature is only available to users who have an account</p>
-		<p class="desc">Users are able to view and edit their own transcripts.</p>
+		<p class="desc">Users are able to view and edit their own transcripts as well as transcripts that are shared with them.</p> 
 		
 		<hr/>
 		
+		<h2 class="desc" id="func_shortcuts_tran" style="color: #DC3545">Function shortcuts</h2>
+		
+		<p>Function shortcuts are available to provide more convenience for users. To do this, simply <b style="color: #DC3545">right-click</b> on the transcript that you wish to perform the function on and select the desired function.</p>
+		
+		<p style="font-style: italic">*Certain functions will not be displayed if you are not authorised to perform them</p>
+		
+		<hr/>
+		
+		<h1 class="desc">Your Transcripts</h1>
+		
+		<p><a class="shortcut_link" href="#func_shortcuts_tran">A shortcut is available for this function</a></p>
+		
 		<p><span class='number_list'>1</span> Go to the transcripts page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="transcripts_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
-		<p><span class='number_list'>2</span> Your transcripts will shown within the table. Each of your transcripts will have the following functions beside them: <img height='35px' width='140px' src='{{ url_for("help_img", image="trans_func.jpg")}}'></p>
+		<p><span class='number_list'>2</span> Your transcripts will shown. Each of your transcripts will have the following functions beside them: <img height='35px' width='140px' src='{{ url_for("help_img", image="trans_func.jpg")}}'></p>
+		
+		<hr/>
+		
+		<h1 class="desc">Shared Transcripts</h1>
+		
+		<p><a class="shortcut_link" href="#func_shortcuts_tran">A shortcut is available for this function</a></p>
+		
+		<p><span class='number_list'>1</span> Go to the transcripts page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="transcripts_icon.jpg") }}'> icon on the navigation bar above.</p>
+		
+		<p><span class='number_list'>2</span> Click on the <img height='30px' width='130px' src='{{ url_for("help_img", image="shared_with_you.jpg") }}'> sidebar tab. </p>
+		
+		<p><span class='number_list'>3</span> Your transcripts will shown within the table. Each of your transcripts will have functions beside them, depending on the permissions shared with you: <img height='35px' width='140px' src='{{ url_for("help_img", image="trans_func.jpg")}}'></p>
 		
 	</div>
 	
@@ -172,34 +193,34 @@ $(document).ready(function(){
 		
 			<table class="table_ele">
 				<tr>
-					<th></th>
-					<th>Owner</th>
-					<th>Leaders</th>
-					<th>Members</th>
+					<th class="table_ele_head"></th>
+					<th class="table_ele_head">Owner</th>
+					<th class="table_ele_head">Leaders</th>
+					<th class="table_ele_head">Members</th>
 				</tr>
 				<tr>
-					<td><b>Access Group Transcripts</b><br/><span style="font-style: italic">(if given permission)</span></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"><b>Access Group Transcripts</b><br/><span style="font-style: italic">(if given permission)</span></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
 				</tr>
 				<tr>
-					<td><b>Add/Remove Users</b></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td></td>
+					<td class="table_ele_content"><b>Add/Remove Users</b></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"></td>
 				</tr>
 				<tr>
-					<td><b>Modify User Roles</b></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td></td>
+					<td class="table_ele_content"><b>Modify User Roles</b></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"></td>
 				</tr>
 				<tr>
-					<td><b>Delete Group</b></td>
-					<td><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
-					<td></td>
-					<td></td>
+					<td class="table_ele_content"><b>Delete Group</b></td>
+					<td class="table_ele_content"><img height="25px" width="25px" src="{{ url_for('help_img', image='tick.png')}}"></td>
+					<td class="table_ele_content"></td>
+					<td class="table_ele_content"></td>
 				</tr>
 			</table>
 		</div>
@@ -218,7 +239,7 @@ $(document).ready(function(){
 		
 		
 		<hr/>
-		<h2 class="desc" id="func_shortcuts" style="color: #DC3545">Function shortcuts</h2>
+		<h2 class="desc" id="func_shortcuts_group" style="color: #DC3545">Function shortcuts</h2>
 		
 		<p>Function shortcuts are available to provide more convenience for users. To do this, simply <b style="color: #DC3545">right-click</b> on the group that you wish to perform the function on and select the desired function.</p>
 		
@@ -235,7 +256,7 @@ $(document).ready(function(){
 		<hr/>
 		<h2 class="desc">Deleting a group</h2>
 		
-		<p><a class="shortcut_link" href="#func_shortcuts">A shortcut is available for this function</a></p>
+		<p><a class="shortcut_link" href="#func_shortcuts_group">A shortcut is available for this function</a></p>
 		
 		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
@@ -244,7 +265,7 @@ $(document).ready(function(){
 		<hr/>
 		<h2 class="desc">Adding users into groups</h2>
 		
-		<p><a class="shortcut_link" href="#func_shortcuts">A shortcut is available for this function</a></p>
+		<p><a class="shortcut_link" href="#func_shortcuts_group">A shortcut is available for this function</a></p>
 		
 		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
@@ -261,7 +282,7 @@ $(document).ready(function(){
 		<hr/>
 		<h2 class="desc">Changing user roles</h2>
 		
-		<p><a class="shortcut_link" href="#func_shortcuts">A shortcut is available for this function</a></p>
+		<p><a class="shortcut_link" href="#func_shortcuts_group">A shortcut is available for this function</a></p>
 		
 		<p><span class='number_list'>1</span> Go to the Groups page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="groups_icon.jpg") }}'> icon on the navigation bar above.</p>
 		
@@ -295,7 +316,17 @@ $(document).ready(function(){
 	
 	<hr/>
 	
+	<h2 class="desc" id="func_shortcuts_tran_share" style="color: #DC3545">Function shortcuts</h2>
+		
+		<p>Function shortcuts are available to provide more convenience for users. To do this, simply <b style="color: #DC3545">right-click</b> on the transcript that you wish to perform the function on and select the desired function.</p>
+		
+		<p style="font-style: italic">*Certain functions will not be displayed if you are not authorised to perform them</p>
+		
+	<hr/>
+	
 	<h2 class="desc">Sharing with users</h2>
+	
+	<p><a class="shortcut_link" href="#func_shortcuts_tran_share">A shortcut is available for this function</a></p>
 	
 	<p><span class='number_list'>1</span> Go to the transcripts page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="transcripts_icon.jpg") }}'> icon on the navigation bar above.</p>
 	
@@ -309,13 +340,37 @@ $(document).ready(function(){
 	
 	<hr/>
 	
-	<h2 class="desc">Sharing with groups</h2>
+	<h2 class="desc">Changing shared users</h2>
+	
+	<p><a class="shortcut_link" href="#func_shortcuts_tran_share">A shortcut is available for this function</a></p>
 	
 	<p><span class='number_list'>1</span> Go to the transcripts page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="transcripts_icon.jpg") }}'> icon on the navigation bar above.</p>
 	
 	<p><span class='number_list'>2</span> Click on the <img height='35px' width='55px' src='{{ url_for("help_img", image="share_btn.jpg") }}'> button of the transcript you want to share.</p>
 	
-	<p><span class='number_list'>3</span> Under the <img height='35px' width='120px' src='{{ url_for("help_img", image="group_share_tab.jpg") }}'> sidebar tab, </p>
+	<p><span class='number_list'>3</span> Select the permission of the user using the dropdown menu <img height='80px' width='100px' src='{{ url_for("help_img", image="user_perm.jpg")}}'></p>
+	
+	<p><span class='number_list'>4</span> Click on <img height='35px' width='80px' src='{{ url_for("help_img", image="save_chg.jpg") }}'> button to save your changes.</p>
+	
+	<hr/>
+	
+	<h2 class="desc">Sharing with groups</h2>
+	
+	<p><a class="shortcut_link" href="#func_shortcuts_tran_share">A shortcut is available for this function</a></p>
+	
+	<p style="font-style: italic" class="desc">Note: Users are only allowed to share transcripts within groups they are in</p>
+	
+	<p><span class='number_list'>1</span> Go to the transcripts page using the <img height='45px' width='80px' src='{{ url_for("help_img", image="transcripts_icon.jpg") }}'> icon on the navigation bar above.</p>
+	
+	<p><span class='number_list'>2</span> Click on the <img height='35px' width='55px' src='{{ url_for("help_img", image="share_btn.jpg") }}'> button of the transcript you want to share.</p>
+	
+	<p><span class='number_list'>3</span> Under the <img height='35px' width='120px' src='{{ url_for("help_img", image="group_share_tab.jpg") }}'> sidebar tab, select and change the desired share permissions from the dropdown menu of each group <img height='90px' width='100px' src='{{ url_for("help_img", image="group_perm.jpg") }}'></p>
+	
+	<p><span class='number_list'>4</span> (Optional) If you wish to do so, you can also click on <img height='35px' width='35px' src='{{ url_for("help_img", image="expand_icon.jpg") }}'> to view the members within each group and change their individual permissions.
+	
+	<p><span class='number_list'>5</span> (Optional) If you wish to do so, you can also change whether leaders and owners are given permission to share the transcript using the dropdown menu <img height='100px' width='80px' src='{{ url_for("help_img", image="leader_share.jpg") }}'>
+
+	<p><span class='number_list'>6</span> Click on <img height='35px' width='80px' src='{{ url_for("help_img", image="save_chg.jpg") }}'> button to save your changes.</p>
 	
 	
 	</div>

@@ -1,5 +1,17 @@
 {% extends "base.html" %}
+{% block subtab %}
+	<ul class="tabs container-fluid">
+        <li>
+            <a href="#tab1"><label  id="sidetab1" class="currenttab container-fluid">Profile</label></a>
+        </li>
+        <li>
+            <a href="#tab2"><label  id="sidetab2" class="tabstyle container-fluid">Change Password</label></a>
+        </li>
+		
+	</ul>
 
+
+{% endblock %}
 {% block content %}
 	
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -103,6 +115,38 @@
 			
 		}
 		
+		function validatePass() {
+			var passText = $('#oldpass-box').val();
+			var newpassText = $('#newpass-box').val();
+			var vPass = false;
+			var vNPass = false;
+			
+			if (passText == "") {
+				$('#oldpass-box').addClass('is-invalid');
+				$('#oldpassErr').html('Old password cannot be empty');
+			} else {
+				$('#oldpass-box').removeClass('is-invalid');
+				$('#oldpassErr').html('');
+				vPass = true;
+			}
+			
+			if (newpassText == "") {
+				$('#newpass-box').addClass('is-invalid');
+				$('#newpassErr').html('New password cannot be empty');
+			} else {
+				$('#newpass-box').removeClass('is-invalid');
+				$('#newpassErr').html('');
+				vNPass = true;
+			}
+			
+			if (vNPass && vPass) {
+				return true;
+			} else {
+				return false;
+			}
+			
+		}
+		
 		$(document).ready(function() {
 			
 			// Get the modal
@@ -125,119 +169,162 @@
 				modal.style.display = "none";
 			});
 			
+			
+			//for subtabs
+		  $('.tabs a').click(function(event) {
+			event.preventDefault();
+
+			// Toggle active class on tab buttons
+			$(this).children().removeClass("tabstyle");
+			$(this).children().addClass("currenttab");
+			$(this).parent().siblings().children().children().removeClass("currenttab");
+			$(this).parent().siblings().children().children().addClass("tabstyle");
+
+			// display only active tab content
+			var activeTab = $(this).attr("href");
+			$('.tabcontent').not(activeTab).css("display","none");
+			$(activeTab).fadeIn();
+
+		  });
+		
+		var tabs = "{{tabs}}";
+		//end of subtabs
+		  if("{{tabs}}" == "1"){
+				$('#tab1').fadeIn();
+
+			}else if("{{tabs}}" == "2"){
+				$('.tabcontent').not('tab1').css("display","none");
+				$('#tab2').fadeIn();
+				$('#sidetab1').removeClass("currenttab");
+				$('#sidetab1').addClass("tabstyle");
+				$('#sidetab2').removeClass("tabstyle");
+				$('#sidetab2').addClass("currenttab");
+			}
+			
+			
+			
 		});
 		
 	</script>
 	
 	
-	<div class="content-section">
-	<br/>
+	<!-- <div class="content-section"> -->
+	<!-- <br/> -->
 	
-	<div class="image-upload">
-		<img id="img" src="{{ picture }}" />
-		<br/>
-		<form action="" method="post" onsubmit="return validateName()" novalidate>
-		{% if nameform.newname.errors %}
-                {{ nameform.newname(class="form-control form-control-lg is-invalid") }}
-                <div id="nameErr" class="invalid-feedback">
-                    {% for error in nameform.newname.errors %}
-                        <span>{{ error }}</span>
-                    {% endfor %}
-                </div><img id="save_icon" class="profile_icons" src="{{ save_icon }}" onclick="saveName()"/>
-        {% else %}
-			<span id="profile_name">{{ session['NAME'] }}</span>  {{ nameform.newname(id="name-box", class="form-control form-control-lg", style="display:none") }}<div id="nameErr" class="invalid-feedback"></div><span id="name_functions"><img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeName()"/></span>
-        {% endif %}
-		{{ nameform.hidden_tag() }} <!Protects against CSRF>
-		{{ nameform.chg_name(id="name-btn", style="display:none;") }}
-		</form>
-		
-		<br/>
-		
-		<form action="" method="post" enctype="multipart/form-data" novalidate>
-			{{ uploadImageForm.hidden_tag() }} <!Protects against CSRF>
-		
-			{{ uploadImageForm.img(id="imgfile", class="imgfile", onchange="form.submit()") }}
-			{{ uploadImageForm.img.label(class="btn btn-danger", for="imgfile", id="imgfilelabel") }}
+	<div id="tab1" class="tabcontent">
+	
+		<div class="image-upload">
+			<img id="img" src="{{ picture }}" />
+			<br/>
+			<form action="" method="post" onsubmit="return validateName()" novalidate>
+			{% if nameform.newname.errors %}
+					{{ nameform.newname(class="form-control form-control-lg is-invalid") }}
+					<div id="nameErr" class="invalid-feedback">
+						{% for error in nameform.newname.errors %}
+							<span>{{ error }}</span>
+						{% endfor %}
+					</div><img id="save_icon" class="profile_icons" src="{{ save_icon }}" onclick="saveName()"/>
+			{% else %}
+				<span id="profile_name">{{ session['NAME'] }}</span>  {{ nameform.newname(id="name-box", class="form-control form-control-lg", style="display:none") }}<div id="nameErr" class="invalid-feedback"></div><span id="name_functions"><img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeName()"/></span>
+			{% endif %}
+			{{ nameform.hidden_tag() }} <!Protects against CSRF>
+			{{ nameform.chg_name(id="name-btn", style="display:none;") }}
+			</form>
 			
-			<input type="hidden" name="chg_img" value="chg_img">
+			<br/>
 			
-			{% for error in uploadImageForm.img.errors %}
-			<br/><label style="color: red;">{{ error }}</label>
-			{% endfor %}
+			<form action="" method="post" enctype="multipart/form-data" novalidate>
+				{{ uploadImageForm.hidden_tag() }} <!Protects against CSRF>
 			
-		</form>
-	</div>
-	
-	<!--Modal for image-->
-	<div id="myModal" class="modal">
-
-		<!-- The Close Button -->
-		<span class="close">&times;</span>
-
-		<!-- Modal Content (The Image) -->
-		<img class="modal-content" id="img01">
-		
-	</div>
-	<!--Modal for image-->
-	
-	<br/>
-	
-	<div id="profile-text-div">
-		<form action="" method="post" onsubmit="return validateWorksAt()" novalidate>
-			<span class="profile_headers" id="works_as_header">Works At:  <span id="works_at_area">{%if works_at%}{{works_at}}{%endif%}</span><span id="wa_functions">  <img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeWA()"/></span></span>
-			{{changeworksatform.works_at(id="wa-box", class="form-control form-control-lg", style="display:none;")}}
-			<div id="waErr" class="invalid-feedback"></div>
-			{{ changeworksatform.chg_wa(id="works-as-btn", style="display:none") }}
-			{{ changeworksatform.hidden_tag() }} <!Protects against CSRF>
-		</form>
-		
-		<hr/>
-		<span class="profile_headers">Biography</span>  <span id="bio_functions"><img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeBio()"/></span>
-		
-		<form action="" method="post" onsubmit="return validateBio()" novalidate>
-			{{ changebioform.hidden_tag() }} <!Protects against CSRF>
-			<div id="bio_area">{%if bio%}{{bio}}{%endif%}</div>
-			
-			{{ changebioform.bio(id="bio-box", class="container-fluid", style="border-radius: 25px; display:none;") }}
-			<div id="bioErr" class="invalid-feedback"></div>
-			{{ changebioform.chg_bio(id="bio-btn", style="display:none") }}
-		</form>
-	</div>
-	<hr/>
-	
-	<form action="" method="post" novalidate>
-		{{ passform.hidden_tag() }} <!Protects against CSRF>
-		<p class="profile_headers">Change Password</p>
-		<div class="form-group">
-			{{ passform.oldpass.label(class="form-control-label") }}
-			 {% if passform.oldpass.errors %}
-                {{ passform.oldpass(class="form-control form-control-lg is-invalid") }}
-                <div class="invalid-feedback">
-                    {% for error in passform.oldpass.errors %}
-                        <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-            {% else %}
-                {{ passform.oldpass(class="form-control form-control-lg") }}
-            {% endif %}
+				{{ uploadImageForm.img(id="imgfile", class="imgfile", onchange="form.submit()") }}
+				{{ uploadImageForm.img.label(class="btn btn-danger", for="imgfile", id="imgfilelabel") }}
+				
+				<input type="hidden" name="chg_img" value="chg_img">
+				
+				{% for error in uploadImageForm.img.errors %}
+				<br/><label style="color: red;">{{ error }}</label>
+				{% endfor %}
+				
+			</form>
 		</div>
-		<div class="form-group">
-			{{ passform.newpass.label(class="form-control-label") }}
-			 {% if passform.newpass.errors %}
-                {{ passform.newpass(class="form-control form-control-lg is-invalid") }}
-                <div class="invalid-feedback">
-                    {% for error in passform.newpass.errors %}
-                        <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-            {% else %}
-                {{ passform.newpass(class="form-control form-control-lg") }}
-            {% endif %}
-		</div>
-		<p>{{ passform.chg_passwd(class="btn btn-outline-info") }}</p>
-	</form>
+		
+		<!--Modal for image-->
+		<div id="myModal" class="modal">
 
+			<!-- The Close Button -->
+			<span class="close">&times;</span>
+
+			<!-- Modal Content (The Image) -->
+			<img class="modal-content" id="img01">
+			
+		</div>
+		<!--Modal for image-->
+		
+		<br/>
+		
+		<div id="profile-text-div">
+			<form action="" method="post" onsubmit="return validateWorksAt()" novalidate>
+				<span class="profile_headers" id="works_as_header">Works At:  <span id="works_at_area">{%if works_at%}{{works_at}}{%endif%}</span><span id="wa_functions">  <img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeWA()"/></span></span>
+				{{changeworksatform.works_at(id="wa-box", class="form-control form-control-lg", style="display:none;")}}
+				<div id="waErr" class="invalid-feedback"></div>
+				{{ changeworksatform.chg_wa(id="works-as-btn", style="display:none") }}
+				{{ changeworksatform.hidden_tag() }} <!Protects against CSRF>
+			</form>
+			
+			<hr/>
+			<span class="profile_headers">Biography</span>  <span id="bio_functions"><img id="edit_icon" class="profile_icons" src="{{ edit_icon }}" onclick="changeBio()"/></span>
+			
+			<form action="" method="post" onsubmit="return validateBio()" novalidate>
+				{{ changebioform.hidden_tag() }} <!Protects against CSRF>
+				<div id="bio_area">{%if bio%}{{bio}}{%endif%}</div>
+				
+				{{ changebioform.bio(id="bio-box", class="container-fluid", style="border-radius: 25px; display:none;") }}
+				<div id="bioErr" class="invalid-feedback"></div>
+				{{ changebioform.chg_bio(id="bio-btn", style="display:none") }}
+			</form>
+		</div>
+	
 	</div>
+	
+	<div id="tab2" class="tabcontent">
+	
+		<form action="" method="post"  onsubmit="return validatePass()"  novalidate>
+			{{ passform.hidden_tag() }} <!Protects against CSRF>
+			<p class="profile_headers">Change Password</p>
+			<div class="form-group">
+				{{ passform.oldpass.label(class="form-control-label") }}
+				 {% if passform.oldpass.errors %}
+					{{ passform.oldpass(id="oldpass-box", class="form-control form-control-lg is-invalid") }}
+					<div id="oldpassErr" class="invalid-feedback">
+						{% for error in passform.oldpass.errors %}
+							<span>{{ error }}</span>
+						{% endfor %}
+					</div>
+				{% else %}
+					{{ passform.oldpass(id="oldpass-box", class="form-control form-control-lg") }}
+					<div id="oldpassErr" class="invalid-feedback">gg</div>
+				{% endif %}
+			</div>
+			<div class="form-group">
+				{{ passform.newpass.label(class="form-control-label") }}
+				 {% if passform.newpass.errors %}
+					{{ passform.newpass(id="newpass-box", class="form-control form-control-lg is-invalid") }}
+					<div id="newpassErr" class="invalid-feedback">
+						{% for error in passform.newpass.errors %}
+							<span>{{ error }}</span>
+						{% endfor %}
+					</div>
+				{% else %}
+					{{ passform.newpass(id="newpass-box", class="form-control form-control-lg") }}
+					<div id="newpassErr" class="invalid-feedback"></div>
+				{% endif %}
+			</div>
+			<p>{{ passform.chg_passwd(class="btn btn-outline-info") }}</p>
+		</form>
+	
+	</div>
+	
+	<!-- </div> -->
 
 
 {% endblock %}

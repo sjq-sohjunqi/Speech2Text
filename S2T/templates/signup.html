@@ -136,9 +136,15 @@
 			}
 			
         </script>
+		
+		
+	<div id="no_side_centerised">
+		
+		<br/>
+		
 		<form action="" method="post" enctype="multipart/form-data" onsubmit="return validateRegistration()" novalidate>
         <div class="row">
-        <div class='col-md-5'>
+        <div class='col-md-12'>
 			{{ form.hidden_tag() }} <!Protects against CSRF>
 			 <fieldset class="form-group">
                 <legend class="border-bottom mb-4">Sign Up</legend>
@@ -219,5 +225,7 @@
 
 
 		</form>
+		
+	</div>
 {% endblock %}
 

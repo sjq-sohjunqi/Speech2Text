@@ -362,21 +362,10 @@ $("#crossinfo").click(function () {
 {% endblock %}
 {% block content %}
     <div id="tab2" class="tabcontent">
-	<h1>Create New Group:</h1>
+	<h2>Create New Group:</h2>
 
 	<form action="" method="post" enctype="multipart/form-data" novalidate>
-		<!-- old
-		{{ groupform.hidden_tag() }} <!Protects against CSRF>
-		<p>
-			{{ groupform.grpname.label }}<br>
-			{{ groupform.grpname(size=32) }}<br>
-			{% for error in groupform.grpname.errors %}
-			<span style="color: red;">[{{ error }}]</span>
-			{% endfor %}
-		</p>
-
-		<p>{{ groupform.add() }}</p>
-		-->
+		
 	{{ groupform.hidden_tag() }}
 	<div class="row">
 	<div class="form-group col-md-4">
@@ -477,40 +466,6 @@ $("#crossinfo").click(function () {
     </div>
     </div>
 
-    <div id="tab3" class="tabcontent">
-        <ul class="tasks">
-        <li class="task" data-id="3">
-          <div class="task__content">
-            Go To Grocery
-          </div>
-          <div class="task__actions">
-            <i class="fa fa-eye"></i>
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-times"></i>
-          </div>
-        </li>
-        <li class="task" data-id="2">
-          <div class="task__content">
-            Type Some Code
-          </div>
-          <div class="task__actions">
-            <i class="fa fa-eye"></i>
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-times"></i>
-          </div>
-        </li>
-        <li class="task" data-id="1">
-          <div class="task__content">
-            Build An App
-          </div>
-          <div class="task__actions">
-            <i class="fa fa-eye"></i>
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-times"></i>
-          </div>
-        </li>
-      </ul>
-    </div>
  <nav id="context-menu" class="context-menu">
     <ul class="context-menu__items">
       <li class="context-menu__item">
@@ -542,7 +497,7 @@ $("#crossinfo").click(function () {
   </nav>
 
 {% endblock %}
-{% block infotab %}
+<!-- {% block infotab %}
 <div class="container-fluid">
 <div class="row">
     <div class="infoheader col">Information: </div>
@@ -550,4 +505,4 @@ $("#crossinfo").click(function () {
 </div>
 </div>
 <p>test</p>
-{% endblock %}
+{% endblock %} -->
