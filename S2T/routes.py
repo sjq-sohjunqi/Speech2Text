@@ -718,28 +718,31 @@ def getUPerm(filename, owner, user):
 			uShare = Shared_transcripts.query.filter_by(name=filename, owner=owner, username=user).first()
 			if uShare:
 				perm = uShare.permission
-			else:
-				'''Check if shared with user's group'''
-				gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner).all()
-				for gs in gShare:
-					'''Check if user is in any group'''
-					uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
-					if uGrp:
-						'''Check for any special permissions under the group'''
-						gsd = Group_share_details.query.filter_by(gst_id=gs.share_id, username=user).first()
-						if gsd:
-							'''Use highest permission'''
-							if gsd.permission == 'RW':
-								perm = 'RW'
-							elif gsd.permission == 'RO':
-								if perm != 'RW':
-									perm = 'RO'
-							else:
-								if (perm != 'RO') or (perm != 'RW'):
-									perm = 'NS'
-						else:
-							'''Use group permission'''
-							perm = gs.permission
+			
+			'''Check if shared with user's group'''
+			gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner).all()
+			for gs in gShare:
+				'''Store group perm'''
+				gPerm = gs.permission
+				
+				'''Check if user is in any group'''
+				uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
+				if uGrp:
+					'''Check for any special permissions under the group'''
+					gsd = Group_share_details.query.filter_by(gst_id=gs.share_id, username=user).first()
+					if gsd:
+						'''Override group permission'''
+						gPerm = gsd.permission
+						
+				
+				'''Check if current or group permission higher'''
+				if gPerm == 'RW':
+					perm = 'RW'
+				elif gPerm == 'RO':
+					if perm != 'RW':
+						perm = 'RO'
+				
+		
 		return perm
 	except IntegrityError as e:
 		print(e)
@@ -760,7 +763,7 @@ def view(owner, filename):
 		shared = False
 
 		uPerm = getUPerm(filename, owner, user)
-
+		print(uPerm)
 		if (uPerm == 'RO') or (uPerm == 'RW'):
 			shared = True
 
@@ -952,6 +955,7 @@ def edit(owner, old_filename):
 			shared = True
 
 		if shared == False:
+			print(uPerm)
 			flash('Transcript is not shared with you!','warning')
 			return redirect(url_for('list_transcripts'))
 
@@ -1324,34 +1328,74 @@ def get_group_mems():
 
 	return jsonify(list_mems)
 
+
+'''Check if user is allowed to share transcript'''
+def checkSharing(filename, owner, username):
+	'''if username is owner, allowed to share'''
+	allowShare = False
+	if username == owner:
+		allowShare = True
+	else:
+		'''Check for all groups file is share under'''
+		try:
+			
+			gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner).all()
+			for gs in gShare:
+				'''Check if leaders and owners are allowed to share'''
+				if gs.allow_share == 'Y':
+					'''Check if user is part of group'''
+					gr = Group_roles.query.filter_by(group_id=gs.group_id, username=username).first()
+					if gr.role == 'owner' or gr.role == 'leader':
+						allowShare = True
+						break
+			
+			
+		except IntegrityError as e:
+			print(e)
+	
+	return allowShare
+
+
 @S2T.route('/share/<string:owner>/<string:filename>/<int:tabs>', methods=['GET', 'POST'])
 def share(owner, filename, tabs):
 
 	'''Check if logged in'''
 	if not session.get('USER') is None:
 		
+		user = session.get('USER')
+		
 		'''Check if transcript exists'''
 		transObj = Transcripts.query.filter_by(username=owner, name=filename).first()
 		if transObj:
 			'''Check if transcript is locked'''
 			if transObj.locked == 'N':
-		
-				'''Get list of users already shared'''
-				shared_usernames = []
-				shared_names = {}
-				try:
-					sharedObj = Shared_transcripts.query.filter_by(owner=owner, name=filename).all()
-					
-					for su in sharedObj:
-						shared_usernames.append(su.username)
+				
+				
+				'''Check if user is given permission to share'''
+				allowedShare = checkSharing(filename, owner, user)
+				if allowedShare:
+				
+					'''Get list of users already shared'''
+					shared_usernames = []
+					shared_names = {}
+					try:
+						sharedObj = Shared_transcripts.query.filter_by(owner=owner, name=filename).all()
+						
+						for su in sharedObj:
+							shared_usernames.append(su.username)
 
-						userObj = User.query.filter_by(username=su.username).first()
-						shared_names[su.username] = userObj.name
+							userObj = User.query.filter_by(username=su.username).first()
+							shared_names[su.username] = userObj.name
 
-				except IntegrityError as e:
-					print(e)
+					except IntegrityError as e:
+						print(e)
 
-				return render_template('share_transcript.html', title='Sharing transcript', owner=owner, filename=filename, shared_names=shared_names, shared_usernames=shared_usernames, tabs=tabs, navActive='transcripts')
+					return render_template('share_transcript.html', title='Sharing transcript', owner=owner, filename=filename, shared_names=shared_names, shared_usernames=shared_usernames, tabs=tabs, navActive='transcripts')
+				
+				else:
+					flash('You are not authorised to share this transcript', 'danger')
+					return redirect(url_for('list_transcripts'))
+				
 				
 			else:
 				flash('Transcript is locked! Someone else is currently editing the document!', 'warning')
