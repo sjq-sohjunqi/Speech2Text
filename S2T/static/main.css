@@ -537,9 +537,15 @@ color:#000000;
         min-height: 200px;
         position: relative;
         display: inline-block;
-
     }
 
+@import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@400;700&display=swap');
+
+    .icontitle{
+        font-size: 20px;
+        font-family: Oxygen;
+
+    }
 
     .card .img-top {
         display: none;
