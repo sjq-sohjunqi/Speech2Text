@@ -60,17 +60,17 @@
 					$('#nav-home').css("color", "red");
 				} else if (navActive == 'transcribe') {
 					$('#nav-transcribe').addClass('navitemactive');
-					
+
 					// Disable sidebar
 					$(".sidebar").css("display", "none");
-					
-					
+
+
 				} else if (navActive == 'groups') {
 					$('#nav-groups').addClass('navitemactive');
 				} else if (navActive == 'transcripts') {
 					$('#nav-transcripts').addClass('navitemactive');
 				}
-				
+
 				if (sidebar == 'removed') {
 					// Disable sidebar
 					$(".sidebar").css("display", "none");
@@ -125,9 +125,9 @@
               		<li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Log In</a></li>
               		<li class="nav-item"><a class="nav-link" href="{{ url_for('signup') }}">Register</a></li>
               	{% endif %}
-				
+
 				<li class="nav-item" id="help_icon"><a href="{{url_for('help')}}"><img height="20px" width="20px" src="{{url_for('help_icon')}}"/></a></li>
-				
+
 		    </ul>
 		  </div>
 

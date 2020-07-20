@@ -268,17 +268,17 @@
 .navbar-custom{
     /*background-color: #25274d;*/
     border-bottom: 1px solid #AAABB8;
-	
+
 	min-width: 10px;
-	
+
 }
 
 #navbarContent{
     padding-left: 3%;
-	
-	
+
+
 	min-width: 10px;
-	
+
 }
 
 .content-section{
@@ -306,19 +306,19 @@
 .currenttab{
     height: 40px;
 	width: 180px;
-	
+
 	font-size: medium;
 	color:#0065f2;
 	background-color: #9cc0f7;
-  
+
 	/* line-height: 38px; */
 	line-height: 20px;
 	/*padding-top: 10px; */
-	
-	
-	vertical-align:middle; 
+
+
+	vertical-align:middle;
 	display:table-cell;
-	
+
 	border-radius: 20px;
 }
 
@@ -355,21 +355,21 @@ ul.tabs li
     color: #AAABB8;
     /* min-height: 40px; */
     font-size: medium;
-    
+
 	/* line-height: 37px; */
-    
+
 	/* line-height: 20px;
 	padding-top: 10px; */
-	
-	
+
+
 	height: 40px;
 	width: 180px;
-	
-	
+
+
 	/* text-align:center; */
-	vertical-align:middle; 
+	vertical-align:middle;
 	display:table-cell;
-	
+
 	cursor: pointer;
 }
 
@@ -392,7 +392,7 @@ color:#000000;
 	margin-top: 0;
 	font-size: 25px;
     font-weight: bold;
-	
+
 }
 
 .grouplabel {
@@ -418,7 +418,7 @@ color:#000000;
 .memHeader {
 	padding-bottom: 10px;
 	font-size: 20px;
-	
+
 	color: lightslategray;
 }
 
@@ -531,3 +531,20 @@ color:#000000;
   color: #fff;
   background-color: #0066aa;
 }
+
+  .card {
+        width: 100px;
+        height: 100px;
+        position: relative;
+        display: inline-block;
+    }
+    .card .img-top {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 99;
+    }
+    .card:hover .img-top {
+        display: inline;
+    }

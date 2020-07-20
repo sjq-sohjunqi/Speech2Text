@@ -201,6 +201,16 @@ def logo():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
 	return send_from_directory(filepath, 'logo.png')
 
+@S2T.route('/transcribeB4', methods=['GET'])
+def transcribeB4():
+    filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+    return send_from_directory(filepath, 'transcribeB4.png')
+
+@S2T.route('/transcribeAF', methods=['GET'])
+def transcribeAF():
+    filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+    return send_from_directory(filepath, 'transcribeAF.png')
+
 @S2T.route('/load_icon', methods=['GET'])
 def load_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
@@ -216,17 +226,17 @@ def grid_icon():
 def list_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
 	return send_from_directory(filepath, 'list_icon.png')
-	
+
 @S2T.route('/expand_icon', methods=['GET'])
 def expand_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
 	return send_from_directory(filepath, 'expand_icon.png')
-	
+
 @S2T.route('/collapse_icon', methods=['GET'])
 def collapse_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
 	return send_from_directory(filepath, 'collapse_icon.png')
-	
+
 @S2T.route('/help_icon', methods=['GET'])
 def help_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
@@ -365,7 +375,7 @@ def profile():
 						'''Change password'''
 						db.session.commit()
 						flash('Password changed successfully!','success')
-						
+
 						return render_template('profile.html', name=name, bio=bio, works_at=works_at, title=name + '\'s Page', picture=picture, passform=passform, nameform=nameform, uploadImageForm=uploadImageForm, changeworksatform=changeworksatform, changebioform=changebioform, save_icon=save_icon, edit_icon=edit_icon, tabs=2)
 					except IntegrityError as e:
 						'''Error'''
@@ -460,7 +470,7 @@ def convert(filepath, filename, language):
                 transcript_2 += result.alternatives[1].transcript
             elif (len(result.alternatives) == 1):
                 transcript_1 += result.alternatives[0].transcript
-			
+
         transcript.append(transcript_1)
         transcript.append(transcript_2)
         transcript.append(transcript_3)
@@ -565,12 +575,12 @@ def transcribe():
 			flash('Audio Transcribed!','success')
 
 		if session.get('USER') is None:
-		
+
 			return render_template('transcribe.html', title='Transcribe', transcribeForm=transcribeForm, transcriptForm=transcriptForm, transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_filename=filename, navActive='transcribe')
 		else:
-			
+
 			print("here")
-			
+
 			return render_template('transcribe.html', title='Transcribe',transcribeForm=transcribeForm, transcriptForm=transcriptForm, user=session.get('USER'), transcript_1=transcription[0], transcript_2=transcription[1], transcript_3=transcription[2], audio_filename=filename, navActive='transcribe')
 
 	'''Check if transcript has previously written data'''
@@ -718,13 +728,13 @@ def getUPerm(filename, owner, user):
 			uShare = Shared_transcripts.query.filter_by(name=filename, owner=owner, username=user).first()
 			if uShare:
 				perm = uShare.permission
-			
+
 			'''Check if shared with user's group'''
 			gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner).all()
 			for gs in gShare:
 				'''Store group perm'''
 				gPerm = gs.permission
-				
+
 				'''Check if user is in any group'''
 				uGrp = Group_roles.query.filter_by(group_id=gs.group_id, username=user).first()
 				if uGrp:
@@ -733,16 +743,16 @@ def getUPerm(filename, owner, user):
 					if gsd:
 						'''Override group permission'''
 						gPerm = gsd.permission
-						
-				
+
+
 				'''Check if current or group permission higher'''
 				if gPerm == 'RW':
 					perm = 'RW'
 				elif gPerm == 'RO':
 					if perm != 'RW':
 						perm = 'RO'
-				
-		
+
+
 		return perm
 	except IntegrityError as e:
 		print(e)
@@ -1338,7 +1348,7 @@ def checkSharing(filename, owner, username):
 	else:
 		'''Check for all groups file is share under'''
 		try:
-			
+
 			gShare = Group_shared_transcripts.query.filter_by(name=filename, owner=owner).all()
 			for gs in gShare:
 				'''Check if leaders and owners are allowed to share'''
@@ -1348,11 +1358,11 @@ def checkSharing(filename, owner, username):
 					if gr.role == 'owner' or gr.role == 'leader':
 						allowShare = True
 						break
-			
-			
+
+
 		except IntegrityError as e:
 			print(e)
-	
+
 	return allowShare
 
 
@@ -1361,26 +1371,26 @@ def share(owner, filename, tabs):
 
 	'''Check if logged in'''
 	if not session.get('USER') is None:
-		
+
 		user = session.get('USER')
-		
+
 		'''Check if transcript exists'''
 		transObj = Transcripts.query.filter_by(username=owner, name=filename).first()
 		if transObj:
 			'''Check if transcript is locked'''
 			if transObj.locked == 'N':
-				
-				
+
+
 				'''Check if user is given permission to share'''
 				allowedShare = checkSharing(filename, owner, user)
 				if allowedShare:
-				
+
 					'''Get list of users already shared'''
 					shared_usernames = []
 					shared_names = {}
 					try:
 						sharedObj = Shared_transcripts.query.filter_by(owner=owner, name=filename).all()
-						
+
 						for su in sharedObj:
 							shared_usernames.append(su.username)
 
@@ -1391,16 +1401,16 @@ def share(owner, filename, tabs):
 						print(e)
 
 					return render_template('share_transcript.html', title='Sharing transcript', owner=owner, filename=filename, shared_names=shared_names, shared_usernames=shared_usernames, tabs=tabs, navActive='transcripts')
-				
+
 				else:
 					flash('You are not authorised to share this transcript', 'danger')
 					return redirect(url_for('list_transcripts'))
-				
-				
+
+
 			else:
 				flash('Transcript is locked! Someone else is currently editing the document!', 'warning')
 				return redirect(url_for('list_transcripts'))
-			
+
 		else:
 			flash("Transcript does not exist", "danger")
 			return redirect(url_for('list_transcripts'))

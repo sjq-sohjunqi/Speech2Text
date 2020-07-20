@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-    test
-	<h1>Welcome to Speech2Text1</h1>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    Welcome to Speech2Text
+
+    <div class="card">
+        <img src="{{ url_for('transcribeB4') }}" alt="Card Back" style="width:100px; height:100px;">
+        <img src="{{ url_for('transcribeAF') }}" class="img-top" alt="Card Front" style="width:100px; height:100px>
+    </div>
+
 {% endblock %}
