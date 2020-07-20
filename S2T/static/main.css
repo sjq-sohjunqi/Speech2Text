@@ -1,3 +1,21 @@
+.index_func {
+	margin-right: 10px;
+	margin-left: 10px;
+	margin-bottom: 10px;
+	
+	cursor: pointer;
+}
+
+.index_func_group {
+	text-align: center; 
+	display: flex;
+	justify-content: center;
+	
+	flex-wrap: wrap;
+	height: 100vh;
+	padding-top: 25vh;
+}
+
 #menu_icon:hover {
 	opacity: 0.7;
 }
@@ -543,22 +561,35 @@ color:#000000;
 
     .icontitle{
         font-size: 20px;
-        font-family: Oxygen;
+        font-family: 'Oxygen', sans-serif;
 
     }
 
     .card .img-top {
-        display: none;
+        /* display: none; */
         position: absolute;
         top: 0;
         left: 0;
         z-index: 99;
+		
+		opacity: 0;
+		transition: opacity 0.1s;
+		
     }
-    .card:hover .img-top {
+    /* .card:hover .img-top {
         display: inline;
-
+		opacity: 100;
+    } */
+	
+	.index_func:hover .img-top {
+		display: inline;
+		opacity: 100;
+    }
+	
+	.index_func:hover .card {
+        box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
     }
 
-    .card:hover{
+    /* .card:hover{
          box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
-    }
+    } */

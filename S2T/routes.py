@@ -153,6 +153,8 @@ def login():
 
 					session['USER'] = userObj.username
 					session['NAME'] = userObj.name
+					
+					flash('Welcome to Speech2Text!', 'success');
 					return redirect(url_for('index'))
 
 				else:

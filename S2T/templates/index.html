@@ -3,87 +3,88 @@
 {% block content %}
 
 
-    <div id="no_side_centerised" class="col-md-3">
-    <div class="row">
-    <div>
-    <div class="card row">
-        <a href="{{ url_for('transcribe') }}" >
-            <img src="{{ url_for('transcribeB4') }}"  alt="" style="width:200px; height:200px;">
-            <img src="{{ url_for('transcribeAF') }}" class="img-top" alt="Card Front" style="width:200px; height:200px;">
-        </a>
-     </div>
-     <div class="row icontitle">
-     Transcribe
-        </div>
-    </div>
-    <div class="col-1"></div>
-
-      <div>
-     <div class="card row">
-        <a href="{{url_for('help')}}">
-        <img src="{{ url_for('helpB4') }}" alt="" style="width:200px; height:200px;">
-        <img src="{{ url_for('helpAF') }}" class="img-top" alt="Card Front" style="width:200px; height:200px;">
-        </a>
-    </div>
-    <div class="row icontitle">
-     Help!
-        </div>
-    </div>
-</div>
+    <!-- <div id="no_side_centerised" class="col-md-3"> -->
+	<div id="no_side_centerised" class="index_func_group">
+		<div class="index_func">
+			<div class="card">
+				<a href="{{ url_for('transcribe') }}" >
+				<img src="{{ url_for('transcribeB4') }}"  alt="" style="width:200px; height:200px;">
+				<img src="{{ url_for('transcribeAF') }}" class="img-top" alt="Card Front" style="width:200px; height:200px;">
+				</a>
+			</div>
+			
+			<div class="icontitle">
+				Transcribe
+			</div>
+		</div>
+	
     {% if session['USER'] %}
-    <div class="row">
-      <div>
-    <div class="card row">
-        <a href="{{ url_for('groups') }}">
-        <img src="{{ url_for('groupsB4') }}" alt="" style="width:200px; height:200px;">
-        <img src="{{ url_for('groupsAF') }}" class="img-top" alt="Card Front" style="width:200px; height:200px;">
-        </a>
-    </div>
-    <div class="row icontitle">
-     Groups
-        </div>
-    </div>
-    <div class="col-1"></div>
-      <div>
-     <div class="card row">
-        <a href="{{ url_for('list_transcripts') }}">
-        <img src="{{ url_for('transcriptsB4') }}" alt="" style="width:200px; height:200px;">
-        <img src="{{ url_for('transcriptsAF') }}" class="img-top" alt="Card Front" style="width:200px; height:200px;">
-        </a>
-    </div>
-    <div class="row icontitle">
-     Transcripts
-        </div>
-    </div>
-    </div>
+		<div class="index_func">
+			<div class="card">
+				<a href="{{ url_for('groups') }}">
+				<img src="{{ url_for('groupsB4') }}" alt="" style="width:200px; height:200px;">
+				<img src="{{ url_for('groupsAF') }}" class="img-top" alt="Card Front" style="width:200px; height:200px;">
+				</a>
+			
+			
+			</div>
+			<div class="icontitle">
+				Groups
+			</div>
+		</div>
+    
+		<div class="index_func">
+			<div class="card">
+				<a href="{{ url_for('list_transcripts') }}">
+				<img src="{{ url_for('transcriptsB4') }}" alt="" style="width:200px; height:200px;">
+				<img src="{{ url_for('transcriptsAF') }}" class="img-top" alt="Card Front" style="width:200px; height:200px;">
+				</a>
+			</div>
+			<div class="icontitle">
+			Transcripts
+			</div>
+		</div>
+		
     {% else %}
-    <div class="row">
-      <div>
-      <div class="card row">
-        <a href="{{ url_for('login') }}">
-        <img src="{{ url_for('loginB4') }}" alt="" style="width:200px; height:200px;">
-        <img src="{{ url_for('loginAF') }}" class="img-top" alt="Card Front" style="width:200px; height:200px;">
-        </a>
-    </div>
-    <div class="row icontitle">
-     Login
-        </div>
-    </div>
-    <div class="col-1"></div>
-      <div>
-     <div class="card row">
-        <a href="{{ url_for('signup') }}">
-        <img src="{{ url_for('regiB4') }}" alt="" style="width:200px; height:200px;">
-        <img src="{{ url_for('regiAF') }}" class="img-top" alt="Card Front" style="width:200px; height:200px;">
-        </a>
-    </div>
-    <div class="row icontitle">
-     Register
-        </div>
-    </div>
-</div>
+		<div class="index_func">
+			<div class="card">
+				<a href="{{ url_for('login') }}">
+				<img src="{{ url_for('loginB4') }}" alt="" style="width:200px; height:200px;">
+				<img src="{{ url_for('loginAF') }}" class="img-top" alt="Card Front" style="width:200px; height:200px;">
+				</a>
+			</div>
+			<div class="icontitle">
+				Login
+			</div>
+		</div>
+    
+	
+		<div class="index_func">
+			<div class="card">
+				<a href="{{ url_for('signup') }}">
+				<img src="{{ url_for('regiB4') }}" alt="" style="width:200px; height:200px;">
+				<img src="{{ url_for('regiAF') }}" class="img-top" alt="Card Front" style="width:200px; height:200px;">
+				</a>
+			</div>
+			<div class="icontitle">
+				Register
+			</div>
+		</div>
     {% endif %}
+	
+	
+	<div class="index_func">
+		<div class="card">
+			<a href="{{url_for('help')}}">
+				<img src="{{ url_for('helpB4') }}" alt="" style="width:200px; height:200px;">
+				<img src="{{ url_for('helpAF') }}" class="img-top" alt="Card Front" style="width:200px; height:200px;">
+			</a>
+		</div>
+		
+		<div class="icontitle">
+			Help!
+		</div>
+	</div>
 
-
-</div>
+	</div>
 {% endblock %}
