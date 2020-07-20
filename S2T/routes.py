@@ -211,6 +211,56 @@ def transcribeAF():
     filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
     return send_from_directory(filepath, 'transcribeAF.png')
 
+@S2T.route('/groupsB4', methods=['GET'])
+def groupsB4():
+    filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+    return send_from_directory(filepath, 'groupsB4.png')
+
+@S2T.route('/groupsAF', methods=['GET'])
+def groupsAF():
+    filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+    return send_from_directory(filepath, 'groupsAF.png')
+
+@S2T.route('/transcriptsB4', methods=['GET'])
+def transcriptsB4():
+    filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+    return send_from_directory(filepath, 'transcriptsB4.png')
+
+@S2T.route('/transcriptsAF', methods=['GET'])
+def transcriptsAF():
+    filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+    return send_from_directory(filepath, 'transcriptsAF.png')
+
+@S2T.route('/helpB4', methods=['GET'])
+def helpB4():
+    filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+    return send_from_directory(filepath, 'helpB4.png')
+
+@S2T.route('/helpAF', methods=['GET'])
+def helpAF():
+    filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+    return send_from_directory(filepath, 'helpAF.png')
+
+@S2T.route('/loginB4', methods=['GET'])
+def loginB4():
+    filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+    return send_from_directory(filepath, 'loginB4.png')
+
+@S2T.route('/loginAF', methods=['GET'])
+def loginAF():
+    filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+    return send_from_directory(filepath, 'loginAF.png')
+
+@S2T.route('/regiB4', methods=['GET'])
+def regiB4():
+    filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+    return send_from_directory(filepath, 'regiB4.png')
+
+@S2T.route('/regiAF', methods=['GET'])
+def regiAF():
+    filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
+    return send_from_directory(filepath, 'regiAF.png')
+
 @S2T.route('/load_icon', methods=['GET'])
 def load_icon():
 	filepath = os.path.join(S2T.root_path, S2T.config['ICONS_FOLDER'])
