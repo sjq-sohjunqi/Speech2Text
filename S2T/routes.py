@@ -1040,7 +1040,7 @@ def edit(owner, old_filename):
 
 				'''Update annotations (if any)'''
 				anyAnnotation = 'N'
-				filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], session.get('USER'), transcriptForm.data['name'], 'annotation')
+				filepath = os.path.join(S2T.root_path, S2T.config['STORAGE_FOLDER'], owner, transcriptForm.data['name'], 'annotation')
 
 				annotationText = transcriptForm.data['annotation']
 				if annotationText != '':
