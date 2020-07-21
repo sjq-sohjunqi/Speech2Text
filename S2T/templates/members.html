@@ -213,6 +213,7 @@ $(document).ready(function(){
             	if($(this).is(":checked")){
 
 					var clear_user = $(this).parents("tr").find(".editUName").attr("title");
+					alert(clear_user);
 					deleteMembers.push(clear_user);
 
 					$(this).parent().parent().remove();

@@ -378,8 +378,12 @@ def profile():
 				if file.filename == '':
 					flash('Error when changing profile picture','warning')
 					return redirect(url_for("profile"))
-
-				filename = secure_filename(file.filename)
+				
+				
+				'''Split filename and its extension'''
+				filename, file_extension = os.path.splitext(file.filename)
+				
+				filename = secure_filename('picture' + file_extension)
 				filepath = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'], user, filename)
 				filedir = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'], user)
 
@@ -387,7 +391,7 @@ def profile():
 					'''Remove previous file'''
 					oldImgName = userObj.image
 
-					if not oldImgName is None:
+					if not oldImgName is None and oldImgName != '':
 						oldfilepath = os.path.join(S2T.root_path, S2T.config['PROFILE_FOLDER'], user, oldImgName)
 						os.remove(oldfilepath)
 
@@ -399,7 +403,7 @@ def profile():
 
 					try:
 						'''Update database for image uploaded'''
-						userObj.image = file.filename
+						userObj.image = filename
 						db.session.add(userObj)
 						db.session.commit()
 
@@ -411,7 +415,8 @@ def profile():
 						print(e)
 						flash('A database error has occurred', "warning")
 
-				except:
+				except Exception as e:
+					print(e)
 					flash('Unable to upload image','warning')
 
 
