@@ -18,7 +18,7 @@ db = SQLAlchemy(S2T)
 bcrypt = Bcrypt(S2T)
 
 '''Change when in production'''
-S2T.config['SERVER_NAME'] = '127.0.0.1:5000'
+#S2T.config['SERVER_NAME'] = '127.0.0.1:5000'
 
 '''Temp folder for conversions'''
 S2T.config['TEMP_FOLDER'] = 'tran_temp'
