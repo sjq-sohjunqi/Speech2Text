@@ -1,1 +1,1 @@
-web: gunicorn S2T:S2T
+web: gunicorn -w 4 S2T:S2T
